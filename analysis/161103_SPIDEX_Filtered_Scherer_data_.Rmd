@@ -1,0 +1,107 @@
+---
+title: "Burden"
+output: html_document
+fontsize: 2pt
+---
+
+Use SPIDEX to predict how an SNV affects splicing
+Put SPIDEX the highest priority.
+Directly use ANNOVAR output to annotate syn and nonysno, without only using mutations that overlap with genes that are in the list of genes with synonymous mutation rates. 
+
+non ASD genes are the bottom 20%
+not plotting mutation is 5'UTR or 3'UTR
+
+Steven Scherer data
+```{r}
+getwd()
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+### read in coding tada data
+
+```{r,echo=FALSE}
+getwd()
+# need to set this direcoty to full direcoty of ASD/analysis
+coding_tada = read.delim("../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+coding_tada_denovo = data.frame(coding_tada$RefSeqName, coding_tada$TadaName, coding_tada$mut.rate, coding_tada$dn.LoF, coding_tada$dn.mis3, coding_tada$BF.SNV.dn, coding_tada$BF.combined, coding_tada$qvalue.combined)
+colnames(coding_tada_denovo) = c("RefSeqName", "TadaName", "mut.rate", "dn.LoF", "dn.mis3", "BF.SNV.dn", "BF.combined", "qvalue.combined")
+
+#read in workspace that has unique mutation information
+mutation = new.env()
+load("../data/161026_Filtered_Stephen_Scherer_Gemomic_Medicine_ASD_de_novo_SNVs_germline_with_NC_control_data_matrixtransformed_for_old_code.Rdata", envir = mutation)
+write.table(mutation$mutation[,1:4],"161026_filtered_stephen_scherer_data.bed",col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# load releant functions
+source("../lib/160930_screen_burden_functions_test_more_genelist_focused.R")
+
+```
+
+
+### get SPIDEX value ###
+```{r,cache=TRUE}
+SPIDEX = generate_spidex_score(mutation$mutation, mutation$ref_alt_allele)
+```
+
+### synonymous mutation number ins cases and controls
+```{r}
+mutation$syn_number_ASD
+mutation$syn_number_control
+length(mutation$ASD_effective_SNV_ID)
+length(mutation$control_effective_SNV_ID)
+
+```
+### potential for disrupting splicing, lower than 20%
+```{r}
+knitr::kable(show_burden_for_SPIDEX(quantile(SPIDEX$dpsi_zscore,seq(0,1,0.1),na.rm = TRUE)[1],quantile(SPIDEX$dpsi_zscore,seq(0,1,0.1),na.rm = TRUE)[3],syn_ASD = mutation$syn_number_ASD, syn_control = mutation$syn_number_control))
+```
+
+### lower than 10%
+```{r}
+knitr::kable(show_burden_for_SPIDEX(quantile(SPIDEX$dpsi_zscore,seq(0,1,0.1),na.rm = TRUE)[1],quantile(SPIDEX$dpsi_zscore,seq(0,1,0.1),na.rm = TRUE)[2],syn_ASD = mutation$syn_number_ASD, syn_control = mutation$syn_number_control))
+```
+
+```{r}
+knitr::kable(get_mutations_with_spidex2_geneset(SPIDEX, quantile(SPIDEX$dpsi_zscore,seq(0,1,0.1),na.rm = TRUE)[1],quantile(SPIDEX$dpsi_zscore,seq(0,1,0.1),na.rm = TRUE)[2], stringent_ASD),syn_ASD = mutation$syn_number_ASD, syn_control = mutation$syn_number_control)
+```
+
+### lower than 5 percent
+```{r}
+knitr::kable(show_burden_for_SPIDEX(quantile(SPIDEX$dpsi_zscore,seq(0,1,0.05),na.rm = TRUE)[1],quantile(SPIDEX$dpsi_zscore,seq(0,1,0.05),na.rm = TRUE)[2], syn_ASD = mutation$syn_number_ASD, syn_control = mutation$syn_number_control))
+```
+
+### lower than 2.5 percent
+```{r}
+knitr::kable(show_burden_for_SPIDEX(quantile(SPIDEX$dpsi_zscore,seq(0,1,0.025),na.rm = TRUE)[1],quantile(SPIDEX$dpsi_zscore,seq(0,1,0.025),na.rm = TRUE)[2], syn_ASD = mutation$syn_number_ASD, syn_control = mutation$syn_number_control))
+```
+
+
+### Middle 45% to 55%
+```{r}
+knitr::kable(show_burden_for_SPIDEX(quantile(SPIDEX$dpsi_zscore,seq(0,1,0.025),na.rm = TRUE)[19],quantile(SPIDEX$dpsi_zscore,seq(0,1,0.025),na.rm = TRUE)[23], syn_ASD = mutation$syn_number_ASD, syn_control = mutation$syn_number_control))
+```
+
+### Middle 40% to 60%
+```{r}
+knitr::kable(show_burden_for_SPIDEX(quantile(SPIDEX$dpsi_zscore,seq(0,1,0.025),na.rm = TRUE)[17],quantile(SPIDEX$dpsi_zscore,seq(0,1,0.025),na.rm = TRUE)[25], syn_ASD = mutation$syn_number_ASD, syn_control = mutation$syn_number_control))
+```
+
+
+### potential for disrupting splicing, higher than 80% 
+```{r}
+knitr::kable(show_burden_for_SPIDEX(quantile(SPIDEX$dpsi_zscore,seq(0,1,0.1),na.rm = TRUE)[9],quantile(SPIDEX$dpsi_zscore,seq(0,1,0.1),na.rm = TRUE)[11], syn_ASD = mutation$syn_number_ASD, syn_control = mutation$syn_number_control))
+```
+
+### higher than 90%
+```{r}
+knitr::kable(show_burden_for_SPIDEX(quantile(SPIDEX$dpsi_zscore,seq(0,1,0.1),na.rm = TRUE)[10],quantile(SPIDEX$dpsi_zscore,seq(0,1,0.1),na.rm = TRUE)[11], syn_ASD = mutation$syn_number_ASD, syn_control = mutation$syn_number_control))
+```
+
+### higher than 95%
+```{r}
+knitr::kable(show_burden_for_SPIDEX(quantile(SPIDEX$dpsi_zscore,seq(0,1,0.05),na.rm = TRUE)[20],quantile(SPIDEX$dpsi_zscore,seq(0,1,0.05),na.rm = TRUE)[21], syn_ASD = mutation$syn_number_ASD, syn_control = mutation$syn_number_control))
+```
+
+### higher than 97.5%
+```{r}
+knitr::kable(show_burden_for_SPIDEX(quantile(SPIDEX$dpsi_zscore,seq(0,1,0.025),na.rm = TRUE)[40],quantile(SPIDEX$dpsi_zscore,seq(0,1,0.025),na.rm = TRUE)[41], syn_ASD = mutation$syn_number_ASD, syn_control = mutation$syn_number_control))
+```
+

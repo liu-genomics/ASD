@@ -1,0 +1,149 @@
+---
+title: "Burden"
+output: pdf_document
+fontsize: 2pt
+---
+
+
+Partition enhancers based on distance to TSS based on strict overlap. 
+Basically, her pipeline takes intersections between enhancers and distance ranges, and remove bases of enhancers that are not overlapped. 
+### NOTICE
+
+
+```{r}
+getwd()
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
+### read in data with predicted mutation count and observed mutation count
+```{r,echo=FALSE}
+load("161120_mutation_rate_calibration_sum_per_gene_with_Noonan_brain_roadmap_union_1bp_overlap.Rdata")
+```
+
+### load in functions and datastes that make the functions work
+```{r,echo=FALSE}
+coding_tada = read.delim("../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+coding_tada_denovo = data.frame(coding_tada$RefSeqName, coding_tada$TadaName, coding_tada$mut.rate, coding_tada$dn.LoF, coding_tada$dn.mis3, coding_tada$BF.SNV.dn, coding_tada$BF.combined, coding_tada$qvalue.combined)
+colnames(coding_tada_denovo) = c("RefSeqName", "TadaName", "mut.rate", "dn.LoF", "dn.mis3", "BF.SNV.dn", "BF.combined", "qvalue.combined")
+
+#read in workspace that has unique mutation information
+mutation = new.env()
+load("../data/debug_region_list_073116_data_matrixtransformed_for_old_code.Rdata", envir = mutation)
+write.table(mutation$mutation[,1:4],"160229_data_for_analysis.bed",col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+# load releant functions
+source("../lib/160930_screen_burden_functions_test_more_genelist_focused.R")
+```
+
+### ASD manuscript data, stringent ASD genes
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate$coding[is.element(ASD_model_manuscript_mutrate$coding$genename, stringent_ASD),]$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate$coding[is.element(ASD_model_manuscript_mutrate$coding$genename, stringent_ASD),]$mut_count_sum)
+# strigent ASD genes
+
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### ASD manuscript data, relaxed ASD genes
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate$coding[is.element(ASD_model_manuscript_mutrate$coding$genename, relaxed_ASD),]$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate$coding[is.element(ASD_model_manuscript_mutrate$coding$genename, relaxed_ASD),]$mut_count_sum)
+# strigent ASD genes
+
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### control_model_693_mutrate data, stringent ASD genes
+```{r,echo=FALSE}
+predicted = sum(control_model_693_mutrate$coding[is.element(control_model_693_mutrate$coding$genename, stringent_ASD),]$adjusted_mutrate_sum)
+observed = sum(control_model_693_mutrate$coding[is.element(control_model_693_mutrate$coding$genename, stringent_ASD),]$mut_count_sum)
+# strigent ASD genes
+
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### control_model_693_mutrate, relaxed ASD genes
+```{r,echo=FALSE}
+predicted = sum(control_model_693_mutrate$coding[is.element(control_model_693_mutrate$coding$genename, relaxed_ASD),]$adjusted_mutrate_sum)
+observed = sum(control_model_693_mutrate$coding[is.element(control_model_693_mutrate$coding$genename, relaxed_ASD),]$mut_count_sum)
+# strigent ASD genes
+
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### control_model_258_mutrate data, stringent ASD genes
+```{r,echo=FALSE}
+predicted = sum(control_model_258_mutrate$coding[is.element(control_model_258_mutrate$coding$genename, stringent_ASD),]$adjusted_mutrate_sum)
+observed = sum(control_model_258_mutrate$coding[is.element(control_model_258_mutrate$coding$genename, stringent_ASD),]$mut_count_sum)
+# strigent ASD genes
+
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### control_model_258_mutrate, relaxed ASD genes
+```{r,echo=FALSE}
+predicted = sum(control_model_258_mutrate$coding[is.element(control_model_258_mutrate$coding$genename, relaxed_ASD),]$adjusted_mutrate_sum)
+observed = sum(control_model_258_mutrate$coding[is.element(control_model_258_mutrate$coding$genename, relaxed_ASD),]$mut_count_sum)
+# strigent ASD genes
+
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### ASD_model_Scherer_mutrate data, stringent ASD genes
+```{r,echo=FALSE}
+predicted = sum(ASD_model_Scherer_mutrate$coding[is.element(ASD_model_Scherer_mutrate$coding$genename, stringent_ASD),]$adjusted_mutrate_sum)
+observed = sum(ASD_model_Scherer_mutrate$coding[is.element(ASD_model_Scherer_mutrate$coding$genename, stringent_ASD),]$mut_count_sum)
+# strigent ASD genes
+
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### ASD_model_Scherer_mutrate, relaxed ASD genes
+```{r,echo=FALSE}
+predicted = sum(ASD_model_Scherer_mutrate$coding[is.element(ASD_model_Scherer_mutrate$coding$genename, relaxed_ASD),]$adjusted_mutrate_sum)
+observed = sum(ASD_model_Scherer_mutrate$coding[is.element(ASD_model_Scherer_mutrate$coding$genename, relaxed_ASD),]$mut_count_sum)
+# strigent ASD genes
+
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+

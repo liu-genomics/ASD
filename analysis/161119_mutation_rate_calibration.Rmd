@@ -1,0 +1,32 @@
+---
+title: "Untitled"
+author: "Yuwen"
+date: "November 20, 2016"
+output: pdf_document
+---
+
+Study the effect of promoter, coding, and cg content on mutation rate. 
+```{r}
+load("../analysis/161119_mutation_rate_calibration_new.Rdata")
+```
+
+
+# 258 control
+```{r}
+summary(control_model_258)
+```
+
+# manuscript cases
+```{r}
+summary(ASD_model_manuscript)
+```
+
+# manusript control
+```{r}
+summary(control_model_693)
+```
+
+# scherer cases, partly overlapped with manuscript cases
+```{r}
+summary(ASD_model_Scherer)
+```

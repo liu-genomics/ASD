@@ -1,0 +1,112 @@
+---
+title: "Burden"
+output: html_document
+fontsize: 2pt
+---
+
+Use a newly calculated set of motif change scores to define motif SNVs, but only focusing on motifs that more relevant
+Here motifs are defined as relevant if they are 1) in top 50% brain expressed genes, and 2) are enriched in at least one gain-enriched brain module
+Partition enhancers based on distance to TSS based on Yanyu's pipeline. 
+Basically, her pipeline takes intersections between enhancers and distance ranges, and remove bases of enhancers that are not overlap. 
+### NOTICE
+will decompose NP geneset into different sets. Only look at the union of 0-10kb, 10kb-20kb, and promoter
+
+```{r}
+getwd()
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+### read in coding tada data
+
+```{r,echo=FALSE}
+getwd()
+# need to set this direcoty to full direcoty of ASD/analysis
+coding_tada = read.delim("../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+coding_tada_denovo = data.frame(coding_tada$RefSeqName, coding_tada$TadaName, coding_tada$mut.rate, coding_tada$dn.LoF, coding_tada$dn.mis3, coding_tada$BF.SNV.dn, coding_tada$BF.combined, coding_tada$qvalue.combined)
+colnames(coding_tada_denovo) = c("RefSeqName", "TadaName", "mut.rate", "dn.LoF", "dn.mis3", "BF.SNV.dn", "BF.combined", "qvalue.combined")
+
+#read in workspace that has unique mutation information
+mutation = new.env()
+load("../data/debug_region_list_073116_data_matrixtransformed_for_old_code.Rdata", envir = mutation)
+write.table(mutation$mutation[,1:4],"160229_data_for_analysis.bed",col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+# load releant functions
+source("../lib/160930_screen_burden_functions_test_more_genelist_focused.R")
+
+```
+
+
+
+
+###Noonan enhancers
+```{r}
+temp1 = generate_mut_enhancer_pair_for_burden_analysis("160229_data_for_analysis.bed","../other_annotation/epigenomic_annotation/Noonan_brain_union.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed")
+temp2 = generate_mut_enhancer_pair_for_burden_analysis("160229_data_for_analysis.bed","../other_annotation/epigenomic_annotation/Noonan_brain_union.yanyu_pipeline_enhancers.10000_to_20000.bp_within_TSS.bed")
+temp3 = generate_mut_enhancer_pair_for_burden_analysis("160229_data_for_analysis.bed","../other_annotation/epigenomic_annotation/Noonan_brain_union.promoter_1kb_genename.bed")
+
+temp = do.call("rbind",list(temp1,temp2,temp3))
+temp = temp[!duplicated(temp),]
+
+knitr::kable(show_burden_for_selected_features_with_geneset(temp,input_type = "table",ref = "self", geneset = stringent_ASD),digit = c(rep(2,5),5,5,5), col.names = table_colname)
+
+knitr::kable(show_burden_for_selected_features_with_geneset(temp,input_type = "table",ref = "self", geneset = ID_genes),digit = c(rep(2,5),5,5,5), col.names = table_colname)
+
+knitr::kable(show_burden_for_selected_features_with_geneset(temp,input_type = "table",ref = "self", geneset = SCZ_composite),digit = c(rep(2,5),5,5,5), col.names = table_colname)
+
+knitr::kable(show_burden_for_selected_features_with_geneset(temp,input_type = "table",ref = "self", geneset = relaxed_ASD),digit = c(rep(2,5),5,5,5), col.names = table_colname)
+
+
+```
+
+###DHS
+```{r}
+temp1 = generate_mut_enhancer_pair_for_burden_analysis("160229_data_for_analysis.bed","../other_annotation/epigenomic_annotation/Encode_DHS_union.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed")
+temp2 = generate_mut_enhancer_pair_for_burden_analysis("160229_data_for_analysis.bed","../other_annotation/epigenomic_annotation/Encode_DHS_union.yanyu_pipeline_enhancers.10000_to_20000.bp_within_TSS.bed")
+temp3 = generate_mut_enhancer_pair_for_burden_analysis("160229_data_for_analysis.bed","../other_annotation/epigenomic_annotation/Encode_DHS_union.promoter_1kb_genename.bed")
+
+temp = do.call("rbind",list(temp1,temp2,temp3))
+temp = temp[!duplicated(temp),]
+
+knitr::kable(show_burden_for_selected_features_with_geneset(temp,input_type = "table",ref = "self", geneset = stringent_ASD),digit = c(rep(2,5),5,5,5), col.names = table_colname)
+
+knitr::kable(show_burden_for_selected_features_with_geneset(temp,input_type = "table",ref = "self", geneset = ID_genes),digit = c(rep(2,5),5,5,5), col.names = table_colname)
+
+knitr::kable(show_burden_for_selected_features_with_geneset(temp,input_type = "table",ref = "self", geneset = SCZ_composite),digit = c(rep(2,5),5,5,5), col.names = table_colname)
+
+
+```
+
+
+###Brain roadmap
+```{r}
+temp1 = generate_mut_enhancer_pair_for_burden_analysis("160229_data_for_analysis.bed","../other_annotation/epigenomic_annotation/Brain_roadmap_union.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed")
+temp2 = generate_mut_enhancer_pair_for_burden_analysis("160229_data_for_analysis.bed","../other_annotation/epigenomic_annotation/Brain_roadmap_union.yanyu_pipeline_enhancers.10000_to_20000.bp_within_TSS.bed")
+temp3 = generate_mut_enhancer_pair_for_burden_analysis("160229_data_for_analysis.bed","../other_annotation/epigenomic_annotation/Brain_roadmap_union.promoter_1kb_genename.bed")
+
+temp = do.call("rbind",list(temp1,temp2,temp3))
+temp = temp[!duplicated(temp),]
+
+knitr::kable(show_burden_for_selected_features_with_geneset(temp,input_type = "table",ref = "self", geneset = stringent_ASD),digit = c(rep(2,5),5,5,5), col.names = table_colname)
+
+knitr::kable(show_burden_for_selected_features_with_geneset(temp,input_type = "table",ref = "self", geneset = ID_genes),digit = c(rep(2,5),5,5,5), col.names = table_colname)
+
+knitr::kable(show_burden_for_selected_features_with_geneset(temp,input_type = "table",ref = "self", geneset = SCZ_composite),digit = c(rep(2,5),5,5,5), col.names = table_colname)
+
+
+```
+
+###Brain roadmap + Noonan Union  + NP genes as control
+```{r}
+temp1 = generate_mut_enhancer_pair_for_burden_analysis("160229_data_for_analysis.bed","../other_annotation/epigenomic_annotation/Brain_roadmap_union.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed")
+temp2 = generate_mut_enhancer_pair_for_burden_analysis("160229_data_for_analysis.bed","../other_annotation/epigenomic_annotation/Brain_roadmap_union.yanyu_pipeline_enhancers.10000_to_20000.bp_within_TSS.bed")
+temp3 = generate_mut_enhancer_pair_for_burden_analysis("160229_data_for_analysis.bed","../other_annotation/epigenomic_annotation/Brain_roadmap_union.promoter_1kb_genename.bed")
+temp4 = generate_mut_enhancer_pair_for_burden_analysis("160229_data_for_analysis.bed","../other_annotation/epigenomic_annotation/Noonan_brain_union.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed")
+temp5 = generate_mut_enhancer_pair_for_burden_analysis("160229_data_for_analysis.bed","../other_annotation/epigenomic_annotation/Noonan_brain_union.yanyu_pipeline_enhancers.10000_to_20000.bp_within_TSS.bed")
+temp6 = generate_mut_enhancer_pair_for_burden_analysis("160229_data_for_analysis.bed","../other_annotation/epigenomic_annotation/Noonan_brain_union.promoter_1kb_genename.bed")
+temp = do.call("rbind",list(temp1,temp2,temp3,temp4,temp5,temp6))
+temp = temp[!duplicated(temp),]
+
+knitr::kable(show_burden_for_selected_features_with_geneset(temp,input_type = "table",ref = "self", geneset = relaxed_ASD),digit = c(rep(2,5),5,5,5), col.names = table_colname)
+
+
+
+```
+

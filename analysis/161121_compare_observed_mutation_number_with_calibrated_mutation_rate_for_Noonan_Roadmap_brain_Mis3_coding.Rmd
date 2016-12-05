@@ -1,0 +1,136 @@
+---
+title: "Burden"
+output: pdf_document
+fontsize: 2pt
+---
+
+
+Partition enhancers based on distance to TSS based on strict overlap. 
+Basically, her pipeline takes intersections between enhancers and distance ranges, and remove bases of enhancers that are not overlapped. 
+### NOTICE
+
+
+```{r}
+getwd()
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
+### read in data with predicted mutation count and observed mutation count
+```{r,echo=FALSE}
+load("161120_mutation_rate_calibration_sum_per_gene_with_Noonan_brain_roadmap_union_1bp_overlap.Rdata")
+```
+
+### load in functions and datastes that make the functions work
+```{r,echo=FALSE}
+coding_tada = read.delim("../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+coding_tada_denovo = data.frame(coding_tada$RefSeqName, coding_tada$TadaName, coding_tada$mut.rate, coding_tada$dn.LoF, coding_tada$dn.mis3, coding_tada$BF.SNV.dn, coding_tada$BF.combined, coding_tada$qvalue.combined)
+colnames(coding_tada_denovo) = c("RefSeqName", "TadaName", "mut.rate", "dn.LoF", "dn.mis3", "BF.SNV.dn", "BF.combined", "qvalue.combined")
+
+#read in workspace that has unique mutation information
+mutation = new.env()
+load("/media/yuwen/F/ASD/160229_new_control_integrating_all_data/160229_all_data_burden_analysis_v2.Rdata", envir = mutation)
+
+#unique mutation information
+unique_mut_ID = seq(1:length(mutation$mutation[,1]))
+unique_mut_ID = unique_mut_ID[mutation$unique_dummy ==1]
+
+#flagged patients information  , remove patients with more than 140 de novo mutations
+
+individual_mut_ID = seq(1:length(mutation$mutation[,1]))
+individual_mut_ID = individual_mut_ID[mutation$individual_dummy_140 ==1]
+
+#flag indels that are in repeat regions
+
+nonrepeat_mut_indel_ID = seq(1:length(mutation$mutation[,1]))
+nonrepeat_mut_indel_ID = nonrepeat_mut_indel_ID[mutation$repeat_dummy != 1 & mutation$mutation$mut_type != "SNV"]
+
+SNV_ID = mutation$mutation[mutation$mutation$mut_type == "SNV",]$index
+
+ASD_effective_SNV_ID = mutation$mutation[mutation$mutation$mut_type == "SNV" & 
+                                           mutation$mutation$phenotype == "ASD" &
+                                           mutation$unique_dummy ==1 & 
+                                           mutation$individual_dummy_140 ==1,]$index
+control_effective_SNV_ID = mutation$mutation[mutation$mutation$mut_type == "SNV" & 
+                                           mutation$mutation$phenotype != "ASD" &
+                                           mutation$unique_dummy ==1 & 
+                                           mutation$individual_dummy_140 ==1,]$index
+
+indel_ID = mutation$mutation[mutation$mutation$mut_type != "SNV",]$index
+ASD_effective_indel = mutation$mutation[mutation$mutation$mut_type != "SNV" &
+                             mutation$unique_dummy ==1
+                             & mutation$mutation$phenotype == "ASD"
+                             & mutation$individual_dummy_140 ==1 
+                             & mutation$repeat_dummy != 1,]$index
+control_effective_indel = mutation$mutation[mutation$mutation$mut_type != "SNV" &
+                                          mutation$unique_dummy ==1
+                                          & mutation$mutation$phenotype != "ASD"
+                                        & mutation$individual_dummy_140 ==1 
+                                        & mutation$repeat_dummy != 1,]$index
+
+effective_WGS_mis3_ASD = mutation$WGS_mis3_ASD[is.element(mutation$WGS_mis3_ASD$index,ASD_effective_SNV_ID),]
+effective_WGS_mis3_control = mutation$WGS_mis3_control[is.element(mutation$WGS_mis3_control$index,control_effective_SNV_ID),]
+
+source("../lib/160930_screen_burden_functions_test_more_genelist_focused.R")
+
+```
+
+
+Set the scaling factor for nonysn to 0.32 for now (which is actually used for Polyphen-2 Mis3 rate)
+
+### ASD manuscript data, stringent ASD genes
+```{r,echo=FALSE}
+rate = 0.32
+predicted = sum(ASD_model_manuscript_mutrate$coding[is.element(ASD_model_manuscript_mutrate$coding$genename, stringent_ASD),]$adjusted_mutrate_sum)*rate
+observed = length(unique(effective_WGS_mis3_ASD[is.element(effective_WGS_mis3_ASD$gene, stringent_ASD),]$index))
+# strigent ASD genes
+
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### ASD manuscript data, relaxed ASD genes
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate$coding[is.element(ASD_model_manuscript_mutrate$coding$genename, relaxed_ASD),]$adjusted_mutrate_sum)*rate
+observed = length(unique(effective_WGS_mis3_ASD[is.element(effective_WGS_mis3_ASD$gene, relaxed_ASD),]$index))
+# strigent ASD genes
+
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### control_model_693_mutrate data, stringent ASD genes
+```{r,echo=FALSE}
+predicted = sum(control_model_693_mutrate$coding[is.element(control_model_693_mutrate$coding$genename, stringent_ASD),]$adjusted_mutrate_sum)*rate
+observed = length(unique(effective_WGS_mis3_control[is.element(effective_WGS_mis3_control$gene, stringent_ASD),]$index))
+# strigent ASD genes
+
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### control_model_693_mutrate, relaxed ASD genes
+```{r,echo=FALSE}
+predicted = sum(control_model_693_mutrate$coding[is.element(control_model_693_mutrate$coding$genename, relaxed_ASD),]$adjusted_mutrate_sum)*rate
+observed = length(unique(effective_WGS_mis3_control[is.element(effective_WGS_mis3_control$gene, relaxed_ASD),]$index))
+# strigent ASD genes
+
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+

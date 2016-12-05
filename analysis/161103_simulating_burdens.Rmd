@@ -1,0 +1,316 @@
+---
+title: "simulation of regulatory SNVs"
+output: html_document
+---
+
+
+```{r,cache=TRUE,echo=FALSE}
+setwd("/media/yuwen/F/ASD/160229_new_control_integrating_all_data/systematic_study_burden_bug_fixed/burden_from_ASD_only_by_simulations/")
+
+#read in mutation information
+source("../160229_screen_burden.R")
+
+setwd("../TADA/10kb_enhancers_promoter_utr5_motif_Noonan_roadmap_brain_k27ac/")
+
+#all SNV mutation overlap relevant genomic annotation table
+all_genes_10kb_de_mutation = read.table("noonan_plus_roadmap_brain_covered_promoter_utr5_10000_enhancers_overlap_mutation.txt", header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+
+#get ASD effective mutation
+all_genes_10kb_de_mutation_ASD = all_genes_10kb_de_mutation[is.element(all_genes_10kb_de_mutation[,1],ASD_effective_SNV_ID),]
+#get ASD effective mutations that are in motif
+
+
+#get control effective mutation
+all_genes_10kb_de_mutation_control = all_genes_10kb_de_mutation[is.element(all_genes_10kb_de_mutation[,1],control_effective_SNV_ID),]
+#get control effective mutations that are in motif
+
+
+#get mutation rate
+all_genes_10kb_de_mutation_rate_SNV = read.table("total_mutation_rate_Daly_per_gene.mutrate", header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+#all_genes_10kb_de_mutation_rate_indel = data.frame(all_genes_10kb_de_mutation_rate_SNV[,1], 0.1108841*all_genes_10kb_de_mutation_rate_SNV[,2])
+
+#count each type of mutation for each gene
+#consider genes with promote/utr or enhancers covered by k27ac
+
+genes_with_10kb_de_k27ac = data.frame(genename = all_genes_10kb_de_mutation_rate_SNV[,1], SNV_count = 0, indel_count = 0 )
+
+for(i in 1:length(all_genes_10kb_de_mutation_rate_SNV[,1])){
+  genes_with_10kb_de_k27ac[i,1] = all_genes_10kb_de_mutation_rate_SNV[i,1]
+  genes_with_10kb_de_k27ac[i,2] = length(all_genes_10kb_de_mutation_ASD[all_genes_10kb_de_mutation_ASD[,2] == all_genes_10kb_de_mutation_rate_SNV[i,1],1])
+}
+
+genes_with_10kb_de_k27ac_control = data.frame(genename = all_genes_10kb_de_mutation_rate_SNV[,1], SNV_count = 0, indel_count = 0 )
+
+for(i in 1:length(all_genes_10kb_de_mutation_rate_SNV[,1])){
+  genes_with_10kb_de_k27ac_control[i,1] = all_genes_10kb_de_mutation_rate_SNV[i,1]
+  genes_with_10kb_de_k27ac_control[i,2] = length(all_genes_10kb_de_mutation_control[all_genes_10kb_de_mutation_control[,2] == all_genes_10kb_de_mutation_rate_SNV[i,1],1])
+}
+
+#only consider k27ac motif for ASD
+genes_with_10kb_de_k27ac_motif = data.frame(genename = all_genes_10kb_de_mutation_rate_SNV[,1], SNV_count = 0, indel_count = 0 )
+motif_index = mutation$mutation[mutation$jaspar_2014_motif_q0.1_dummy == 1,]$index
+
+for(i in 1:length(all_genes_10kb_de_mutation_rate_SNV[,1])){
+  genes_with_10kb_de_k27ac_motif[i,1] = all_genes_10kb_de_mutation_rate_SNV[i,1]
+  genes_with_10kb_de_k27ac_motif[i,2] = length(all_genes_10kb_de_mutation_ASD[all_genes_10kb_de_mutation_ASD[,2] == all_genes_10kb_de_mutation_rate_SNV[i,1]
+                                                                              & is.element(all_genes_10kb_de_mutation_ASD[,1],motif_index),1])
+}
+
+
+```
+
+### simulation based on smapling mutations
+
+```{r,echo=FALSE}
+source("../../systematic_study_burden_bug_fixed/160310_screen_burden_functions_test_more_genelist_focused.R")
+
+get_number <- function(x){length(x[x>0])}
+
+sim_mutation_in_geneset <- function(mutrate, geneset, sim_times = 100, observed, total_mut){
+  temp = rmultinom(sim_times,total_mut, mutrate[,2]/sum(mutrate[,2]))
+  rownames(temp) = mutrate[,1]
+  temp = temp[is.element(rownames(temp),geneset),]
+  sum = apply(temp, 2, sum)
+  pvalue = length(sum[sum>=observed])/sim_times
+  list(pvalue = pvalue, observed_mutations = observed, ave_mutations_in_genesets = mean(sum))
+}
+```
+
+
+```{r, cache=TRUE, dependson=sim_mutation_in_geneset}
+set.seed(123)
+#stringent ASD
+sim_mutation_in_geneset(all_genes_10kb_de_mutation_rate_SNV, stringent_ASD, 10000, 16, 408)
+# putative ASD
+sim_mutation_in_geneset(all_genes_10kb_de_mutation_rate_SNV, relaxed_ASD, 10000, 103, 408)
+#constrained/haploinsufficient
+sim_mutation_in_geneset(all_genes_10kb_de_mutation_rate_SNV, constraint_union, 10000, 69, 408)
+
+```
+
+
+###simulation based on sampling genes with similar mutation rates
+```{r,echo=FALSE}
+mut_bin_k27ac = all_genes_10kb_de_mutation_rate_SNV[order(all_genes_10kb_de_mutation_rate_SNV[,2],decreasing = FALSE),]
+colnames(mut_bin_k27ac) = c("gene","mutrate")
+gene_with_k27ac_mut = genes_with_10kb_de_k27ac[genes_with_10kb_de_k27ac$SNV_count>=1,]$genename
+
+sample_gene_based_on_mutrate_generate_table <- function(mut_bin, bin_number = 10){
+  bin_index = c(rep((1:bin_number),each = floor(length(mut_bin[,1])/bin_number)),rep(bin_number, length(mut_bin[,1])-floor(length(mut_bin[,1])/bin_number)*bin_number))
+  bin_with_mut = data.frame(mut_bin, bin_index = bin_index)
+  bin_with_mut
+}
+
+
+
+# generate randome genes matching mutation rates of selected genes, rep_number is for each gene in the selected gene sets, how many times random drawing is performed
+generate_random_genes<-function(genes, mut_bin, mutation_gene, bin_number = 10, rep_number = 100){
+bin_with_mut = sample_gene_based_on_mutrate_generate_table(mut_bin, bin_number)
+
+sample_gene_based_on_mutrate_for_each_gene <- function(gene){
+  #only works for genes that are in bin_with_mut, genes are the gene list, gene is one of the gene in the list
+  bin_index_for_gene = bin_with_mut[bin_with_mut$gene == gene,]$bin_index
+  temp = bin_with_mut[bin_with_mut$bin_index == bin_index_for_gene & !is.element(bin_with_mut$gene, genes), ]
+  random_gene = sample(temp$gene, rep_number, replace = TRUE)
+  random_gene
+}
+genes = intersect(genes, bin_with_mut$gene)
+gene_table = apply(data.frame(genes), 1,sample_gene_based_on_mutrate_for_each_gene)
+overlap_length = apply(gene_table, 1, function(x){length(x[is.element(x,mutation_gene)])})# for each round of simulation, don't collapse redundant genes simulated by two different genes, in order to prevent bias brought by large geneset enriched in one mutation rate level. 
+observed_overlap = length(intersect(genes, mutation_gene))
+pvalue = length(overlap_length[overlap_length>=observed_overlap])/length(overlap_length)
+list(pvalue = pvalue, observed_mutated_genes = observed_overlap, ave_mutated_genes = mean(overlap_length))
+}
+
+generate_random_genes_2<-function(genes, mut_bin, mutation_gene, bin_number = 10, rep_number = 100){
+bin_with_mut = sample_gene_based_on_mutrate_generate_table(mut_bin, bin_number)
+sample_gene_based_on_mutrate_for_each_gene_2 <- function(gene){
+  #only works for genes that are in bin_with_mut, genes are the gene list, gene is one of the gene in the list
+  bin_index_for_gene = bin_with_mut[bin_with_mut$gene == gene,]$bin_index
+  temp = bin_with_mut[bin_with_mut$bin_index == bin_index_for_gene, ] # allow to sample genes in the interesed geneset
+  random_gene = sample(temp$gene, rep_number, replace = TRUE)
+  random_gene
+}
+genes = intersect(genes, bin_with_mut$gene)
+gene_table = apply(data.frame(genes), 1,sample_gene_based_on_mutrate_for_each_gene_2)
+overlap_length = apply(gene_table, 1, function(x){length(intersect(x,mutation_gene))})# for each round of simulation, don't collapse redundant genes simulated by two different genes, in order to prevent bias brought by large geneset enriched in one mutation rate level. 
+observed_overlap = length(intersect(genes, mutation_gene))
+pvalue = length(overlap_length[overlap_length>=observed_overlap])/length(overlap_length)
+list(pvalue = pvalue, observed_mutated_genes = observed_overlap, ave_mutated_genes = mean(overlap_length))
+}
+
+#function to calculate burden for a given gene list
+burden_for_geneset <- function(genes, mode = "SNV"){
+  if(mode == "SNV"){
+    ASD = length(all_genes_10kb_de_mutation_ASD[is.element(all_genes_10kb_de_mutation_ASD[,2],genes),1])
+    control = length(all_genes_10kb_de_mutation_control[is.element(all_genes_10kb_de_mutation_control[,2],genes),1])
+  }
+  else if (mode == "motif"){
+    ASD = length(all_genes_10kb_de_mutation_ASD[is.element(all_genes_10kb_de_mutation_ASD[,2],genes) & mutation$jaspar_2014_motif_q0.1_dummy[all_genes_10kb_de_mutation_ASD[,1]] == 1,1])
+    control = length(all_genes_10kb_de_mutation_control[is.element(all_genes_10kb_de_mutation_control[,2],genes) & mutation$jaspar_2014_motif_q0.1_dummy[all_genes_10kb_de_mutation_control[,1]] == 1,1])
+  }
+  (ASD/length(ASD_effective_SNV_ID))/(control/length(control_effective_SNV_ID))
+}
+
+# select genes with similar mutation rate and hen calculate burden 
+generate_random_genes_3<-function(genes, mut_bin, mutation_gene, bin_number = 10, rep_number = 100, mode = "SNV"){
+  bin_with_mut = sample_gene_based_on_mutrate_generate_table(mut_bin, bin_number)
+  sample_gene_based_on_mutrate_for_each_gene_3 <- function(gene){
+    #only works for genes that are in bin_with_mut, genes are the gene list, gene is one of the gene in the list
+    bin_index_for_gene = bin_with_mut[bin_with_mut$gene == gene,]$bin_index
+    temp = bin_with_mut[bin_with_mut$bin_index == bin_index_for_gene, ] # allow to sample genes in the interesed geneset
+    random_gene = sample(temp$gene, rep_number, replace = TRUE)
+    random_gene
+}
+  genes = intersect(genes, bin_with_mut$gene)
+  gene_table = apply(data.frame(genes), 1,sample_gene_based_on_mutrate_for_each_gene_3)
+  burden_result = as.vector(apply(gene_table, 1, burden_for_geneset, mode = mode))# for each round of simulation, don't collapse   redundant genes simulated by two different genes, in order to prevent bias brought by large geneset enriched in one mutation rate level. 
+  observed = burden_for_geneset(genes,mode = mode)
+  pvalue = length(burden_result[burden_result>observed])/length(burden_result)
+  list(pvalue = pvalue, observed_burden = observed/0.76, ave_burden = mean(burden_result[!is.infinite(burden_result)],na.rm = TRUE)/0.76)
+}
+
+# resample genes with similar mutation rates to one gene set, and generate a null distribution of the number of mutations across interations
+generate_random_genes_4<-function(genes, mut_bin, mutation_gene_table, bin_number = 10, rep_number = 100){
+  #mutation_gene_table could be genes_with_10kb_de_k27ac, in which genes_with_10kb_de_k27ac$genename is a gene name, genes_with_10kb_de_k27ac$SNV_count is the SNV count
+bin_with_mut = sample_gene_based_on_mutrate_generate_table(mut_bin, bin_number)
+sample_gene_based_on_mutrate_for_each_gene_4 <- function(gene){
+  #only works for genes that are in bin_with_mut, genes are the gene list, gene is one of the gene in the list
+  bin_index_for_gene = bin_with_mut[bin_with_mut$gene == gene,]$bin_index
+  temp = bin_with_mut[bin_with_mut$bin_index == bin_index_for_gene, ] # allow to sample genes in the interesed geneset
+  random_gene = sample(temp$gene, rep_number, replace = TRUE)
+  random_gene
+}
+genes = intersect(genes, bin_with_mut$gene)
+gene_table = apply(data.frame(genes), 1,sample_gene_based_on_mutrate_for_each_gene_4)
+overlap_length = apply(gene_table, 1, function(x){sum(mutation_gene_table[is.element(mutation_gene_table$genename, x),]$SNV_count)})# for each round of simulation, don't collapse redundant genes simulated by two different genes, in order to prevent bias brought by large geneset enriched in one mutation rate level. 
+observed_overlap = sum(mutation_gene_table[is.element(mutation_gene_table$genename, genes),]$SNV_count)
+pvalue = length(overlap_length[overlap_length>=observed_overlap])/length(overlap_length)
+list(pvalue = pvalue, observed_mutations = observed_overlap, ave_mutations = mean(overlap_length))
+}
+
+```
+
+
+```{r, cache = TRUE, dependson= generate_random_genes_2}
+set.seed(456)
+#strigent_ASD
+generate_random_genes_2(stringent_ASD, mut_bin_k27ac, gene_with_k27ac_mut,bin_number = 100, 10000)
+#putative_ASD
+generate_random_genes_2(relaxed_ASD, mut_bin_k27ac, gene_with_k27ac_mut,100, 10000)
+#constrained/haploinsufficient genes
+generate_random_genes_2(constraint_union, mut_bin_k27ac, gene_with_k27ac_mut,100, 10000)
+
+```
+
+### calculate burden using both ASD and control mutations, generate random genes with a same mutation rate
+
+```{r,cache=TRUE, dependson=generate_random_genes_3}
+generate_random_genes_3(stringent_ASD, mut_bin_k27ac, gene_with_k27ac_mut,bin_number = 100, 10000)
+generate_random_genes_3(relaxed_ASD, mut_bin_k27ac, gene_with_k27ac_mut,bin_number = 100, 10000)
+generate_random_genes_3(constraint_union, mut_bin_k27ac, gene_with_k27ac_mut,bin_number = 100, 10000)
+```
+
+### calculate burden using both *MOTIF* ASD and control mutations, generate random genes with a same mutation rate
+```{r,cache=TRUE, dependson=generate_random_genes_3}
+generate_random_genes_3(stringent_ASD, mut_bin_k27ac, gene_with_k27ac_mut,bin_number = 100, 10000,mode = "motif")
+generate_random_genes_3(relaxed_ASD, mut_bin_k27ac, gene_with_k27ac_mut,bin_number = 100, 10000, mode = "motif")
+generate_random_genes_3(constraint_union, mut_bin_k27ac, gene_with_k27ac_mut,bin_number = 100, 10000, mode = "motif")
+```
+
+### simulation based on mutation rate for motif SNVs, assume equal motif rates across genes
+
+```{r, cache=TRUE, dependson=sim_mutation_in_geneset}
+#stringent ASD motif
+sim_mutation_in_geneset(all_genes_10kb_de_mutation_rate_SNV, stringent_ASD, 10000, 3, 72)
+# putative ASD motif
+sim_mutation_in_geneset(all_genes_10kb_de_mutation_rate_SNV, relaxed_ASD, 10000, 17, 72)
+#constrained/haploinsufficient motif
+sim_mutation_in_geneset(all_genes_10kb_de_mutation_rate_SNV, constraint_union, 10000, 16, 72)
+
+```
+
+### sample genes, simulation based on mutation rate, assume equal motif rates across genes
+```{r, cache = TRUE, dependson= generate_random_genes_2}
+motif_index = mutation$mutation[mutation$jaspar_2014_motif_q0.1_dummy == 1,]$index
+gene_with_k27ac_mut_motif = all_genes_10kb_de_mutation_ASD[is.element(all_genes_10kb_de_mutation_ASD[,1],motif_index),2]
+#strigent_ASD
+a = generate_random_genes_2(stringent_ASD, mut_bin_k27ac, gene_with_k27ac_mut_motif,bin_number = 100, 10000)
+#putative_ASD
+b = generate_random_genes_2(relaxed_ASD, mut_bin_k27ac, gene_with_k27ac_mut_motif,100, 10000)
+#constrained/haploinsufficient genes
+c = generate_random_genes_2(constraint_union, mut_bin_k27ac, gene_with_k27ac_mut_motif,100, 10000)
+knitr::kable(rbind(a,b,c))
+```
+
+### resample motif mutations, assuming equal relative relative mutation rates for genes
+```{r, cache=TRUE, dependson=sim_mutation_in_geneset}
+#stringent ASD
+sim_mutation_in_geneset(all_genes_10kb_de_mutation_rate_SNV, stringent_ASD, 10000, 3, 72)
+# putative ASD
+sim_mutation_in_geneset(all_genes_10kb_de_mutation_rate_SNV, relaxed_ASD, 10000, 17, 72)
+#constrained/haploinsufficient
+sim_mutation_in_geneset(all_genes_10kb_de_mutation_rate_SNV, constraint_union, 10000, 16, 72)
+
+```
+
+### resample genes with similar mutation rates, and see how many ASD mutations are in the resampled gene sets across iterations
+
+```{r, cache = TRUE, dependson= generate_random_genes_4}
+#motif_index = mutation$mutation[mutation$jaspar_2014_motif_q0.1_dummy == 1,]$index
+#gene_with_k27ac_mut_motif = all_genes_10kb_de_mutation_ASD[is.element(all_genes_10kb_de_mutation_ASD[,1],motif_index),2]
+#strigent_ASD
+a = generate_random_genes_4(stringent_ASD, mut_bin_k27ac, genes_with_10kb_de_k27ac,bin_number = 100, 10000)
+#putative_ASD
+b = generate_random_genes_4(relaxed_ASD, mut_bin_k27ac, genes_with_10kb_de_k27ac,100, 10000)
+#constrained/haploinsufficient genes
+c = generate_random_genes_4(constraint_union, mut_bin_k27ac, genes_with_10kb_de_k27ac,100, 10000)
+knitr::kable(rbind(a,b,c))
+```
+
+### resample genes with similar mutation rates, and see how many ASD motif mutations are in the resampled gene sets across iterations
+
+```{r, cache = TRUE, dependson= generate_random_genes_4}
+#motif_index = mutation$mutation[mutation$jaspar_2014_motif_q0.1_dummy == 1,]$index
+#gene_with_k27ac_mut_motif = all_genes_10kb_de_mutation_ASD[is.element(all_genes_10kb_de_mutation_ASD[,1],motif_index),2]
+#strigent_ASD
+a = generate_random_genes_4(stringent_ASD, mut_bin_k27ac, genes_with_10kb_de_k27ac_motif,bin_number = 100, 10000)
+#putative_ASD
+b = generate_random_genes_4(relaxed_ASD, mut_bin_k27ac, genes_with_10kb_de_k27ac_motif,100, 10000)
+#constrained/haploinsufficient genes
+c = generate_random_genes_4(constraint_union, mut_bin_k27ac, genes_with_10kb_de_k27ac_motif,100, 10000)
+knitr::kable(rbind(a,b,c))
+```
+
+### Now overide the definition of motif SNVs by the following criterion
+motif SNVs are defined as SNVs that have the difference of motif score change in the top 5% range of the motif score change distributon across all SNVs.
+
+```{r}
+new_motif = new.env()
+load("../intermediate_result.Rdata",envir = new_motif)
+cutoff = quantile(new_motif$info$delta, seq(0,1,0.05),na.rm = TRUE)
+mutation$jaspar_2014_motif_q0.1_dummy = as.numeric(!is.na(new_motif$info$delta) & (new_motif$info$delta <= cutoff[2] | new_motif$info$delta >= cutoff[20]))
+```
+
+
+### calculate burden using both *MOTIF* ASD and control mutations, generate random genes with a same mutation rate
+```{r,cache=TRUE, dependson=generate_random_genes_3,dependson=mutation$jaspar_2014_motif_q0.1_dummy}
+a = generate_random_genes_3(stringent_ASD, mut_bin_k27ac, gene_with_k27ac_mut,bin_number = 100, 1000,mode = "motif")
+b = generate_random_genes_3(relaxed_ASD, mut_bin_k27ac, gene_with_k27ac_mut,bin_number = 100, 1000, mode = "motif")
+c = generate_random_genes_3(constraint_union, mut_bin_k27ac, gene_with_k27ac_mut,bin_number = 100, 1000, mode = "motif")
+knitr::kable(rbind(a,b,c))
+```
+
+
+### sample genes, simulation based on mutation rate
+```{r, cache = TRUE, dependson=generate_random_genes_2,dependson=mutation$jaspar_2014_motif_q0.1_dummy,echo=FALSE}
+motif_index = mutation$mutation[mutation$jaspar_2014_motif_q0.1_dummy == 1,]$index
+gene_with_k27ac_mut_motif = all_genes_10kb_de_mutation_ASD[is.element(all_genes_10kb_de_mutation_ASD[,1],motif_index),2]
+#strigent_ASD
+a = generate_random_genes_2(stringent_ASD, mut_bin_k27ac, gene_with_k27ac_mut_motif,bin_number = 100, 1000)
+#putative_ASD
+b = generate_random_genes_2(relaxed_ASD, mut_bin_k27ac, gene_with_k27ac_mut_motif,100, 1000)
+#constrained/haploinsufficient genes
+c = generate_random_genes_2(constraint_union, mut_bin_k27ac, gene_with_k27ac_mut_motif,100, 1000)
+knitr::kable(rbind(a,b,c))
+```
