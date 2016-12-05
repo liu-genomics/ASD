@@ -1,0 +1,2 @@
+# transform the new data to have annotations in old format≈
+Rscript ../lib/160923_interface.R ../data/0703_region_list_080216_data_matrix SNV 0.9 /media/yuwen/Elements/ANNOVAR/annovar/
