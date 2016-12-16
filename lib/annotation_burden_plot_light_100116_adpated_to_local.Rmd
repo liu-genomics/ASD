@@ -1,0 +1,216 @@
+# Brain Roadmap (adult) and Noonan (fetal) data
+
+```{r}
+# mydata <- params$data
+```
+
+
+```{r plot, echo=FALSE}
+### input data
+load(mydata)
+###
+
+## environment
+# main_folder <- Sys.getenv("NEW_DATA_FOLDER")
+# setwd(paste(main_folder, 'data', sep = ''))
+# source('../lib/pipline_lib.R')
+# source('../lib/script_lib_new.R')
+## 
+
+main_folder <- "/media/yuwen/F/ASD/data/"
+setwd(main_folder)
+source('../lib/pipline_lib.R')
+source('../lib/script_lib_new.R')
+       
+       
+#### name of beds, scores, regulatory regions
+bed_map <- list()
+bed_map[['Noonan_union.bed']] <- 'Noonan'
+bed_map[['brain_roadmap_union.bed']] <- 'Roadmap'
+bed_map[['Noonan_brain_roadmap_union.bed']] <- 'Noonan_Roadmap_Union'
+bed_map[['encode_DHS_union.bed']] <- 'DHS'
+bed_map[['fantom_fetal_brain_extend_500.bed']] <- 'Fantom'
+bed_map[['Noonan_brain_roadmap_intersect.bed']] <- 'Noonan_Roadmap_Intersect'
+bed_map[['whole_genome.bed']] <- 'Whole Genome'
+
+score_map <- list()
+score_map[['GERP']] <- 'GERP'
+score_map[['Eigen']] <- 'Eigen'
+score_map[['CADD13_RawScore']] <- 'CADD'
+score_map[['phyloP46wayAllElements']] <- 'PhyloP'
+score_map[['CADD13_PHRED']] <- 'CADD'
+score_map['Noonan_brain_motif_top50pct_expressed_motif.txt.ref_alt.3.m.pvalue'] <- 'Motif_noonan_50'
+score_map[['JASPAR_CORE_2014_vertebrates.whole_motif_list.txt.ref_alt.3.m.pvalue']] <- 'Motif_all'
+score_map[['Noonan_brain_motif.txt.ref_alt.3.m.pvalue']] <- 'Motif_noonan_all'
+score_map[['Noonan_brain_motif_top25pct_expressed_motif.txt.ref_alt.3.m.pvalue']] <- 'Motif_noonan_25'
+
+region_map <- list()
+region_map[['nc___refseq_id_3utr_pair']] <- '3\'UTR'
+region_map[['nc___refseq_id_5utr_pair']] <- '5\'UTR'
+region_map[['nc___refseq_id_promoter_1kb']] <- 'Promoter'
+region_map[['nc_cleaned_refseq_id_3utr_pair']] <- '3\'UTR (Cleaned)'
+region_map[['nc_cleaned_refseq_id_5utr_pair']] <- '5\'UTR (Cleaned)'
+region_map[['nc_cleaned_refseq_id_promoter_1kb']] <- 'Promoter (Cleaned)'
+region_map[['nc_promoter_3utr']] <- 'Promoter & 3\'UTR'
+region_map[['nc_5utr_3utr']] <- '3\'UTR & 5\'UTR'
+region_map[['nc_promoter_5utr']] <- 'Promoter & 5\'UTR'
+region_map[['enhancer__0__10000__']] <- 'Enhancer 0-10kb'
+region_map[['enhancer__10000__20000__']] <- 'Enhancer 10-20kb'
+#####
+
+plot_table <- c()
+
+
+for(regulatroy_region in names(summary_return)){
+        print(regulatroy_region)
+        tmp <- summary_return[[regulatroy_region]]
+        if(length(tmp) == 0){
+                next
+        }
+        per_region <- c()
+        for(bed in names(tmp)){
+                print(bed)
+                bed_tmp <- tmp[[bed]]
+                bed_tmp <- as.data.frame(bed_tmp)
+                bed_tmp[['bed']] <- rep(bed_map[[bed]], nrow(bed_tmp))
+                per_region <- rbind(per_region, bed_tmp)
+        }
+        per_region[['region_tag']] <- rep(region_map[[regulatroy_region]], nrow(per_region))
+        plot_table <- rbind(plot_table, per_region)
+}
+```
+
+### Burden with Cutoffs
+
+```{r plot_noonan_roadmap, fig.width=6, fig.height=4, echo=FALSE}
+plot_table_sub <- plot_table # [groups[['Noonan_and_brain_roadmap']], ]
+
+### change the order of beds and regulatory regions
+plot_table_sub$bed <- factor(plot_table_sub$bed, levels = c('Fantom', 'Noonan_Roadmap_Intersect', 'Roadmap', 'Noonan_Roadmap_Union', 'Noonan', 'DHS', 'Whole Genome'))
+plot_table_sub$region_tag <- factor(plot_table_sub$region_tag, levels = c('Promoter & 3\'UTR', '3\'UTR & 5\'UTR', 'Promoter & 5\'UTR', 'Promoter', '5\'UTR', '3\'UTR', 'Promoter (Cleaned)', '5\'UTR (Cleaned)', '3\'UTR (Cleaned)', 'UTR', 'Enhancer 0-10kb', 'Enhancer 10-20kb'))
+###
+
+torder <- order(plot_table_sub$gene_list)
+plot_table_sub <- plot_table_sub[torder,]
+torder <- order(plot_table_sub$score)
+plot_table_sub <- plot_table_sub[torder,]
+torder <- order(plot_table_sub$cutoff)
+plot_table_sub <- plot_table_sub[torder,]
+torder <- order(plot_table_sub$bed)
+plot_table_sub <- plot_table_sub[torder,]
+torder <- order(plot_table_sub$region_tag)
+plot_table_sub <- plot_table_sub[torder,]
+
+### filter out some unwanted regions and beds
+plot_table_sub <- plot_table_sub[plot_table_sub$region_tag != '5\'UTR (Cleaned)', ]
+plot_table_sub <- plot_table_sub[plot_table_sub$region_tag != '3\'UTR (Cleaned)', ]
+plot_table_sub <- plot_table_sub[plot_table_sub$region_tag != 'Promoter (Cleaned)', ]
+plot_table_sub <- plot_table_sub[plot_table_sub$region_tag != 'Promoter & 3\'UTR', ]
+plot_table_sub <- plot_table_sub[plot_table_sub$region_tag != '3\'UTR & 5\'UTR', ]
+plot_table_sub <- plot_table_sub[plot_table_sub$region_tag != 'Promoter & 5\'UTR', ]
+plot_table_sub <- plot_table_sub[plot_table_sub$bed != 'Noonan_Roadmap_Intersect', ]
+plot_table_sub <- plot_table_sub[plot_table_sub$bed != 'Noonan_Roadmap_Union', ]
+plot_table_sub <- plot_table_sub[plot_table_sub$gene_list != 'relaxed_ASD', ]
+plot_table_sub <- plot_table_sub[plot_table_sub$gene_list != 'SCZ_composite', ]
+###
+
+
+### for each score, plot the heat map
+for(sc in unique(plot_table_sub$score)){
+        sub_sum <- plot_table_sub[plot_table_sub$score == sc, ]
+        for(i in unique(sub_sum$cutoff)){
+                sub_sum_tmp <- sub_sum[sub_sum$cutoff == i, ]
+                p <- ggplot(sub_sum_tmp) + geom_tile(aes(x = as.factor(bed), y = as.factor(region_tag), fill = (as.numeric(as.character(asd_sub)) + 10) / (as.numeric(as.character(control_sub)) + 10))) + scale_fill_gradient2(midpoint = 1, na.value = 'black', limits = c(0, 2))
+                p <- p + facet_grid(. ~ gene_list)
+                newdat <- ggplot_build(p)$data[[1]] 
+                x <- (newdat$xmin + newdat$xmax) / 2
+                y <- (newdat$ymin + newdat$ymax) / 2
+                deltax <- (newdat$xmax[1] - newdat$xmin[1]) / 2
+                deltay <- (newdat$ymax[1] - newdat$ymin[1]) / 2
+                p <- p + geom_text(aes(x, y, label=paste(asd_sub, control_sub, round(as.numeric(as.character(burden)), digits = 2), pvalue, sep = '\n')), col="red", size = 2)
+                tmp <- sub_sum_tmp
+                t <- order(tmp$bed)
+                tmp <- tmp[t, ]
+                t <- order(tmp$region_tag)
+                tmp <- tmp[t, ]
+                t <- order(tmp$gene_list)
+                tmp <- tmp[t, ]
+                ps <- as.numeric(as.character(tmp$pvalue))
+                t1 <- ps <= 0.05
+                t3 <- ps > 0.05 & ps <= 0.1
+                t2 <- ps > 0.1
+                ps[t1] <- 1.5
+                ps[t2] <- 0
+                ps[t3] <- 0.5
+                p <- p + geom_rect(aes(xmin = x - deltax, xmax = x + deltax, ymin = y - deltay, ymax = y + deltay),
+                                   fill = "transparent", color = "red", size = ps)
+                if(sub_sum_tmp[1, 'score'] == 'all'){
+                        strings <- 'No Cutoff'
+                }else{
+                        strings <- paste(score_map[[as.character(sub_sum_tmp[1, 'score'])]], as.character(sub_sum_tmp[1, 'cutoff']), sep = ' > ')
+                }
+                #                 for(i in 1 : length(x)){
+                #                         xi <- x[i]
+                #                         yi <- y[i]
+                #                         pi <- ps[i]
+                #                         
+                #                         if(pi <= 0.05){
+                #                                 print(c(pi,xi,yi))
+                #                                 p <- p + geom_rect(aes(xmin = as.factor(xi - deltax), xmax = as.factor(xi + deltax), ymin = as.factor(yi - deltay), ymax = as.factor(yi + deltay)),
+                #                fill = "transparent", color = "red", size = 1.5)
+                #                         }
+                #                 }
+                p <- p + ggtitle(strings) + 
+                        labs(x="Experimental Data",y="Regulatory Region", fill = 'Burden Trend') + 
+                        theme(plot.title = element_text(face="bold", size=20)) +
+                        theme(axis.title = element_text(face="bold", size=15)) +
+                        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+                print(p)
+                # line <- readline()
+        }
+}
+###
+```
+
+
+
+
+```{r plot_dhs, fig.width=8, fig.height=4, echo=FALSE}
+### extract and plot NP_gene result in GERP > 2 and CADD > 10
+strings <- 'Neuropsychiatric Mutations'
+sub <- plot_table_sub[((plot_table_sub$score == 'GERP' & plot_table_sub$cutoff == 2) | plot_table_sub$score == 'all' | (plot_table_sub$score == 'CADD13_PHRED' & plot_table_sub$cutoff == 10)) & plot_table_sub$gene_list == 'NP_gene', ]
+sub$score <- as.character(sub$score)
+sub$score[sub$score == 'GERP'] <- 'GERP > 2'
+sub$score[sub$score == 'CADD13_PHRED'] <- 'CADD > 10'
+p <- ggplot(sub) + geom_tile(aes(x = as.factor(bed), y = as.factor(region_tag), fill = (as.numeric(as.character(asd_sub)) + 10) / (as.numeric(as.character(control_sub)) + 10))) + scale_fill_gradient2(midpoint = 1, na.value = 'black', limits = c(0, 2))
+p <- p + facet_grid(. ~ score)
+p <- p + ggtitle(strings) + 
+        labs(x="Experimental Data",y="Regulatory Region", fill = 'Burden Trend') + 
+        theme(plot.title = element_text(face="bold", size=20)) +
+        theme(axis.title = element_text(face="bold", size=15)) +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+newdat <- ggplot_build(p)$data[[1]] 
+x <- (newdat$xmin + newdat$xmax) / 2
+y <- (newdat$ymin + newdat$ymax) / 2
+deltax <- (newdat$xmax[1] - newdat$xmin[1]) / 2
+deltay <- (newdat$ymax[1] - newdat$ymin[1]) / 2
+p <- p + geom_text(aes(x, y, label=paste(asd_sub, control_sub, round(as.numeric(as.character(burden)), digits = 2), pvalue, sep = '\n')), col="red", size = 2)
+tmp <- sub
+t <- order(tmp$bed)
+tmp <- tmp[t, ]
+t <- order(tmp$region_tag)
+tmp <- tmp[t, ]
+t <- order(tmp$score)
+tmp <- tmp[t, ]
+ps <- as.numeric(as.character(tmp$pvalue))
+t1 <- ps <= 0.05
+t3 <- ps > 0.05 & ps <= 0.1
+t2 <- ps > 0.1
+ps[t1] <- 1.5
+ps[t2] <- 0
+ps[t3] <- 0.5
+p <- p + geom_rect(aes(xmin = x - deltax, xmax = x + deltax, ymin = y - deltay, ymax = y + deltay), fill = "transparent", color = "red", size = ps)
+p
+### 
+```
+
