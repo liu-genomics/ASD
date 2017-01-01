@@ -9,13 +9,13 @@
 
 # The aim is to prepare data for using GLM Pisson model to calibrate mutation rates
 # The coding region now is all ref-seq exons (including those with a gene name and those without, subtracted any part that overlaps with promoters)
-bedtools subtract -a ../other_annotation/refseq/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb.bed -b ../other_annotation/refseq/refseq_id_3_UTR_list.txt > ../other_annotation/refseq/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb_3UTR.bed
+ # bedtools subtract -a ../other_annotation/refseq/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb.bed -b ../other_annotation/refseq/refseq_id_3_UTR_list.txt > ../other_annotation/refseq/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb_3UTR.bed
 
-bedtools subtract -a ../other_annotation/refseq/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb_3UTR.bed -b ../other_annotation/refseq/refseq_id_5utr_pair_table.txt > ../other_annotation/refseq/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb_3UTR_5UTR.bed
+# bedtools subtract -a ../other_annotation/refseq/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb_3UTR.bed -b ../other_annotation/refseq/refseq_id_5utr_pair_table.txt > ../other_annotation/refseq/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb_3UTR_5UTR.bed
 
-Rscript ../lib/link_refid_genename_for_regular_bed.R ../other_annotation/refseq/ref_id_to_genename_table.txt \ 
-../other_annotation/refseq/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb_3UTR_5UTR.bed 
-\../other_annotation/refseq/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb_3UTR_5UTR_removing_na_gene.bed
+#Rscript ../lib/link_refid_genename_for_regular_bed.R ../other_annotation/refseq/ref_id_to_genename_table.txt \ 
+# ../other_annotation/refseq/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb_3UTR_5UTR.bed 
+#\../other_annotation/refseq/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb_3UTR_5UTR_removing_na_gene.bed
 
 sort -k1,1 -k2,2n ../other_annotation/refseq/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb_3UTR_5UTR_removing_na_gene.bed > \
 ../other_annotation/refseq/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb_3UTR_5UTR_removing_na_gene_temp1.bed
@@ -24,7 +24,7 @@ bedtools merge -i ../other_annotation/refseq/refseq_id_exons_genomic_coordiantes
 ../other_annotation/refseq/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb_3UTR_5UTR_removing_na_gene_temp2.bed
 
 #also need to remove sequences from unassembled chromatin structure
-bedtools makewindows -w 50 -b ../other_annotation/refseq/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb_3UTR_5UTR_removing_na_gene_temp2.bed | grep -v _ |awk {'print $1"\t"$2"\t"$3"\tcoding"NR'} > ../other_annotation/refseq/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb_3UTR_5UTR_removing_na_gene.bed.50bp_window.bed
+bedtools makewindows -w 1 -b ../other_annotation/refseq/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb_3UTR_5UTR_removing_na_gene_temp2.bed | grep -v _ |awk {'print $1"\t"$2"\t"$3"\tcoding"NR'} > ../other_annotation/refseq/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb_3UTR_5UTR_removing_na_gene.bed.1bp_window.bed
 
 bedtools getfasta -tab -name -bed \
 ../other_annotation/refseq/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb_3UTR_5UTR_removing_na_gene.bed.50bp_window.bed \
