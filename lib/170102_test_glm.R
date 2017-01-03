@@ -38,8 +38,10 @@ sim_table <- function(sample_size = 2e8){
 
 
 
-data <- sim_table(3e8)
+sample_size <- 3e8
+data <- sim_table(sample_size)
 
 running_time <- system.time(data.fit <- glm(count~ ep1 + ep2 + ep3 + ep4 + ep5 + annotation1 + annotation2, data = data, family = c("poisson")))
+
 rm(data.fit)
 save.image("../analysis/170102_simulate_3e8_data_points_for_5_binary_2_continuous_for_GLM.Rdata")
