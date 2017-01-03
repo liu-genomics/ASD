@@ -37,13 +37,22 @@ sim_table <- function(sample_size = 2e8){
 }
 
 
+## a function to simulate mutations for each gene based on the prior probability of this gene being a risk gene
+sim_table_risk_nonrisk <- function(sample_size_per_gene = 100, ){
+  #[sample_size_per_gene] is the number of bases under consideraton for each gene, 15000 for each gene if the summation over all genes expected to be about 3e8
+  
+  
+  # predictors are 5 binary variables and 2 continous variables
+  predictors <- data.frame(ep1 <-rbinom(sample_size,1,rep(0.05,sample_size)),
+                           ep2 <-rbinom(sample_size,1,rep(0.05,sample_size)),
+                           ep3 <-rbinom(sample_size,1,rep(0.05,sample_size)),
+                           ep4 <-rbinom(sample_size,1,rep(0.05,sample_size)),
+                           ep5 <-rbinom(sample_size,1,rep(0.05,sample_size)),
+                           annotation1 <- rnorm(sample_size),
+                           annotation2 <- rnorm(sample_size)
+  )
+  colnames(predictors) <- c("ep1","ep2","ep3","ep4","ep5","annotation1","annotation2")
+  predictors$count <- rpois(sample_size,exp(as.matrix(predictors)%*%c(2,0.5,0.7,1.4,0,0.2,0.5)))
+  predictors
+}
 
-sample_size <- 3e8
-data <- sim_table(sample_size)
-
-write.table("data_finished","../analysis/170102_data_finished_temp.txt")
-
-running_time <- system.time(data.fit <- glm(count~ ep1 + ep2 + ep3 + ep4 + ep5 + annotation1 + annotation2, data = data, family = c("poisson")))
-
-rm(data.fit)
-save.image("../analysis/170102_simulate_3e8_data_points_for_5_binary_2_continuous_for_GLM.Rdata")
