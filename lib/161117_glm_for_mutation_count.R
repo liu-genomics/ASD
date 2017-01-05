@@ -650,7 +650,7 @@ verified_effect_size_estimate_noncoding_mutations_v2 <- function(mut_file, windo
     mle = optim(rep(0.1, num_addition_par), fr,control=list("fnscale"=-1), hessian = TRUE)
   }
   system(paste("rm ", prefix, "_temp*", sep = ""))
-  list(mle = mle, regression_coef = summary(out.offset))
+  list(mle = mle, regression_coef = summary(out.offset)$coefficients)
 }
 
 
