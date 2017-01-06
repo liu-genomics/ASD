@@ -7,11 +7,28 @@ bedtools merge -i ../other_annotation/epigenomic_annotation/Whole_genome.yanyu_p
 
 bedtools makewindows -b ../other_annotation/epigenomic_annotation/Whole_genome.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed.temp2 -w 1 |awk {'print $1"\t"$2"\t"$3"\tnf"NR'} > ../other_annotation/epigenomic_annotation/Whole_genome.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed.1bp_window.bed
 
-# To calculate local CG, will use ../other_annotation/epigenomic_annotation/Whole_genome.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed.50bp_window.bed.fasta
+# move files to a bigger repository
 
-# nohup bedtools getfasta -tab -name -fi ../other_annotation/genome_build/hg19.fasta -bed ../other_annotation/epigenomic_annotation/Whole_genome.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed.50bp_window.bed -fo ../other_annotation/epigenomic_annotation/Whole_genome.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed.50bp_window.bed.fasta &
+mkdir -p /media/yuwen/Elements/ASD_temp_storage/
 
-# nohup Rscript ../lib/161117_calculate_cg.R ../other_annotation/epigenomic_annotation/Whole_genome.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed.50bp_window.bed.fasta  &
+mv ../other_annotation/epigenomic_annotation/Whole_genome.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed.1bp_window.bed /media/yuwen/Elements/ASD_temp_storage/
+
+nohup awk {'print $1"\t"$2-25"\t"$3+25"\t"$4'} /media/yuwen/Elements/ASD_temp_storage/Whole_genome.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed.1bp_window.bed > \ 
+/media/yuwen/Elements/ASD_temp_storage/Whole_genome.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed.1bp_window.bed_50bp_surrounding.bed &
+
+
+nohup bedtools getfasta -tab -name -fi ../other_annotation/genome_build/hg19.fasta -bed /media/yuwen/Elements/ASD_temp_storage/Whole_genome.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed.1bp_window.bed_50bp_surrounding.bed -fo /media/yuwen/Elements/ASD_temp_storage/Whole_genome.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed.1bp_window.bed_50bp_surrounding.bed.fasta &
+
+nohup split -d -l 10000000 /media/yuwen/Elements/ASD_temp_storage/Whole_genome.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed.1bp_window.bed_50bp_surrounding.bed.fasta Whole_genome.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed.1bp_window.bed_50bp_surrounding.bed.fasta.split &
+
+nohup sh -c 'for i in /media/yuwen/Elements/ASD_temp_storage/Whole_genome.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed.1bp_window.bed_50bp_surrounding.bed.fasta.split*; do Rscript ../lib/161230_calculate_cg_parallele_version.R $i 6; done' &
+
+
+cat /media/yuwen/Elements/ASD_temp_storage/Whole_genome.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed.1bp_window.bed_50bp_surrounding.bed.fasta.split*cg \
+> /media/yuwen/Elements/ASD_temp_storage/Whole_genome.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed.1bp_window.bed_50bp_surrounding.bed.fasta.cg
+
+rm /media/yuwen/Elements/ASD_temp_storage/Whole_genome.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed.1bp_window.bed_50bp_surrounding.bed.fasta.split*
+
 
 rm ../other_annotation/epigenomic_annotation/Whole_genome.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed.temp*
 
@@ -23,15 +40,18 @@ bedtools merge -i ../other_annotation/epigenomic_annotation/Whole_genome.promote
 
 bedtools makewindows -b ../other_annotation/epigenomic_annotation/Whole_genome.promoter_1kb_genename.bed.temp2 -w 1 |awk {'print $1"\t"$2"\t"$3"\tpromoter"NR'} > ../other_annotation/epigenomic_annotation/Whole_genome.promoter_1kb_genename.bed.1bp_window.bed
 
+mv ../other_annotation/epigenomic_annotation/Whole_genome.promoter_1kb_genename.bed.1bp_window.bed /media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_1kb_genename.bed.1bp_window.bed
 
-# To calculate local CG, will use ../other_annotation/epigenomic_annotation/Whole_genome.promoter_1kb_genename.bed.50bp_window.bed.fasta
+nohup awk {'print $1"\t"$2-25"\t"$3+25"\t"$4'} /media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_1kb_genename.bed.1bp_window.bed > /media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_1kb_genename.bed.1bp_window.bed_50bp_surrounding.bed & 
 
 
-# nohup bedtools getfasta -tab -name -fi ../other_annotation/genome_build/hg19.fasta -bed ../other_annotation/epigenomic_annotation/Whole_genome.promoter_1kb_genename.bed.50bp_window.bed -fo ../other_annotation/epigenomic_annotation/Whole_genome.promoter_1kb_genename.bed.50bp_window.bed.fasta &
 
-# nohup Rscript ../lib/161117_calculate_cg.R ../other_annotation/epigenomic_annotation/Whole_genome.promoter_1kb_genename.bed.50bp_window.bed.fasta  &
+nohup bedtools getfasta -tab -name -fi ../other_annotation/genome_build/hg19.fasta -bed /media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_1kb_genename.bed.1bp_window.bed_50bp_surrounding.bed -fo /media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_1kb_genename.bed.1bp_window.bed_50bp_surrounding.bed.fasta &
+
+nohup Rscript ../lib/161230_calculate_cg_parallele_version.R /media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_1kb_genename.bed.1bp_window.bed_50bp_surrounding.bed.fasta 5 &
 
 rm ../other_annotation/epigenomic_annotation/Whole_genome.promoter_1kb_genename.bed.temp*
+
 
 # then coding regions. 
 

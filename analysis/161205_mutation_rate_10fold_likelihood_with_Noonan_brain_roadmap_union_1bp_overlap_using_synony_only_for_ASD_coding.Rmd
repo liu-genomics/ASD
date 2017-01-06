@@ -1,0 +1,103 @@
+---
+output: html_document
+---
+
+
+```{r}
+library(ggplot2)
+getwd()
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
+
+```{r,echo=FALSE}
+load("../analysis/161205_mutation_rate_10fold_likelihood_with_Noonan_brain_roadmap_union_1bp_overlap_using_synony_only_for_ASD_coding.Rdata")
+
+```
+
+### manuscript ASD data
+```{r,echo=FALSE}
+data = data.frame(log_likelihood = c(ASD_model_manuscript_loglikelihood[,1],ASD_model_manuscript_loglikelihood[,2]), model = c(rep("adjusted_model",nrow(ASD_model_manuscript_loglikelihood)),rep("trinucleotide_model",nrow(ASD_model_manuscript_loglikelihood))))
+p = ggplot(data, aes(factor(model), log_likelihood))
+p+geom_boxplot()+theme_classic()+theme(axis.text.x = element_text(size =10, color = "black"), axis.text.y = element_text(size =10, color = "black"))+xlab("Model")+ylab("Log-likelihood")+ggtitle("ASD manuscript data")
+wilcox.test(ASD_model_manuscript_loglikelihood[,1],ASD_model_manuscript_loglikelihood[,2],paired = TRUE)
+ASD_model_manuscript_loglikelihood
+sum(ASD_model_manuscript_loglikelihood[,1] > ASD_model_manuscript_loglikelihood[,2])
+```
+
+### manuscript control data
+```{r,echo=FALSE}
+data = data.frame(log_likelihood = c(control_model_693_loglikelihood[,1],control_model_693_loglikelihood[,2]), model = c(rep("adjusted_model",nrow(control_model_693_loglikelihood)),rep("trinucleotide_model",nrow(control_model_693_loglikelihood))))
+p = ggplot(data, aes(factor(model), log_likelihood))
+p+geom_boxplot()+theme_classic()+theme(axis.text.x = element_text(size =10, color = "black"), axis.text.y = element_text(size =10, color = "black"))+xlab("Model")+ylab("Log-likelihood")+ggtitle("Control manuscript data")
+wilcox.test(control_model_693_loglikelihood[,1],control_model_693_loglikelihood[,2],paired = TRUE)
+control_model_693_loglikelihood
+sum(control_model_693_loglikelihood[,1] > control_model_693_loglikelihood[,2])
+
+```
+
+### Scherer ASD data
+```{r,echo=FALSE}
+data = data.frame(log_likelihood = c(ASD_model_Scherer_loglikelihood[,1],ASD_model_Scherer_loglikelihood[,2]), model = c(rep("adjusted_model",nrow(ASD_model_Scherer_loglikelihood)),rep("trinucleotide_model",nrow(ASD_model_Scherer_loglikelihood))))
+p = ggplot(data, aes(factor(model), log_likelihood))
+p+geom_boxplot()+theme_classic()+theme(axis.text.x = element_text(size =10, color = "black"), axis.text.y = element_text(size =10, color = "black"))+xlab("Model")+ylab("Log-likelihood")+ggtitle("Scherer ASD data")
+wilcox.test(ASD_model_Scherer_loglikelihood[,1],ASD_model_Scherer_loglikelihood[,2],paired = TRUE)
+ASD_model_Scherer_loglikelihood
+sum(ASD_model_Scherer_loglikelihood[,1] > ASD_model_Scherer_loglikelihood[,2])
+
+```
+
+### Control 258 data
+```{r,echo=FALSE}
+data = data.frame(log_likelihood = c(control_model_258_loglikelihood[,1],control_model_258_loglikelihood[,2]), model = c(rep("adjusted_model",nrow(control_model_258_loglikelihood)),rep("trinucleotide_model",nrow(control_model_258_loglikelihood))))
+p = ggplot(data, aes(factor(model), log_likelihood))
+p+geom_boxplot()+theme_classic()+theme(axis.text.x = element_text(size =10, color = "black"), axis.text.y = element_text(size =10, color = "black"))+xlab("Model")+ylab("Log-likelihood")+ggtitle("258 control data")
+wilcox.test(control_model_258_loglikelihood[,1],control_model_258_loglikelihood[,2],paired = TRUE)
+control_model_258_loglikelihood
+sum(control_model_258_loglikelihood[,1] > control_model_258_loglikelihood[,2])
+```
+
+### boxplot of difference of test
+```{r,echo=FALSE,fig.width=6, fig.height=6,eval=FALSE}
+data = data.frame(ll_difference = c(ASD_model_manuscript_loglikelihood[,1] - ASD_model_manuscript_loglikelihood[,2], control_model_693_loglikelihood[,1] - control_model_693_loglikelihood[,2], ASD_model_Scherer_loglikelihood[,1] - ASD_model_Scherer_loglikelihood[,2], control_model_258_loglikelihood[,1] - control_model_258_loglikelihood[,2]),
+                  dataset = c(rep("Meta-analysis of WGS (314 cases)", 10),rep("Wong et al., 2014 (693 controls)", 10),rep("Yuen et al., 2016 (200 cases)",10),rep("Francioli et al., 2015 (258 controls)",10)))
+p = ggplot(data, aes(factor(dataset), ll_difference))
+p = p+geom_boxplot()+theme_classic()+theme(axis.text.x = element_text(size =10, color = "black", angle = 45, vjust = 0.55), axis.text.y = element_text(size =10, color = "black"))+xlab("Dataset")+ylab("LLR")+ylim(-2,15)
+pvalue_list = c("p=0.0019","p=0.0019","p=0.0039","p=0.0059")
+for(i in 1:4){
+  p = p + annotate("text", x = i, y = 15, label = pvalue_list[i], size = 3)
+}
+
+p
+```
+
+### boxplot of difference of test
+```{r,echo=FALSE,fig.width=4, fig.height=4}
+data = data.frame(ll_difference = c(ASD_model_manuscript_loglikelihood[,1] - ASD_model_manuscript_loglikelihood[,2], control_model_693_loglikelihood[,1] - control_model_693_loglikelihood[,2]),
+                  dataset = c(rep("Meta-analysis of WGS (314 cases)", 10),rep("Wong et al., 2016 (693 controls)", 10)))
+p = ggplot(data, aes(factor(dataset), ll_difference))
+p = p+geom_boxplot()+theme_classic()+theme(axis.text.x = element_text(size =10, color = "black", angle = 45, vjust = 0.55), axis.text.y = element_text(size =10, color = "black"))+xlab("Dataset")+ylab("LLR")+ylim(-2,15)
+pvalue_list = c("p=0.0019","p=0.0039")
+for(i in 1:2){
+  p = p + annotate("text", x = i, y = 15, label = pvalue_list[i], size = 3)
+}
+
+p
+```
+
+
+### boxplot of difference of test
+```{r,echo=FALSE,fig.width=3, fig.height=3.5}
+data = data.frame(ll_difference = c(ASD_model_manuscript_loglikelihood[,1] - ASD_model_manuscript_loglikelihood[,2], control_model_693_loglikelihood[,1] - control_model_693_loglikelihood[,2]),
+                  dataset = c(rep("Meta-analysis \n of WGS \n (314 cases)", 10),rep("Wong et al., \n 2016 \n (693 controls)", 10)))
+p = ggplot(data, aes(factor(dataset), ll_difference))
+p = p+geom_boxplot()+theme_classic()+theme(axis.text.x = element_text(size =10, color = "black"), axis.text.y = element_text(size =10, color = "black"))+xlab("")+ylab("LLR")+ylim(-2,15)
+pvalue_list = c("p=0.0019","p=0.0039")
+for(i in 1:2){
+  p = p + annotate("text", x = i, y = 15, label = pvalue_list[i], size = 3)
+}
+
+p
+```
+
+

@@ -1,0 +1,20 @@
+```{r}
+set.seed(100)
+source("../lib/170102_test_glm_functions.R")
+```
+
+##### base-level simulation and optimization of relative risks using optim() without categorization
+```
+3 binary variables and 1 continous variables, each gene has 100 bases, 18000 genes together, using the top 10% TADA genes for optimization. Assume each has a mutation rate of 1e-6, and there are 300 ASD cases
+
+```
+
+
+```{r,cache=TRUE,dependson=sim_table_risk_nonrisk_v2}
+estimate1 <- sim_table_risk_nonrisk_v2()
+```
+
+```{r}
+knitr::kable(data.frame(estimate = estimate1$mle$par, estimate1$par_interval, true_value = c(1,1.5,2,0.3)))
+estimate1$run_time
+```
