@@ -117,42 +117,43 @@ ASD project<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAmYAAAHkCAYAA
 <p><br></p>
 <hr />
 <div id="adjust-mutation-rate-using-glm-50bp-window" class="section level5">
-<h5>1. adjust mutation rate using GLM: 50bp window</h5>
+<h5>1. Adjust mutation rate using GLM: 50bp window</h5>
+<p><br></p>
 <ul>
-<li><a href="analysis/161120_mutation_rate_calibration_removing_utr_and_na_genes.html">Study the effect of promoter, coding, and cg content on mutation rate.For promoters and coding windows, remove those that have “n/a” as gene names, for coding also remove utrs, all types of coding mutations were used for cases</a></li>
-<li><a href="analysis/161120_mutation_rate_calibration_removing_utr_and_na_genes_with_epigenomic_mark.html">Study the effect of promoter, coding, and cg content and Noonan+Rodamap brain H3K27ac on mutation rate.For promoters and coding windows, remove those that have “n/a” as gene names, for coding also remove utrs, all types of coding mutations were used for cases</a></li>
-<li><a href="analysis/161120_mutation_rate_calibration_removing_utr_and_na_genes_with_epigenomic_mark_remove_nonsyn_for_cases.html">Study the effect of promoter, coding, and cg content and Noonan+Rodamap brain H3K27ac on mutation rate.For promoters and coding windows, remove those that have “n/a” as gene names, for coding also remove utrs, only synonymouse mutations were used for training the model for cases</a></li>
-<li><a href="analysis/161205_mutation_rate_10fold_likelihood_with_Noonan_brain_roadmap_union_1bp_overlap_using_synony_only_for_ASD_coding.html">10-fold loglikelihood-ratio comparing trinucleotide model and our adjusted model (features include promoter, coding, cg content and Noonan+Brain H3K27ac, using synonymous mutations for training cases)</a></li>
+<li><p><a href="analysis/161120_mutation_rate_calibration_removing_utr_and_na_genes.html">Study the effect of promoter, coding, and cg content on mutation rate.For promoters and coding windows, remove those that have “n/a” as gene names, for coding also remove utrs, all types of coding mutations were used for cases</a></p></li>
+<li><p><a href="analysis/161120_mutation_rate_calibration_removing_utr_and_na_genes_with_epigenomic_mark.html">Study the effect of promoter, coding, and cg content and Noonan+Rodamap brain H3K27ac on mutation rate.For promoters and coding windows, remove those that have “n/a” as gene names, for coding also remove utrs, all types of coding mutations were used for cases</a></p></li>
+<li><p><a href="analysis/161120_mutation_rate_calibration_removing_utr_and_na_genes_with_epigenomic_mark_remove_nonsyn_for_cases.html">Study the effect of promoter, coding, and cg content and Noonan+Rodamap brain H3K27ac on mutation rate.For promoters and coding windows, remove those that have “n/a” as gene names, for coding also remove utrs, only synonymouse mutations were used for training the model for cases</a></p></li>
+<li><p><a href="analysis/161205_mutation_rate_10fold_likelihood_with_Noonan_brain_roadmap_union_1bp_overlap_using_synony_only_for_ASD_coding.html">10-fold loglikelihood-ratio comparing trinucleotide model and our adjusted model (features include promoter, coding, cg content and Noonan+Brain H3K27ac, using synonymous mutations for training cases)</a></p></li>
 </ul>
 </div>
 <div id="compare-number-of-observed-mutations-of-different-types-with-expected-based-on-adjusted-mutation-rate" class="section level5">
-<h5>2. compare number of observed mutations of different types with expected based on adjusted mutation rate</h5>
+<h5>2. Compare number of observed mutations of different types with expected based on adjusted mutation rate</h5>
 <ul>
-<li><a href="analysis/161121_compare_observed_mutation_number_with_calibrated_mutation_rate_for_all_genes_all_categories.html">Compare all types of mutations. Use only 1 epi data for mutation rate adjustment, use all coding mutations for training in cases</a></li>
-<li><a href="analysis/161201_compare_observed_coding_mutation_number_with_calibrated_mutation_rate_for_Noonan_Roadmap_brain_syn_trained_for_cases.html">Compare only coding mutations. Use only 1 epi data for mutation rate adjustment, only use synonymous mutations for coding mutations in cases for training</a></li>
+<li><p><a href="analysis/161121_compare_observed_mutation_number_with_calibrated_mutation_rate_for_all_genes_all_categories.html">Compare all types of mutations. Use only 1 epi data for mutation rate adjustment, use all coding mutations for training in cases</a></p></li>
+<li><p><a href="analysis/161201_compare_observed_coding_mutation_number_with_calibrated_mutation_rate_for_Noonan_Roadmap_brain_syn_trained_for_cases.html">Compare only coding mutations. Use only 1 epi data for mutation rate adjustment, only use synonymous mutations for coding mutations in cases for training</a></p></li>
 </ul>
 </div>
 <div id="effect-size-estimation-from-simulation-data-50bp-window" class="section level5">
-<h5>3. effect size estimation from simulation data: 50bp-window</h5>
+<h5>3. Effect size estimation from simulation data: 50bp-window</h5>
 <ul>
-<li>[Use all TADA genes]</li>
-<li><a href="analysis/161214_161214_simulate_mutation_and_estimate_effect_top6_pct_with_Noonan_brain_roadmap_union_1bp_overlap_using_synony_only_for_ASD_coding.html">Use only top 6% TADA genes</a></li>
+<li><p>[Use all TADA genes]</p></li>
+<li><p><a href="analysis/161214_161214_simulate_mutation_and_estimate_effect_top6_pct_with_Noonan_brain_roadmap_union_1bp_overlap_using_synony_only_for_ASD_coding.html">Use only top 6% TADA genes, simulate dataset and do optimization multiple times and compare the distribution of paramter estimates with true values</a></p></li>
 </ul>
 </div>
 <div id="effect-size-estimation-from-real-data-50bp-window" class="section level5">
-<h5>4. effect size estimation from real data: 50bp-window</h5>
+<h5>4. Effect size estimation from real data: 50bp-window</h5>
 <ul>
-<li><a href="analysis/161211_estimate_effect_with_Noonan_brain_roadmap_union_1bp_overlap_using_synony_only_for_ASD_coding.html">ASD_manuscript data, 1 epigenome data sets first adjust mutation rate, then esitamte relative risks using all TADA genes</a></li>
-<li><a href="analysis/161229_fitting_model_50bp_more_epi_features_and_phastcons_features.html">ASD_manuscript data, 3 epigenome data sets and 1 phastcons100way, first adjust mutation rate, then esitamte relative risks using only top6% TADA genes or all genes</a></li>
+<li><p><a href="analysis/161211_estimate_effect_with_Noonan_brain_roadmap_union_1bp_overlap_using_synony_only_for_ASD_coding.html">ASD_manuscript data, 1 epigenome data sets first adjust mutation rate, then esitamte relative risks using all TADA genes, relative risk of promoter and enhancer estimated separately</a></p></li>
+<li><p><a href="analysis/161229_fitting_model_50bp_more_epi_features_and_phastcons_features.html">ASD_manuscript data, 3 epigenome data sets and 1 phastcons100way, first adjust mutation rate, then esitamte relative risks using only top6% TADA genes or all genes, estimate the relative risk of active promoters and enhancers jointly</a></p></li>
 </ul>
 </div>
 <div id="adjust-mutation-rate-using-optim-1bp-base-level." class="section level5">
-<h5>5. adjust mutation rate using optim(): 1bp base level.</h5>
+<h5>5. Adjust mutation rate using optim(): 1bp base level.</h5>
 <ul>
 <li><a href="analysis/170105_base_level_simulation_and_mutation_rate_adjustion_parameter_estimation_with_categorization.html">With categorization: test method using simulated dataset. 1e6 bases, 5 binary features and 2 continous features</a></li>
 </ul>
 <hr />
-<p><strong>Last updated:</strong> 2017-01-06 12:29:48</p>
+<p><strong>Last updated:</strong> 2017-01-06 12:37:30</p>
 </div>
 
 
