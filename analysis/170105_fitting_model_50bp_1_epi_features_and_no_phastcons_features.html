@@ -111,108 +111,174 @@ $(document).ready(function () {
 </div>
 
 
-<pre class="r"><code>set.seed(100)
-source(&quot;../lib/170102_test_glm_functions.R&quot;)</code></pre>
-<div id="base-level-simulation-and-optimization-of-mutation-rate-adjustion-parameters-using-optim-without-categorization" class="section level5">
-<h5>base-level simulation and optimization of mutation rate adjustion parameters using optim() without categorization</h5>
-<pre><code>Assume 5 binary variables (e.g., epigenomic annotations) and 2 continous variables (e.g., conservation scores) affect the observed mutation pattern.
-Assume baselevel mutation rate is 1 for every base. Five bins are used for each categorized continuous variable
-</code></pre>
-</div>
-<div id="simulate-1e6-bases" class="section level5">
-<h5>simulate 1e6 bases</h5>
-<pre class="r"><code>data &lt;- sim_table(1e6)</code></pre>
-<pre class="r"><code>estimate &lt;- adjust_muatation_rate_optimization_test(data)</code></pre>
+<pre><code>#check if new {function verified_effect_size_estimate_noncoding_mutations_v2} is able to adjust mutation rate consistently with what we have before</code></pre>
+<pre class="r"><code>source(&quot;../lib/161117_glm_for_mutation_count.R&quot;)</code></pre>
+<pre class="r"><code># remember only use SNV data
+# what is different from 161120_mutation_rate_calibration_1.R is that for coding regions, I removed all utrs and exons without a gene name (or
+# the genename is n/a)
+
+# also used Noonan brain roadmap H3K27ac as a dummy variable. 
+# when predict the effect of coding mutation rate for ASD cases, only use synonymous mutations. 
+
+# Three epigenomic annotation (Noonan and Roadmap Brain H3k27ac, ENCODE DHS, and Roadmap DHS) and one conservation score(phastcons100way) were used to correct mutation rate and to estimate relative risks. 
+
+
+# only use top 10% TADA genes for estimating relative risks
+new_control = new.env()
+load(&quot;../data/debug_region_list_073116_using_258_control_data_matrix.Rdata&quot;, new_control)
+
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == &quot;dnv_proband&quot; &amp; new_control$data_matrix$Type == &quot;SNV&quot;,c(1,2,3,7)], &quot;temp.bed&quot;, col.names = FALSE, row.names = FALSE, sep = &quot;\t&quot;, quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == &quot;dnv_proband&quot; ,c(1:5,8,7)], &quot;annovar_input_temp.bed&quot;, col.names = FALSE, row.names = FALSE, sep = &quot;\t&quot;, quote = FALSE)
+
+glm_outcome &lt;- run_glm_for_mutation_v2(mut_file = &quot;./temp.bed&quot;, 
+                                       window_file = &quot;../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed&quot;,
+                                       cg_file = &quot;../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed.fasta.cg&quot;,
+                                       mutrate_file = &quot;../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed.mutrate&quot;,
+                                       sample_size = 314,
+                                       epigenomic_marks_list = c(&quot;../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed&quot;),
+                                       overlap = 1e-9,
+                                       rm_nonsyn = TRUE,
+                                       annovar_folder = &quot;/media/yuwen/Elements/ANNOVAR/annovar/&quot;,
+                                       annovar_input = &quot;annovar_input_temp.bed&quot;,
+                                       sequence_annotation_list = &quot;no&quot;)
+
+
+
+rm(new_control)
+system(&quot;rm annovar_input_temp.bed&quot;)
+system(&quot;rm temp.bed&quot;)</code></pre>
+<div id="only-use-promoter-coding-cg-content-and-noonanbrain-h3k27ac-for-fitting-model" class="section level5">
+<h5>only use promoter, coding, cg content and Noonan+brain H3k27ac for fitting model</h5>
+<pre class="r"><code>knitr::kable(glm_outcome)</code></pre>
 <table>
 <thead>
 <tr class="header">
-<th align="right">true_value</th>
-<th align="right">estimate</th>
-<th align="right">lower_bound</th>
-<th align="right">upper_bound</th>
+<th></th>
+<th align="right">Estimate</th>
+<th align="right">Std. Error</th>
+<th align="right">z value</th>
+<th align="right">Pr(&gt;|z|)</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="right">2.00</td>
-<td align="right">1.8511132</td>
-<td align="right">1.8480550</td>
-<td align="right">1.8541713</td>
+<td>(Intercept)</td>
+<td align="right">0.0245609</td>
+<td align="right">0.0778877</td>
+<td align="right">0.3153374</td>
+<td align="right">0.7525055</td>
 </tr>
 <tr class="even">
-<td align="right">0.50</td>
-<td align="right">0.3972284</td>
-<td align="right">0.3920624</td>
-<td align="right">0.4023945</td>
+<td>coding</td>
+<td align="right">-1.2741789</td>
+<td align="right">0.1278868</td>
+<td align="right">-9.9633323</td>
+<td align="right">0.0000000</td>
 </tr>
 <tr class="odd">
-<td align="right">0.70</td>
-<td align="right">0.5258521</td>
-<td align="right">0.5209581</td>
-<td align="right">0.5307460</td>
+<td>promoter</td>
+<td align="right">-0.1884299</td>
+<td align="right">0.0932756</td>
+<td align="right">-2.0201409</td>
+<td align="right">0.0433688</td>
 </tr>
 <tr class="even">
-<td align="right">1.40</td>
-<td align="right">1.2666233</td>
-<td align="right">1.2629656</td>
-<td align="right">1.2702809</td>
+<td>cg</td>
+<td align="right">-0.4832522</td>
+<td align="right">0.1668373</td>
+<td align="right">-2.8965484</td>
+<td align="right">0.0037729</td>
 </tr>
 <tr class="odd">
-<td align="right">0.00</td>
-<td align="right">-0.3302978</td>
-<td align="right">-0.3374861</td>
-<td align="right">-0.3231095</td>
-</tr>
-<tr class="even">
-<td align="right">0.04</td>
-<td align="right">-0.0333894</td>
-<td align="right">-0.0341451</td>
-<td align="right">-0.0326337</td>
-</tr>
-<tr class="odd">
-<td align="right">0.10</td>
-<td align="right">0.1429420</td>
-<td align="right">0.1422447</td>
-<td align="right">0.1436393</td>
+<td>epi1</td>
+<td align="right">-0.0562363</td>
+<td align="right">0.0639106</td>
+<td align="right">-0.8799208</td>
+<td align="right">0.3789022</td>
 </tr>
 </tbody>
 </table>
-<pre><code>##    user  system elapsed 
-## 740.470  22.038 763.457</code></pre>
-<pre><code>## $par
-## [1]  1.85111316  0.39722845  0.52585208  1.26662326 -0.33029778 -0.03338939
-## [7]  0.14294200
-## 
-## $value
-## [1] 207664.9
-## 
-## $counts
-## function gradient 
-##     1376       NA 
-## 
-## $convergence
-## [1] 0
-## 
-## $message
-## NULL
-## 
-## $hessian
-##             [,1]        [,2]        [,3]        [,4]        [,5]
-## [1,]  -533168.38  -38735.341  -44251.894   -85546.90  -18744.905
-## [2,]   -38735.34 -154081.993  -12375.902   -24569.32   -5781.676
-## [3,]   -44251.89  -12375.902 -173338.115   -27174.44   -6227.445
-## [4,]   -85546.90  -24569.322  -27174.445  -335544.85  -11613.015
-## [5,]   -18744.91   -5781.676   -6227.445   -11613.02  -76873.408
-## [6,] -1568650.19 -451314.650 -510051.122  -984264.13 -224792.624
-## [7,] -1749814.53 -502606.953 -568057.339 -1100894.59 -251986.489
-##             [,6]        [,7]
-## [1,]  -1568650.2  -1749814.5
-## [2,]   -451314.7   -502607.0
-## [3,]   -510051.1   -568057.3
-## [4,]   -984264.1  -1100894.6
-## [5,]   -224792.6   -251986.5
-## [6,] -22504595.2 -20445245.6
-## [7,] -20445245.6 -26980926.8</code></pre>
+<pre class="r"><code># remember only use SNV data
+# what is different from 161120_mutation_rate_calibration_1.R is that for coding regions, I removed all utrs and exons without a gene name (or
+# the genename is n/a)
+
+# also used Noonan brain roadmap H3K27ac as a dummy variable. 
+# when predict the effect of coding mutation rate for ASD cases, only use synonymous mutations. 
+
+# Three epigenomic annotation (Noonan and Roadmap Brain H3k27ac, ENCODE DHS, and Roadmap DHS) and one conservation score(phastcons100way) were used to correct mutation rate and to estimate relative risks. 
+
+
+# only use top 10% TADA genes for estimating relative risks
+new_control = new.env()
+load(&quot;../data/debug_region_list_073116_using_258_control_data_matrix.Rdata&quot;, new_control)
+
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == &quot;dnv_proband&quot; &amp; new_control$data_matrix$Type == &quot;SNV&quot;,c(1,2,3,7)], &quot;temp.bed&quot;, col.names = FALSE, row.names = FALSE, sep = &quot;\t&quot;, quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == &quot;dnv_proband&quot; ,c(1:5,8,7)], &quot;annovar_input_temp.bed&quot;, col.names = FALSE, row.names = FALSE, sep = &quot;\t&quot;, quote = FALSE)
+
+glm_outcome &lt;- run_glm_for_mutation_v2(mut_file = &quot;./temp.bed&quot;, 
+                                       window_file = &quot;../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed&quot;,
+                                       cg_file = &quot;../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed.fasta.cg&quot;,
+                                       mutrate_file = &quot;../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed.mutrate&quot;,
+                                       sample_size = 314,
+                                       epigenomic_marks_list = &quot;no&quot;,
+                                       overlap = 1e-9,
+                                       rm_nonsyn = TRUE,
+                                       annovar_folder = &quot;/media/yuwen/Elements/ANNOVAR/annovar/&quot;,
+                                       annovar_input = &quot;annovar_input_temp.bed&quot;,
+                                       sequence_annotation_list = &quot;no&quot;)
+
+
+
+rm(new_control)
+system(&quot;rm annovar_input_temp.bed&quot;)
+system(&quot;rm temp.bed&quot;)</code></pre>
+</div>
+<div id="only-use-promoter-coding-and-cg-content-for-fitting-model" class="section level5">
+<h5>only use promoter, coding, and cg content for fitting model</h5>
+<pre class="r"><code>knitr::kable(glm_outcome)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Estimate</th>
+<th align="right">Std. Error</th>
+<th align="right">z value</th>
+<th align="right">Pr(&gt;|z|)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept)</td>
+<td align="right">0.0371754</td>
+<td align="right">0.0764378</td>
+<td align="right">0.4863488</td>
+<td align="right">0.6267199</td>
+</tr>
+<tr class="even">
+<td>coding</td>
+<td align="right">-1.2725941</td>
+<td align="right">0.1278786</td>
+<td align="right">-9.9515829</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td>promoter</td>
+<td align="right">-0.2153223</td>
+<td align="right">0.0881516</td>
+<td align="right">-2.4426360</td>
+<td align="right">0.0145804</td>
+</tr>
+<tr class="even">
+<td>cg</td>
+<td align="right">-0.5278988</td>
+<td align="right">0.1588106</td>
+<td align="right">-3.3240776</td>
+<td align="right">0.0008871</td>
+</tr>
+</tbody>
+</table>
 </div>
 
 
