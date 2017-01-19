@@ -173,9 +173,9 @@ TADA_table &lt;- bayes_factor_for_each_gene_v2(mut_file = paste(prefix,&quot;tem
 rm(new_control)
 system(paste(&quot;rm &quot;,prefix,&quot;annovar_input_temp.bed&quot;,sep = &quot;&quot;))
 system(paste(&quot;rm &quot;,prefix, &quot;temp.bed&quot;,sep = &quot;&quot;))</code></pre>
-<div id="number-of-gained-and-lost-genes-after-having-non-coding-mutations" class="section level5">
-<h5><strong>#Number of gained and lost genes after having non-coding mutations</strong></h5>
-<pre class="r"><code>TADA_table_filtered = TADA_table[TADA_table$logBF_noncoding !=0,]
+<pre class="r"><code>names(TADA_table)</code></pre>
+<pre><code>## [1] &quot;gene_BF_table&quot;     &quot;genes_with_no_epi&quot;</code></pre>
+<pre class="r"><code>TADA_table_filtered = TADA_table$gene_BF_table[!is.element(TADA_table$gene_BF_table$genename, TADA_table$genes_with_no_epi),]
 knitr::kable(performance_table(TADA_table_filtered))</code></pre>
 <table>
 <thead>
@@ -207,10 +207,9 @@ knitr::kable(performance_table(TADA_table_filtered))</code></pre>
 </tr>
 </tbody>
 </table>
-</div>
 <div id="gene-set-enrichment-analysis-fdr-0.1" class="section level5">
 <h5><strong>#Gene set enrichment analysis FDR 0.1</strong></h5>
-<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.1 &amp; TADA_table_filtered$FDR_all &lt; 0.1, ]$genename, TADA_table_filtered$genename))</code></pre>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.1 &amp; TADA_table_filtered$FDR_all &lt; 0.1, ]$genename, TADA_table$gene_BF_table$genename))</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -228,32 +227,249 @@ knitr::kable(performance_table(TADA_table_filtered))</code></pre>
 <tbody>
 <tr class="odd">
 <td>Fold of enrichment</td>
-<td align="right">9.2932840</td>
-<td align="right">4.9162321</td>
-<td align="right">3.8843678</td>
-<td align="right">2.5733053</td>
-<td align="right">1.5064922</td>
-<td align="right">11.8205329</td>
-<td align="right">4.5050777</td>
-<td align="right">2.7134205</td>
+<td align="right">10.4891240</td>
+<td align="right">5.6821656</td>
+<td align="right">4.3794796</td>
+<td align="right">3.0023558</td>
+<td align="right">1.4538787</td>
+<td align="right">13.4758308</td>
+<td align="right">5.2230679</td>
+<td align="right">3.1061978</td>
 </tr>
 <tr class="even">
 <td>pvalue</td>
-<td align="right">0.0001336</td>
-<td align="right">0.1884289</td>
-<td align="right">0.0043875</td>
-<td align="right">0.0773566</td>
-<td align="right">0.5161205</td>
-<td align="right">0.0819602</td>
-<td align="right">0.0634022</td>
-<td align="right">0.0669318</td>
+<td align="right">0.0000823</td>
+<td align="right">0.1647245</td>
+<td align="right">0.0027153</td>
+<td align="right">0.0506513</td>
+<td align="right">0.5299025</td>
+<td align="right">0.0721732</td>
+<td align="right">0.0481995</td>
+<td align="right">0.0460908</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div id="gene-set-enrichment-analysis-fdr-0.2" class="section level5">
 <h5><strong>#Gene set enrichment analysis FDR 0.2</strong></h5>
-<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.2 &amp; TADA_table_filtered$FDR_all &lt; 0.2, ]$genename, TADA_table_filtered$genename))</code></pre>
+<pre class="r"><code>knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.2 &amp; TADA_table_filtered$FDR_all &lt; 0.2, ])</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="left">genename</th>
+<th align="right">logBF_noncoding</th>
+<th align="right">logBF_splicing</th>
+<th align="right">logBF_coding</th>
+<th align="right">logBF_all</th>
+<th align="right">BF_noncoding</th>
+<th align="right">BF_splicing</th>
+<th align="right">BF_coding</th>
+<th align="right">BF_all</th>
+<th align="right">FDR_coding</th>
+<th align="right">FDR_all</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>7504</td>
+<td align="left">JUP</td>
+<td align="right">4.2994068</td>
+<td align="right">-0.0081402</td>
+<td align="right">2.131726</td>
+<td align="right">6.422992</td>
+<td align="right">73.6560890</td>
+<td align="right">0.9918929</td>
+<td align="right">8.429401</td>
+<td align="right">615.84320</td>
+<td align="right">0.4706988</td>
+<td align="right">0.0033956</td>
+</tr>
+<tr class="even">
+<td>748</td>
+<td align="left">APBB1</td>
+<td align="right">3.1133730</td>
+<td align="right">-0.0006401</td>
+<td align="right">2.325413</td>
+<td align="right">5.438146</td>
+<td align="right">22.4967989</td>
+<td align="right">0.9993602</td>
+<td align="right">10.230909</td>
+<td align="right">230.01544</td>
+<td align="right">0.4495249</td>
+<td align="right">0.0193792</td>
+</tr>
+<tr class="odd">
+<td>4278</td>
+<td align="left">DOCK5</td>
+<td align="right">1.0100234</td>
+<td align="right">-0.0158406</td>
+<td align="right">2.897630</td>
+<td align="right">3.891812</td>
+<td align="right">2.7456652</td>
+<td align="right">0.9842842</td>
+<td align="right">18.131119</td>
+<td align="right">48.99962</td>
+<td align="right">0.2141028</td>
+<td align="right">0.0965721</td>
+</tr>
+<tr class="even">
+<td>9989</td>
+<td align="left">NME9</td>
+<td align="right">1.0632995</td>
+<td align="right">-0.0020936</td>
+<td align="right">2.787033</td>
+<td align="right">3.848239</td>
+<td align="right">2.8959102</td>
+<td align="right">0.9979086</td>
+<td align="right">16.232789</td>
+<td align="right">46.91038</td>
+<td align="right">0.2750065</td>
+<td align="right">0.1109753</td>
+</tr>
+<tr class="odd">
+<td>11488</td>
+<td align="left">PLA2G16</td>
+<td align="right">0.9669735</td>
+<td align="right">-0.0016077</td>
+<td align="right">2.828890</td>
+<td align="right">3.794255</td>
+<td align="right">2.6299727</td>
+<td align="right">0.9983936</td>
+<td align="right">16.926657</td>
+<td align="right">44.44513</td>
+<td align="right">0.2496890</td>
+<td align="right">0.1176468</td>
+</tr>
+<tr class="even">
+<td>11664</td>
+<td align="left">PNPLA7</td>
+<td align="right">-0.0262035</td>
+<td align="right">0.7261512</td>
+<td align="right">2.863029</td>
+<td align="right">3.562977</td>
+<td align="right">0.9741368</td>
+<td align="right">2.0671094</td>
+<td align="right">17.514503</td>
+<td align="right">35.26803</td>
+<td align="right">0.2283985</td>
+<td align="right">0.1406973</td>
+</tr>
+<tr class="odd">
+<td>9373</td>
+<td align="left">MSL2</td>
+<td align="right">1.0253634</td>
+<td align="right">-0.0040029</td>
+<td align="right">2.536128</td>
+<td align="right">3.557489</td>
+<td align="right">2.7881086</td>
+<td align="right">0.9960051</td>
+<td align="right">12.630673</td>
+<td align="right">35.07500</td>
+<td align="right">0.3971838</td>
+<td align="right">0.1428798</td>
+</tr>
+<tr class="even">
+<td>11834</td>
+<td align="left">PPM1D</td>
+<td align="right">1.0276780</td>
+<td align="right">-0.0061101</td>
+<td align="right">2.526200</td>
+<td align="right">3.547768</td>
+<td align="right">2.7945694</td>
+<td align="right">0.9939085</td>
+<td align="right">12.505890</td>
+<td align="right">34.73569</td>
+<td align="right">0.4014318</td>
+<td align="right">0.1450331</td>
+</tr>
+<tr class="odd">
+<td>14107</td>
+<td align="left">SLC38A3</td>
+<td align="right">0.9463485</td>
+<td align="right">-0.0047045</td>
+<td align="right">2.510331</td>
+<td align="right">3.451975</td>
+<td align="right">2.5762851</td>
+<td align="right">0.9953065</td>
+<td align="right">12.309005</td>
+<td align="right">31.56267</td>
+<td align="right">0.4072012</td>
+<td align="right">0.1578954</td>
+</tr>
+<tr class="even">
+<td>8474</td>
+<td align="left">LRRC4</td>
+<td align="right">0.9946055</td>
+<td align="right">-0.0063028</td>
+<td align="right">2.344952</td>
+<td align="right">3.333255</td>
+<td align="right">2.7036576</td>
+<td align="right">0.9937170</td>
+<td align="right">10.432776</td>
+<td align="right">28.02943</td>
+<td align="right">0.4477947</td>
+<td align="right">0.1666634</td>
+</tr>
+<tr class="odd">
+<td>11614</td>
+<td align="left">PLXNB1</td>
+<td align="right">0.9967334</td>
+<td align="right">-0.0207588</td>
+<td align="right">2.352516</td>
+<td align="right">3.328491</td>
+<td align="right">2.7094167</td>
+<td align="right">0.9794552</td>
+<td align="right">10.511988</td>
+<td align="right">27.89621</td>
+<td align="right">0.4469335</td>
+<td align="right">0.1709448</td>
+</tr>
+<tr class="even">
+<td>6619</td>
+<td align="left">HGF</td>
+<td align="right">-0.0114079</td>
+<td align="right">0.7358045</td>
+<td align="right">2.447064</td>
+<td align="right">3.171460</td>
+<td align="right">0.9886569</td>
+<td align="right">2.0871604</td>
+<td align="right">11.554370</td>
+<td align="right">23.84228</td>
+<td align="right">0.4265289</td>
+<td align="right">0.1879668</td>
+</tr>
+<tr class="odd">
+<td>879</td>
+<td align="left">ARHGAP44</td>
+<td align="right">-0.0249812</td>
+<td align="right">0.7349744</td>
+<td align="right">2.362564</td>
+<td align="right">3.072557</td>
+<td align="right">0.9753283</td>
+<td align="right">2.0854285</td>
+<td align="right">10.618144</td>
+<td align="right">21.59706</td>
+<td align="right">0.4452042</td>
+<td align="right">0.1968271</td>
+</tr>
+<tr class="even">
+<td>2296</td>
+<td align="left">CBX4</td>
+<td align="right">0.8346759</td>
+<td align="right">-0.0074927</td>
+<td align="right">2.237874</td>
+<td align="right">3.065057</td>
+<td align="right">2.3040671</td>
+<td align="right">0.9925353</td>
+<td align="right">9.373381</td>
+<td align="right">21.43568</td>
+<td align="right">0.4607261</td>
+<td align="right">0.1990157</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.2 &amp; TADA_table_filtered$FDR_all &lt; 0.2, ]$genename, TADA_table$gene_BF_table$genename))</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -271,32 +487,263 @@ knitr::kable(performance_table(TADA_table_filtered))</code></pre>
 <tbody>
 <tr class="odd">
 <td>Fold of enrichment</td>
-<td align="right">2.655224</td>
-<td align="right">2.8092755</td>
-<td align="right">1.6647290</td>
-<td align="right">1.7155369</td>
-<td align="right">1.2912790</td>
-<td align="right">3.3772951</td>
-<td align="right">1.2871650</td>
-<td align="right">1.2921050</td>
+<td align="right">2.9968926</td>
+<td align="right">3.246952</td>
+<td align="right">1.8769198</td>
+<td align="right">2.0015706</td>
+<td align="right">1.2461818</td>
+<td align="right">3.8502374</td>
+<td align="right">1.4923051</td>
+<td align="right">1.4791418</td>
 </tr>
 <tr class="even">
 <td>pvalue</td>
-<td align="right">0.055431</td>
-<td align="right">0.1571322</td>
-<td align="right">0.1251296</td>
-<td align="right">0.0813825</td>
-<td align="right">0.4176118</td>
-<td align="right">0.2587382</td>
-<td align="right">0.4707705</td>
-<td align="right">0.3394384</td>
+<td align="right">0.0378453</td>
+<td align="right">0.124131</td>
+<td align="right">0.0772885</td>
+<td align="right">0.0380572</td>
+<td align="right">0.4420585</td>
+<td align="right">0.2306891</td>
+<td align="right">0.3933045</td>
+<td align="right">0.2337512</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div id="gene-set-enrichment-analysis-fdr-0.3" class="section level5">
 <h5><strong>#Gene set enrichment analysis FDR 0.3</strong></h5>
-<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.3 &amp; TADA_table_filtered$FDR_all &lt; 0.3, ]$genename, TADA_table_filtered$genename))</code></pre>
+<pre class="r"><code>knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.3 &amp; TADA_table_filtered$FDR_all &lt; 0.3, ])</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="left">genename</th>
+<th align="right">logBF_noncoding</th>
+<th align="right">logBF_splicing</th>
+<th align="right">logBF_coding</th>
+<th align="right">logBF_all</th>
+<th align="right">BF_noncoding</th>
+<th align="right">BF_splicing</th>
+<th align="right">BF_coding</th>
+<th align="right">BF_all</th>
+<th align="right">FDR_coding</th>
+<th align="right">FDR_all</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>7504</td>
+<td align="left">JUP</td>
+<td align="right">4.2994068</td>
+<td align="right">-0.0081402</td>
+<td align="right">2.131726</td>
+<td align="right">6.422992</td>
+<td align="right">73.6560890</td>
+<td align="right">0.9918929</td>
+<td align="right">8.429401</td>
+<td align="right">615.84320</td>
+<td align="right">0.4706988</td>
+<td align="right">0.0033956</td>
+</tr>
+<tr class="even">
+<td>748</td>
+<td align="left">APBB1</td>
+<td align="right">3.1133730</td>
+<td align="right">-0.0006401</td>
+<td align="right">2.325413</td>
+<td align="right">5.438146</td>
+<td align="right">22.4967989</td>
+<td align="right">0.9993602</td>
+<td align="right">10.230909</td>
+<td align="right">230.01544</td>
+<td align="right">0.4495249</td>
+<td align="right">0.0193792</td>
+</tr>
+<tr class="odd">
+<td>9373</td>
+<td align="left">MSL2</td>
+<td align="right">1.0253634</td>
+<td align="right">-0.0040029</td>
+<td align="right">2.536128</td>
+<td align="right">3.557489</td>
+<td align="right">2.7881086</td>
+<td align="right">0.9960051</td>
+<td align="right">12.630673</td>
+<td align="right">35.07500</td>
+<td align="right">0.3971838</td>
+<td align="right">0.1428798</td>
+</tr>
+<tr class="even">
+<td>11834</td>
+<td align="left">PPM1D</td>
+<td align="right">1.0276780</td>
+<td align="right">-0.0061101</td>
+<td align="right">2.526200</td>
+<td align="right">3.547768</td>
+<td align="right">2.7945694</td>
+<td align="right">0.9939085</td>
+<td align="right">12.505890</td>
+<td align="right">34.73569</td>
+<td align="right">0.4014318</td>
+<td align="right">0.1450331</td>
+</tr>
+<tr class="odd">
+<td>14107</td>
+<td align="left">SLC38A3</td>
+<td align="right">0.9463485</td>
+<td align="right">-0.0047045</td>
+<td align="right">2.510331</td>
+<td align="right">3.451975</td>
+<td align="right">2.5762851</td>
+<td align="right">0.9953065</td>
+<td align="right">12.309005</td>
+<td align="right">31.56267</td>
+<td align="right">0.4072012</td>
+<td align="right">0.1578954</td>
+</tr>
+<tr class="even">
+<td>8474</td>
+<td align="left">LRRC4</td>
+<td align="right">0.9946055</td>
+<td align="right">-0.0063028</td>
+<td align="right">2.344952</td>
+<td align="right">3.333255</td>
+<td align="right">2.7036576</td>
+<td align="right">0.9937170</td>
+<td align="right">10.432776</td>
+<td align="right">28.02943</td>
+<td align="right">0.4477947</td>
+<td align="right">0.1666634</td>
+</tr>
+<tr class="odd">
+<td>11614</td>
+<td align="left">PLXNB1</td>
+<td align="right">0.9967334</td>
+<td align="right">-0.0207588</td>
+<td align="right">2.352516</td>
+<td align="right">3.328491</td>
+<td align="right">2.7094167</td>
+<td align="right">0.9794552</td>
+<td align="right">10.511988</td>
+<td align="right">27.89621</td>
+<td align="right">0.4469335</td>
+<td align="right">0.1709448</td>
+</tr>
+<tr class="even">
+<td>6619</td>
+<td align="left">HGF</td>
+<td align="right">-0.0114079</td>
+<td align="right">0.7358045</td>
+<td align="right">2.447064</td>
+<td align="right">3.171460</td>
+<td align="right">0.9886569</td>
+<td align="right">2.0871604</td>
+<td align="right">11.554370</td>
+<td align="right">23.84228</td>
+<td align="right">0.4265289</td>
+<td align="right">0.1879668</td>
+</tr>
+<tr class="odd">
+<td>879</td>
+<td align="left">ARHGAP44</td>
+<td align="right">-0.0249812</td>
+<td align="right">0.7349744</td>
+<td align="right">2.362564</td>
+<td align="right">3.072557</td>
+<td align="right">0.9753283</td>
+<td align="right">2.0854285</td>
+<td align="right">10.618144</td>
+<td align="right">21.59706</td>
+<td align="right">0.4452042</td>
+<td align="right">0.1968271</td>
+</tr>
+<tr class="even">
+<td>2296</td>
+<td align="left">CBX4</td>
+<td align="right">0.8346759</td>
+<td align="right">-0.0074927</td>
+<td align="right">2.237874</td>
+<td align="right">3.065057</td>
+<td align="right">2.3040671</td>
+<td align="right">0.9925353</td>
+<td align="right">9.373381</td>
+<td align="right">21.43568</td>
+<td align="right">0.4607261</td>
+<td align="right">0.1990157</td>
+</tr>
+<tr class="odd">
+<td>7698</td>
+<td align="left">KIAA0232</td>
+<td align="right">0.9759191</td>
+<td align="right">-0.0102583</td>
+<td align="right">2.041740</td>
+<td align="right">3.007401</td>
+<td align="right">2.6536050</td>
+<td align="right">0.9897941</td>
+<td align="right">7.704003</td>
+<td align="right">20.23474</td>
+<td align="right">0.4807366</td>
+<td align="right">0.2055995</td>
+</tr>
+<tr class="even">
+<td>1003</td>
+<td align="left">ARVCF</td>
+<td align="right">1.0493080</td>
+<td align="right">-0.0120806</td>
+<td align="right">1.813057</td>
+<td align="right">2.850284</td>
+<td align="right">2.8556743</td>
+<td align="right">0.9879920</td>
+<td align="right">6.129155</td>
+<td align="right">17.29270</td>
+<td align="right">0.4978730</td>
+<td align="right">0.2314458</td>
+</tr>
+<tr class="odd">
+<td>14439</td>
+<td align="left">SORBS1</td>
+<td align="right">0.9401769</td>
+<td align="right">-0.0117588</td>
+<td align="right">1.895725</td>
+<td align="right">2.824143</td>
+<td align="right">2.5604342</td>
+<td align="right">0.9883100</td>
+<td align="right">6.657373</td>
+<td align="right">16.84650</td>
+<td align="right">0.4918668</td>
+<td align="right">0.2395956</td>
+</tr>
+<tr class="even">
+<td>13822</td>
+<td align="left">SIRPB2</td>
+<td align="right">-0.0120740</td>
+<td align="right">-0.0025118</td>
+<td align="right">2.736432</td>
+<td align="right">2.721846</td>
+<td align="right">0.9879986</td>
+<td align="right">0.9974913</td>
+<td align="right">15.431826</td>
+<td align="right">15.20837</td>
+<td align="right">0.3005961</td>
+<td align="right">0.2962360</td>
+</tr>
+<tr class="odd">
+<td>10232</td>
+<td align="left">NUDT17</td>
+<td align="right">-0.0145740</td>
+<td align="right">-0.0031611</td>
+<td align="right">2.732393</td>
+<td align="right">2.714658</td>
+<td align="right">0.9855316</td>
+<td align="right">0.9968439</td>
+<td align="right">15.369624</td>
+<td align="right">15.09944</td>
+<td align="right">0.3033153</td>
+<td align="right">0.2975840</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.3 &amp; TADA_table_filtered$FDR_all &lt; 0.3, ]$genename, TADA_table$gene_BF_table$genename))</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -314,25 +761,66 @@ knitr::kable(performance_table(TADA_table_filtered))</code></pre>
 <tbody>
 <tr class="odd">
 <td>Fold of enrichment</td>
-<td align="right">2.4782091</td>
-<td align="right">3.9329857</td>
-<td align="right">1.553747</td>
-<td align="right">1.8299060</td>
-<td align="right">1.2051938</td>
-<td align="right">3.1521421</td>
-<td align="right">1.8020311</td>
-<td align="right">1.447158</td>
+<td align="right">2.7970997</td>
+<td align="right">4.5457325</td>
+<td align="right">1.7517919</td>
+<td align="right">2.1350086</td>
+<td align="right">1.163103</td>
+<td align="right">3.5935549</td>
+<td align="right">2.0892272</td>
+<td align="right">1.6566388</td>
 </tr>
 <tr class="even">
 <td>pvalue</td>
-<td align="right">0.0693689</td>
-<td align="right">0.0377089</td>
-<td align="right">0.165130</td>
-<td align="right">0.0424519</td>
-<td align="right">0.4647638</td>
-<td align="right">0.2744302</td>
-<td align="right">0.2277588</td>
-<td align="right">0.212282</td>
+<td align="right">0.0478233</td>
+<td align="right">0.0259837</td>
+<td align="right">0.1048052</td>
+<td align="right">0.0171767</td>
+<td align="right">0.490156</td>
+<td align="right">0.2449723</td>
+<td align="right">0.1677701</td>
+<td align="right">0.1301046</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>test = TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.3 &amp; TADA_table_filtered$FDR_all &lt; 0.3, ][1:13,]
+knitr::kable(foe_table(test$genename, TADA_table$gene_BF_table$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">3.2274228</td>
+<td align="right">5.2450759</td>
+<td align="right">2.0212983</td>
+<td align="right">2.4634715</td>
+<td align="right">1.3420419</td>
+<td align="right">4.1464095</td>
+<td align="right">2.4106467</td>
+<td align="right">1.9115063</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0291807</td>
+<td align="right">0.0174332</td>
+<td align="right">0.0543696</td>
+<td align="right">0.0056035</td>
+<td align="right">0.3922729</td>
+<td align="right">0.2161365</td>
+<td align="right">0.1212849</td>
+<td align="right">0.0691887</td>
 </tr>
 </tbody>
 </table>
