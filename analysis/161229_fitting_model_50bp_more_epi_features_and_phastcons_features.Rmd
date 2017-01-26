@@ -37,3 +37,7 @@ knitr::kable(a)
 ```{r,echo=FALSE}
 knitr::kable(ASD_model_manuscript$regression_coef)
 ```
+
+```{r}
+ASD_model_manuscript$mle
+```

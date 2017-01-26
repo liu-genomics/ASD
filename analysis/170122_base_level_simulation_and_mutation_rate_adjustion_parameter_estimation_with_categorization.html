@@ -111,253 +111,724 @@ $(document).ready(function () {
 </div>
 
 
-<div id="combine-promoter-and-enhancer-together-for-estimating-relative-risk" class="section level5">
-<h5>combine promoter and enhancer together for estimating relative risk</h5>
+<pre class="r"><code>set.seed(100)
+source(&quot;../lib/170122_base_level_simulation_functions.R&quot;)</code></pre>
+<div id="base-level-simulation-and-optimization-of-mutation-rate-adjustion-parameters-using-optim-without-categorization" class="section level5">
+<h5>base-level simulation and optimization of mutation rate adjustion parameters using optim() without categorization</h5>
+<pre><code>Assume 1 binary variables (e.g., epigenomic annotations) affect the observed mutation pattern.
+Assume baselevel mutation rate is 1e-4 for every base. 
+</code></pre>
 </div>
-<div id="top-6-tada-genes-for-fitting-the-50bp-window-model-estimate-relative-risk" class="section level5">
-<h5>top 6% TADA genes for fitting the 50bp-window model: estimate relative risk</h5>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">relative_risk</th>
-<th align="right">lower_bound</th>
-<th align="right">upper_bournd</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Noonan+Roadmap Brain H3K27ac</td>
-<td align="right">1.1082532</td>
-<td align="right">0.3502107</td>
-<td align="right">1.8662957</td>
-</tr>
-<tr class="even">
-<td>Roadmap brain DHS</td>
-<td align="right">0.1376342</td>
-<td align="right">-1.2546223</td>
-<td align="right">1.5298908</td>
-</tr>
-<tr class="odd">
-<td>ENCODE brain DHS</td>
-<td align="right">-0.5113040</td>
-<td align="right">-1.5816508</td>
-<td align="right">0.5590429</td>
-</tr>
-<tr class="even">
-<td>Phastcons100way</td>
-<td align="right">-0.0199170</td>
-<td align="right">-0.0634835</td>
-<td align="right">0.0236494</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="top-6-tada-genes-for-fitting-the-50bp-window-model-mutation-rate-adjustment" class="section level5">
-<h5>top 6% TADA genes for fitting the 50bp-window model: mutation rate adjustment</h5>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">Estimate</th>
-<th align="right">Std. Error</th>
-<th align="right">z value</th>
-<th align="right">Pr(&gt;|z|)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>(Intercept)</td>
-<td align="right">0.0476207</td>
-<td align="right">0.0820522</td>
-<td align="right">0.5803713</td>
-<td align="right">0.5616642</td>
-</tr>
-<tr class="even">
-<td>coding</td>
-<td align="right">-1.1556713</td>
-<td align="right">0.1496375</td>
-<td align="right">-7.7231407</td>
-<td align="right">0.0000000</td>
-</tr>
-<tr class="odd">
-<td>promoter</td>
-<td align="right">-0.1771936</td>
-<td align="right">0.0957763</td>
-<td align="right">-1.8500776</td>
-<td align="right">0.0643024</td>
-</tr>
-<tr class="even">
-<td>cg</td>
-<td align="right">-0.5002264</td>
-<td align="right">0.1764912</td>
-<td align="right">-2.8342859</td>
-<td align="right">0.0045928</td>
-</tr>
-<tr class="odd">
-<td>epi1</td>
-<td align="right">-0.0443547</td>
-<td align="right">0.0727887</td>
-<td align="right">-0.6093629</td>
-<td align="right">0.5422839</td>
-</tr>
-<tr class="even">
-<td>epi2</td>
-<td align="right">-0.0175032</td>
-<td align="right">0.1109645</td>
-<td align="right">-0.1577365</td>
-<td align="right">0.8746644</td>
-</tr>
-<tr class="odd">
-<td>epi3</td>
-<td align="right">0.0009737</td>
-<td align="right">0.0745412</td>
-<td align="right">0.0130631</td>
-<td align="right">0.9895774</td>
-</tr>
-<tr class="even">
-<td>annotation1</td>
-<td align="right">-0.0040028</td>
-<td align="right">0.0026451</td>
-<td align="right">-1.5133139</td>
-<td align="right">0.1301999</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="all-tada-genes-for-fitting-the-50bp-window-model-estimate-relative-risk" class="section level5">
-<h5>all TADA genes for fitting the 50bp-window model: estimate relative risk</h5>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">relative_risk</th>
-<th align="right">lower_bound</th>
-<th align="right">upper_bournd</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Noonan+Roadmap Brain H3K27ac</td>
-<td align="right">0.9553802</td>
-<td align="right">0.2396905</td>
-<td align="right">1.6710699</td>
-</tr>
-<tr class="even">
-<td>Roadmap brain DHS</td>
-<td align="right">-0.3583100</td>
-<td align="right">-2.0128002</td>
-<td align="right">1.2961801</td>
-</tr>
-<tr class="odd">
-<td>ENCODE brain DHS</td>
-<td align="right">-0.3394881</td>
-<td align="right">-1.3385020</td>
-<td align="right">0.6595258</td>
-</tr>
-<tr class="even">
-<td>Phastcons100way</td>
-<td align="right">-0.0073503</td>
-<td align="right">-0.0470990</td>
-<td align="right">0.0323984</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="all-tada-genes-for-fitting-the-50bp-window-model-mutation-rate-adjustment" class="section level5">
-<h5>all TADA genes for fitting the 50bp-window model: mutation rate adjustment</h5>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">Estimate</th>
-<th align="right">Std. Error</th>
-<th align="right">z value</th>
-<th align="right">Pr(&gt;|z|)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>(Intercept)</td>
-<td align="right">0.0476207</td>
-<td align="right">0.0820522</td>
-<td align="right">0.5803713</td>
-<td align="right">0.5616642</td>
-</tr>
-<tr class="even">
-<td>coding</td>
-<td align="right">-1.1556713</td>
-<td align="right">0.1496375</td>
-<td align="right">-7.7231407</td>
-<td align="right">0.0000000</td>
-</tr>
-<tr class="odd">
-<td>promoter</td>
-<td align="right">-0.1771936</td>
-<td align="right">0.0957763</td>
-<td align="right">-1.8500776</td>
-<td align="right">0.0643024</td>
-</tr>
-<tr class="even">
-<td>cg</td>
-<td align="right">-0.5002264</td>
-<td align="right">0.1764912</td>
-<td align="right">-2.8342859</td>
-<td align="right">0.0045928</td>
-</tr>
-<tr class="odd">
-<td>epi1</td>
-<td align="right">-0.0443547</td>
-<td align="right">0.0727887</td>
-<td align="right">-0.6093629</td>
-<td align="right">0.5422839</td>
-</tr>
-<tr class="even">
-<td>epi2</td>
-<td align="right">-0.0175032</td>
-<td align="right">0.1109645</td>
-<td align="right">-0.1577365</td>
-<td align="right">0.8746644</td>
-</tr>
-<tr class="odd">
-<td>epi3</td>
-<td align="right">0.0009737</td>
-<td align="right">0.0745412</td>
-<td align="right">0.0130631</td>
-<td align="right">0.9895774</td>
-</tr>
-<tr class="even">
-<td>annotation1</td>
-<td align="right">-0.0040028</td>
-<td align="right">0.0026451</td>
-<td align="right">-1.5133139</td>
-<td align="right">0.1301999</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>ASD_model_manuscript$mle</code></pre>
-<pre><code>## $par
-## [1]  0.955380152 -0.358310049 -0.339488083 -0.007350286
+<div id="generate-a-dataset-with-1e6-bases-effect-size-3" class="section level5">
+<h5>generate a dataset with 1e6 bases, effect size 3</h5>
+<pre class="r"><code>data &lt;- sim_table_simple(1e6,base_mutrate = 1e-4, effect = 3)
+cate &lt;- adjust_muatation_rate_optimization_test_simple_categorization(data)
+glm &lt;- adjust_muatation_rate_optimization_test_simple_glm(data)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $split_time
+##    user  system elapsed 
+##   1.498   0.068   1.568 
 ## 
-## $value
-## [1] -18986.01
+## $optimization_time
+##    user  system elapsed 
+##   0.612   0.012   0.624 
 ## 
-## $counts
+## $mle
+## $mle$par
+## [1] 2.981739
+## 
+## $mle$value
+## [1] -2481.131
+## 
+## $mle$counts
 ## function gradient 
-##      205       NA 
+##       NA       NA 
 ## 
-## $convergence
+## $mle$convergence
 ## [1] 0
 ## 
-## $message
+## $mle$message
 ## NULL
 ## 
-## $hessian
-##            [,1]       [,2]       [,3]        [,4]
-## [1,] -11.615459  -1.730155  -4.839460   -53.93176
-## [2,]  -1.730155  -1.992267  -1.541147   -31.41639
-## [3,]  -4.839460  -1.541147  -6.255686   -31.18471
-## [4,] -53.931758 -31.416388 -31.184705 -2998.51323</code></pre>
+## $mle$hessian
+##           [,1]
+## [1,] -197.0001</code></pre>
+<pre class="r"><code>glm</code></pre>
+<pre><code>## $optimization_time
+##    user  system elapsed 
+##  26.742  10.417  26.115 
+## 
+## $mle
+## (Intercept)         ep1 
+##   0.1540262   2.8277130</code></pre>
+</div>
+<div id="generate-a-dataset-with-5e6-bases-effect-size-3" class="section level5">
+<h5>generate a dataset with 5e6 bases, effect size 3</h5>
+<pre class="r"><code>data &lt;- sim_table_simple(5e6,base_mutrate = 1e-4, effect = 3)
+cate &lt;- adjust_muatation_rate_optimization_test_simple_categorization(data)
+glm &lt;- adjust_muatation_rate_optimization_test_simple_glm(data)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $split_time
+##    user  system elapsed 
+##   7.404   0.943   8.355 
+## 
+## $optimization_time
+##    user  system elapsed 
+##   3.865   3.069   6.943 
+## 
+## $mle
+## $mle$par
+## [1] 3.003231
+## 
+## $mle$value
+## [1] -11730.45
+## 
+## $mle$counts
+## function gradient 
+##       NA       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##       [,1]
+## [1,] -1008</code></pre>
+<pre class="r"><code>glm</code></pre>
+<pre><code>## $optimization_time
+##    user  system elapsed 
+## 120.233  64.015 167.176 
+## 
+## $mle
+## (Intercept)         ep1 
+## -0.03155312  3.03478367</code></pre>
+</div>
+<div id="generate-a-dataset-with-1e7-bases-effect-size-1" class="section level5">
+<h5>generate a dataset with 1e7 bases, effect size 1</h5>
+<pre class="r"><code>data &lt;- sim_table_simple(1e7,base_mutrate = 1e-4, effect = 1)
+cate &lt;- adjust_muatation_rate_optimization_test_simple_categorization(data)
+glm &lt;- adjust_muatation_rate_optimization_test_simple_glm(data)
+rm(data)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $split_time
+##    user  system elapsed 
+##  15.913   0.256  16.183 
+## 
+## $optimization_time
+##    user  system elapsed 
+##   9.697   0.691  10.398 
+## 
+## $mle
+## $mle$par
+## [1] 1.07774
+## 
+## $mle$value
+## [1] -11920.28
+## 
+## $mle$counts
+## function gradient 
+##       NA       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##           [,1]
+## [1,] -294.0001</code></pre>
+<pre class="r"><code>glm</code></pre>
+<pre><code>## $optimization_time
+##    user  system elapsed 
+## 227.200  36.032 237.177 
+## 
+## $mle
+## (Intercept)         ep1 
+## 0.005614628 1.072125178</code></pre>
+</div>
+<div id="generate-a-dataset-with-1e7-bases-effect-size-1-using-version-2-function" class="section level5">
+<h5>generate a dataset with 1e7 bases, effect size 1, using Version 2 function</h5>
+<pre class="r"><code>data &lt;- sim_table_simple(1e7,base_mutrate = 1e-4, effect = 1)
+cate &lt;- adjust_muatation_rate_optimization_test_simple_categorization_v2(data)
+rm(data)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $split_time
+##    user  system elapsed 
+##  13.775   0.280  14.066 
+## 
+## $optimization_time
+##    user  system elapsed 
+##  52.591   1.899  54.540 
+## 
+## $mle
+## $mle$par
+## [1] 1.007489
+## 
+## $mle$value
+## [1] -11563.48
+## 
+## $mle$counts
+## function gradient 
+##       NA       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##           [,1]
+## [1,] -274.0001</code></pre>
+</div>
+<div id="generate-a-dataset-with-5e6-bases-effect-size-3-using-version-2-categorization-function" class="section level5">
+<h5>generate a dataset with 5e6 bases, effect size 3, using Version 2 categorization function</h5>
+<pre class="r"><code>data &lt;- sim_table_simple(5e6,base_mutrate = 1e-4, effect = 3)
+cate &lt;- adjust_muatation_rate_optimization_test_simple_categorization_v2(data)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $split_time
+##    user  system elapsed 
+##   7.271   0.076   7.352 
+## 
+## $optimization_time
+##    user  system elapsed 
+##   4.657   0.224   4.885 
+## 
+## $mle
+## $mle$par
+## [1] 3.008636
+## 
+## $mle$value
+## [1] -11765.15
+## 
+## $mle$counts
+## function gradient 
+##       NA       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##       [,1]
+## [1,] -1011</code></pre>
+</div>
+<div id="generate-a-dataset-with-1e7-bases-effect-size-1-using-version-1-function" class="section level5">
+<h5>generate a dataset with 1e7 bases, effect size 1, using Version 1 function</h5>
+<pre class="r"><code>data &lt;- sim_table_simple(1e7,base_mutrate = 1e-4, effect = 1)
+cate &lt;- adjust_muatation_rate_optimization_test_simple_categorization(data)
+rm(data)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $split_time
+##    user  system elapsed 
+##  13.805   0.236  14.052 
+## 
+## $optimization_time
+##    user  system elapsed 
+##  10.859   0.759  11.630 
+## 
+## $mle
+## $mle$par
+## [1] 0.9388879
+## 
+## $mle$value
+## [1] -11746.89
+## 
+## $mle$counts
+## function gradient 
+##       NA       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##           [,1]
+## [1,] -256.0001</code></pre>
+</div>
+<div id="generate-a-dataset-with-1e7-bases-effect-size-3-using-version-1-function" class="section level5">
+<h5>generate a dataset with 1e7 bases, effect size 3, using Version 1 function</h5>
+<pre class="r"><code>data &lt;- sim_table_simple(1e7,base_mutrate = 1e-4, effect = 3)
+cate &lt;- adjust_muatation_rate_optimization_test_simple_categorization(data)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $split_time
+##    user  system elapsed 
+##  13.803   0.276  14.090 
+## 
+## $optimization_time
+##    user  system elapsed 
+##   5.866   0.455   6.327 
+## 
+## $mle
+## $mle$par
+## [1] 3.005807
+## 
+## $mle$value
+## [1] -24208.09
+## 
+## $mle$counts
+## function gradient 
+##       NA       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##           [,1]
+## [1,] -2022.001</code></pre>
+</div>
+<div id="generate-a-dataset-with-1e7-bases-effect-size-3-using-version-2-function" class="section level5">
+<h5>generate a dataset with 1e7 bases, effect size 3, using Version 2 function</h5>
+<pre class="r"><code>cate &lt;- adjust_muatation_rate_optimization_test_simple_categorization_v2(data)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $split_time
+##    user  system elapsed 
+##  13.794   0.244  14.049 
+## 
+## $optimization_time
+##    user  system elapsed 
+##  24.126   0.911  25.059 
+## 
+## $mle
+## $mle$par
+## [1] 3.005807
+## 
+## $mle$value
+## [1] -24208.09
+## 
+## $mle$counts
+## function gradient 
+##       NA       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##           [,1]
+## [1,] -2022.001</code></pre>
+</div>
+<div id="generate-a-dataset-with-1e7-bases-effect-size-3-using-version-2_temp-function" class="section level5">
+<h5>generate a dataset with 1e7 bases, effect size 3, using Version 2_temp function</h5>
+<pre class="r"><code>cate &lt;- adjust_muatation_rate_optimization_test_simple_categorization_v2_temp(data)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $split_time
+##    user  system elapsed 
+##  13.430   0.248  13.688 
+## 
+## $optimization_time
+##    user  system elapsed 
+##   8.761   0.631   9.401 
+## 
+## $mle
+## $mle$par
+## [1] 3.005807
+## 
+## $mle$value
+## [1] -24208.09
+## 
+## $mle$counts
+## function gradient 
+##       NA       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##           [,1]
+## [1,] -2022.001</code></pre>
+</div>
+<div id="generate-a-dataset-with-3e7-bases-effect-size-3-using-version-2-function" class="section level5">
+<h5>generate a dataset with 3e7 bases, effect size 3, using Version 2 function</h5>
+<pre class="r"><code>data &lt;- sim_table_simple(3e7,base_mutrate = 1e-4, effect = 3)
+cate &lt;- adjust_muatation_rate_optimization_test_simple_categorization_v2(data)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $split_time
+##    user  system elapsed 
+##  41.947   0.776  42.754 
+## 
+## $optimization_time
+##    user  system elapsed 
+##  64.459   4.141  68.663 
+## 
+## $mle
+## $mle$par
+## [1] 2.99862
+## 
+## $mle$value
+## [1] -70989.52
+## 
+## $mle$counts
+## function gradient 
+##       NA       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##           [,1]
+## [1,] -6012.002</code></pre>
+</div>
+<div id="generate-a-dataset-with-3e7-bases-effect-size-3-using-version-2_temp-function" class="section level5">
+<h5>generate a dataset with 3e7 bases, effect size 3, using Version 2_temp function</h5>
+<pre class="r"><code>cate &lt;- adjust_muatation_rate_optimization_test_simple_categorization_v2_temp(data)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $split_time
+##    user  system elapsed 
+##  42.385   0.532  42.952 
+## 
+## $optimization_time
+##    user  system elapsed 
+##  19.297   3.889  23.209 
+## 
+## $mle
+## $mle$par
+## [1] 2.99862
+## 
+## $mle$value
+## [1] -70989.52
+## 
+## $mle$counts
+## function gradient 
+##       NA       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##           [,1]
+## [1,] -6012.002</code></pre>
+</div>
+<div id="generate-a-dataset-with-3e7-bases-effect-size-3-using-version-v3-function" class="section level5">
+<h5>generate a dataset with 3e7 bases, effect size 3, using Version V3 function</h5>
+<pre class="r"><code>cate &lt;- adjust_muatation_rate_optimization_test_simple_categorization_v3(data)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $split_time
+##    user  system elapsed 
+##  42.363   0.732  43.126 
+## 
+## $optimization_time
+##    user  system elapsed 
+##   0.011   0.000   0.011 
+## 
+## $mle
+## $mle$par
+## [1] 2.99862
+## 
+## $mle$value
+## [1] -70989.52
+## 
+## $mle$counts
+## function gradient 
+##       NA       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##           [,1]
+## [1,] -6012.002</code></pre>
+</div>
+<div id="generate-a-dataset-with-1e7-bases-effect-size-1-1" class="section level5">
+<h5>generate a dataset with 1e7 bases, effect size 1</h5>
+<pre class="r"><code>data &lt;- sim_table_simple(1e7,base_mutrate = 1e-4, effect = 1)
+cate &lt;- adjust_muatation_rate_optimization_test_simple_categorization(data)
+glm &lt;- adjust_muatation_rate_optimization_test_simple_glm(data)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $split_time
+##    user  system elapsed 
+##  17.157   0.291  17.464 
+## 
+## $optimization_time
+##    user  system elapsed 
+##  17.335   1.075  18.428 
+## 
+## $mle
+## $mle$par
+## [1] 1.04008
+## 
+## $mle$value
+## [1] -11812.1
+## 
+## $mle$counts
+## function gradient 
+##       NA       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##           [,1]
+## [1,] -283.0001</code></pre>
+<pre class="r"><code>glm</code></pre>
+<pre><code>## $optimization_time
+##    user  system elapsed 
+## 227.416  29.604 230.763 
+## 
+## $mle
+## (Intercept)         ep1 
+## 0.003349679 1.036730052</code></pre>
+</div>
+<div id="generate-a-dataset-with-1e7-bases-effect-size-1-using-version-v3-function" class="section level5">
+<h5>generate a dataset with 1e7 bases, effect size 1, using Version V3 function</h5>
+<pre class="r"><code>cate &lt;- adjust_muatation_rate_optimization_test_simple_categorization_v3(data)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $split_time
+##    user  system elapsed 
+##  10.817   0.260  11.085 
+## 
+## $optimization_time
+##    user  system elapsed 
+##   0.004   0.000   0.004 
+## 
+## $mle
+## $mle$par
+## [1] 1.04008
+## 
+## $mle$value
+## [1] -11812.1
+## 
+## $mle$counts
+## function gradient 
+##       NA       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##           [,1]
+## [1,] -283.0001</code></pre>
+</div>
+<div id="generate-a-dataset-with-1e7-bases-effect-size-1-2" class="section level5">
+<h5>generate a dataset with 1e7 bases, effect size 1</h5>
+<pre class="r"><code>data &lt;- sim_table_simple(1e7,base_mutrate = 1e-4, effect = 1)
+cate &lt;- adjust_muatation_rate_optimization_test_simple_categorization(data)
+glm &lt;- adjust_muatation_rate_optimization_test_simple_glm(data)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $split_time
+##    user  system elapsed 
+##  13.751   0.196  13.957 
+## 
+## $optimization_time
+##    user  system elapsed 
+##   9.962   0.604  10.576 
+## 
+## $mle
+## $mle$par
+## [1] 1.026865
+## 
+## $mle$value
+## [1] -11954.21
+## 
+## $mle$counts
+## function gradient 
+##       NA       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##           [,1]
+## [1,] -279.0001</code></pre>
+<pre class="r"><code>glm</code></pre>
+<pre><code>## $optimization_time
+##    user  system elapsed 
+## 219.420  28.045 222.146 
+## 
+## $mle
+## (Intercept)         ep1 
+##  0.02405902  1.00280591</code></pre>
+</div>
+<div id="generate-a-dataset-with-1e7-bases-effect-size-1-using-version-v3-function-1" class="section level5">
+<h5>generate a dataset with 1e7 bases, effect size 1, using Version V3 function</h5>
+<pre class="r"><code>cate &lt;- adjust_muatation_rate_optimization_test_simple_categorization_v3(data)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $split_time
+##    user  system elapsed 
+##  10.959   0.236  11.202 
+## 
+## $optimization_time
+##    user  system elapsed 
+##   0.005   0.000   0.005 
+## 
+## $mle
+## $mle$par
+## [1] 1.026865
+## 
+## $mle$value
+## [1] -11954.21
+## 
+## $mle$counts
+## function gradient 
+##       NA       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##           [,1]
+## [1,] -279.0001</code></pre>
+</div>
+<div id="generate-a-dataset-with-1e7-bases-effect-size-1-using-optimization-but-without-categorization" class="section level5">
+<h5>generate a dataset with 1e7 bases, effect size 1, using optimization but without categorization</h5>
+<pre class="r"><code>cate &lt;- adjust_muatation_rate_optimization_test_simple_without_categorization(data)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $optimization_time
+##    user  system elapsed 
+##  93.698   6.558 100.347 
+## 
+## $mle
+## $mle$par
+## [1] 1.026865
+## 
+## $mle$value
+## [1] -11954.21
+## 
+## $mle$counts
+## function gradient 
+##       NA       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##           [,1]
+## [1,] -279.0001</code></pre>
+</div>
+<div id="generate-a-dataset-with-5e7-bases-effect-size-1" class="section level5">
+<h5>generate a dataset with 5e7 bases, effect size 1</h5>
+<pre class="r"><code>data &lt;- sim_table_simple(5e7,base_mutrate = 1e-4, effect = 1)
+cate &lt;- adjust_muatation_rate_optimization_test_simple_categorization(data)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $split_time
+##    user  system elapsed 
+##  68.146   1.175  69.378 
+## 
+## $optimization_time
+##    user  system elapsed 
+##  84.270   4.675  89.036 
+## 
+## $mle
+## $mle$par
+## [1] 0.9969477
+## 
+## $mle$value
+## [1] -58329.36
+## 
+## $mle$counts
+## function gradient 
+##       NA       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##           [,1]
+## [1,] -1355.001</code></pre>
+</div>
+<div id="generate-a-dataset-with-5e7-bases-effect-size-1-using-version-v3-function" class="section level5">
+<h5>generate a dataset with 5e7 bases, effect size 1, using Version V3 function</h5>
+<pre class="r"><code>cate &lt;- adjust_muatation_rate_optimization_test_simple_categorization_v3(data)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $split_time
+##    user  system elapsed 
+##  68.443   3.513  72.017 
+## 
+## $optimization_time
+##    user  system elapsed 
+##   0.009   0.001   0.010 
+## 
+## $mle
+## $mle$par
+## [1] 0.9969475
+## 
+## $mle$value
+## [1] -58329.36
+## 
+## $mle$counts
+## function gradient 
+##       NA       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##       [,1]
+## [1,] -1355</code></pre>
+</div>
+<div id="generate-a-dataset-with-5e7-bases-effect-size-1-using-optimization-but-without-categorization" class="section level5">
+<h5>generate a dataset with 5e7 bases, effect size 1, using optimization but without categorization</h5>
+<pre class="r"><code>cate &lt;- adjust_muatation_rate_optimization_test_simple_without_categorization(data)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $optimization_time
+##    user  system elapsed 
+## 414.546  20.901 435.872 
+## 
+## $mle
+## $mle$par
+## [1] 0.9969476
+## 
+## $mle$value
+## [1] -58329.36
+## 
+## $mle$counts
+## function gradient 
+##       NA       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##           [,1]
+## [1,] -1355.001</code></pre>
 </div>
 
 

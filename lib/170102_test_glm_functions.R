@@ -175,7 +175,18 @@ sim_table <- function(sample_size = 2e8){
 }
 
 
+sim_table_simple <- function(sample_size = 2e8, base_mutrate = 1e-4, effect = 0.5){
+  # only has one binary predictor
+  # effect is on the log scale
+  predictors <- data.frame(ep1 = rbinom(sample_size,1,rep(base_mutrate,sample_size)))
+  colnames(predictors) <- c("ep1")
+  predictors$count <- rpois(sample_size,exp(as.matrix(predictors)%*%c(effect)))
+  predictors
+}
+
 adjust_muatation_rate_optimization_test <- function(data){
+  c = dim(data)
+  d = dim(data)
   data$annotation1 <- cut(data$annotation1, breaks = quantile(data$annotation1, seq(0,1,0.2)),labels = c("1","2","3","4","5"), include.lowest = TRUE)
   data$annotation2 <- cut(data$annotation2, breaks = quantile(data$annotation2, seq(0,1,0.2)),labels = c("1","2","3","4","5"), include.lowest = TRUE)
   response <- data$count

@@ -6,6 +6,7 @@ Rdata <- args[1] # prefix of Rdata that needs to be transformed, e.g., 0703_regi
 mutation_type <- args[2] #SNVs or indels
 motif_pct_cutoff<- as.numeric(args[3]) # for example 0.9
 annovar_folder <- args[4] # for example /media/yuwen/Elements/ANNOVAR/annovar/
+spidex_folder <- args[5] # for example /media/yuwen/Elements/spidex_database/, this folder at least has spidex_public_noncommercial_v1_0.tab.gz and spedix_header
 
 #regions_file <- args[2]
 #region_out <- basename(regions_file)
@@ -132,6 +133,15 @@ CG_content$CG_500bp = cg_pct[,2]
 CG_content$index = cg_pct[,1]
 
 system(paste("rm ", prefix, "*mutation*bed*",sep = ""))
+
+### get the spidex output
+temp_for_spedix = data.frame(mutation[,1:2], mutation$index, ref_alt_allele)
+write.table(temp_for_spedix, paste(prefix, "_for_spedix_temp.txt",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+command <- paste("python ../lib/yanyu_CRI_query_tabix_for_python_3.py ", paste(prefix, "_for_spedix_temp.txt ",sep = ""), paste(spidex_folder, "spidex_public_noncommercial_v1_0.tab.gz ",sep = "/"), paste(spidex_folder, "spidex_header", sep = "/"), " > ", paste(prefix,"_for_spedix_temp.output",sep = ""), sep = "")
+system(command)
+mut_spedix <- read.delim(paste(prefix,"_for_spedix_temp.output",sep = ""), header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+system(paste("rm ", prefix, "_for_spidex_temp.txt",sep = ""))
+system(paste("rm ", prefix, "_for_spidex_temp.output",sep = ""))
 
 ### save to output
 output = paste(Rdata, "transformed_for_old_code.Rdata", sep = "")

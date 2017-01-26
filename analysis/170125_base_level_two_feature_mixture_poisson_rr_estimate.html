@@ -111,253 +111,198 @@ $(document).ready(function () {
 </div>
 
 
-<div id="combine-promoter-and-enhancer-together-for-estimating-relative-risk" class="section level5">
-<h5>combine promoter and enhancer together for estimating relative risk</h5>
+<pre class="r"><code>set.seed(100)
+source(&quot;../lib/170122_base_level_simulation_functions.R&quot;)</code></pre>
+<div id="base-level-simulation-and-optimization-of-mutation-rate-adjustion-parameters-using-optim-without-categorization" class="section level5">
+<h5>base-level simulation and optimization of mutation rate adjustion parameters using optim() without categorization</h5>
+<pre><code>Assume 2 binary variables (e.g., epigenomic annotations) affect the mutational rate of risk genes.
+Assume the mutation rate has already been adjusted for.
+</code></pre>
 </div>
-<div id="top-6-tada-genes-for-fitting-the-50bp-window-model-estimate-relative-risk" class="section level5">
-<h5>top 6% TADA genes for fitting the 50bp-window model: estimate relative risk</h5>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">relative_risk</th>
-<th align="right">lower_bound</th>
-<th align="right">upper_bournd</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Noonan+Roadmap Brain H3K27ac</td>
-<td align="right">1.1082532</td>
-<td align="right">0.3502107</td>
-<td align="right">1.8662957</td>
-</tr>
-<tr class="even">
-<td>Roadmap brain DHS</td>
-<td align="right">0.1376342</td>
-<td align="right">-1.2546223</td>
-<td align="right">1.5298908</td>
-</tr>
-<tr class="odd">
-<td>ENCODE brain DHS</td>
-<td align="right">-0.5113040</td>
-<td align="right">-1.5816508</td>
-<td align="right">0.5590429</td>
-</tr>
-<tr class="even">
-<td>Phastcons100way</td>
-<td align="right">-0.0199170</td>
-<td align="right">-0.0634835</td>
-<td align="right">0.0236494</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="top-6-tada-genes-for-fitting-the-50bp-window-model-mutation-rate-adjustment" class="section level5">
-<h5>top 6% TADA genes for fitting the 50bp-window model: mutation rate adjustment</h5>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">Estimate</th>
-<th align="right">Std. Error</th>
-<th align="right">z value</th>
-<th align="right">Pr(&gt;|z|)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>(Intercept)</td>
-<td align="right">0.0476207</td>
-<td align="right">0.0820522</td>
-<td align="right">0.5803713</td>
-<td align="right">0.5616642</td>
-</tr>
-<tr class="even">
-<td>coding</td>
-<td align="right">-1.1556713</td>
-<td align="right">0.1496375</td>
-<td align="right">-7.7231407</td>
-<td align="right">0.0000000</td>
-</tr>
-<tr class="odd">
-<td>promoter</td>
-<td align="right">-0.1771936</td>
-<td align="right">0.0957763</td>
-<td align="right">-1.8500776</td>
-<td align="right">0.0643024</td>
-</tr>
-<tr class="even">
-<td>cg</td>
-<td align="right">-0.5002264</td>
-<td align="right">0.1764912</td>
-<td align="right">-2.8342859</td>
-<td align="right">0.0045928</td>
-</tr>
-<tr class="odd">
-<td>epi1</td>
-<td align="right">-0.0443547</td>
-<td align="right">0.0727887</td>
-<td align="right">-0.6093629</td>
-<td align="right">0.5422839</td>
-</tr>
-<tr class="even">
-<td>epi2</td>
-<td align="right">-0.0175032</td>
-<td align="right">0.1109645</td>
-<td align="right">-0.1577365</td>
-<td align="right">0.8746644</td>
-</tr>
-<tr class="odd">
-<td>epi3</td>
-<td align="right">0.0009737</td>
-<td align="right">0.0745412</td>
-<td align="right">0.0130631</td>
-<td align="right">0.9895774</td>
-</tr>
-<tr class="even">
-<td>annotation1</td>
-<td align="right">-0.0040028</td>
-<td align="right">0.0026451</td>
-<td align="right">-1.5133139</td>
-<td align="right">0.1301999</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="all-tada-genes-for-fitting-the-50bp-window-model-estimate-relative-risk" class="section level5">
-<h5>all TADA genes for fitting the 50bp-window model: estimate relative risk</h5>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">relative_risk</th>
-<th align="right">lower_bound</th>
-<th align="right">upper_bournd</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Noonan+Roadmap Brain H3K27ac</td>
-<td align="right">0.9553802</td>
-<td align="right">0.2396905</td>
-<td align="right">1.6710699</td>
-</tr>
-<tr class="even">
-<td>Roadmap brain DHS</td>
-<td align="right">-0.3583100</td>
-<td align="right">-2.0128002</td>
-<td align="right">1.2961801</td>
-</tr>
-<tr class="odd">
-<td>ENCODE brain DHS</td>
-<td align="right">-0.3394881</td>
-<td align="right">-1.3385020</td>
-<td align="right">0.6595258</td>
-</tr>
-<tr class="even">
-<td>Phastcons100way</td>
-<td align="right">-0.0073503</td>
-<td align="right">-0.0470990</td>
-<td align="right">0.0323984</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="all-tada-genes-for-fitting-the-50bp-window-model-mutation-rate-adjustment" class="section level5">
-<h5>all TADA genes for fitting the 50bp-window model: mutation rate adjustment</h5>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">Estimate</th>
-<th align="right">Std. Error</th>
-<th align="right">z value</th>
-<th align="right">Pr(&gt;|z|)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>(Intercept)</td>
-<td align="right">0.0476207</td>
-<td align="right">0.0820522</td>
-<td align="right">0.5803713</td>
-<td align="right">0.5616642</td>
-</tr>
-<tr class="even">
-<td>coding</td>
-<td align="right">-1.1556713</td>
-<td align="right">0.1496375</td>
-<td align="right">-7.7231407</td>
-<td align="right">0.0000000</td>
-</tr>
-<tr class="odd">
-<td>promoter</td>
-<td align="right">-0.1771936</td>
-<td align="right">0.0957763</td>
-<td align="right">-1.8500776</td>
-<td align="right">0.0643024</td>
-</tr>
-<tr class="even">
-<td>cg</td>
-<td align="right">-0.5002264</td>
-<td align="right">0.1764912</td>
-<td align="right">-2.8342859</td>
-<td align="right">0.0045928</td>
-</tr>
-<tr class="odd">
-<td>epi1</td>
-<td align="right">-0.0443547</td>
-<td align="right">0.0727887</td>
-<td align="right">-0.6093629</td>
-<td align="right">0.5422839</td>
-</tr>
-<tr class="even">
-<td>epi2</td>
-<td align="right">-0.0175032</td>
-<td align="right">0.1109645</td>
-<td align="right">-0.1577365</td>
-<td align="right">0.8746644</td>
-</tr>
-<tr class="odd">
-<td>epi3</td>
-<td align="right">0.0009737</td>
-<td align="right">0.0745412</td>
-<td align="right">0.0130631</td>
-<td align="right">0.9895774</td>
-</tr>
-<tr class="even">
-<td>annotation1</td>
-<td align="right">-0.0040028</td>
-<td align="right">0.0026451</td>
-<td align="right">-1.5133139</td>
-<td align="right">0.1301999</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>ASD_model_manuscript$mle</code></pre>
-<pre><code>## $par
-## [1]  0.955380152 -0.358310049 -0.339488083 -0.007350286
+<div id="generate-a-dataset-with-100basegene-500-genes-effect-size-2" class="section level5">
+<h5>generate a dataset with 100base/gene, 500 genes, effect size 2</h5>
+<pre class="r"><code>mutation_count &lt;- mutation_simulator_v2(gene_number = 500,window_number=100,feature_prob = 0.2,base_rate = 2e-6,sample_size = 314, p_risk = 0.3, effect_size = 2)</code></pre>
+<pre><code>## Warning in merge.data.frame(data, feature_indicator_2, by.x = c(&quot;X1&quot;,
+## &quot;X2&quot;), : column names 'value.x', 'value.y' are duplicated in the result</code></pre>
+<pre class="r"><code>cate &lt;- estimate_effect_size_for_simulation_data_mixture_with_categorization(mutation_count)
+noncate &lt;- estimate_effect_size_for_simulation_data_mixture_without_categorization(mutation_count)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $partition_time1
+##    user  system elapsed 
+##   0.062   0.000   0.062 
 ## 
-## $value
-## [1] -18986.01
+## $partition_time2
+##    user  system elapsed 
+##   0.631   0.000   0.632 
 ## 
-## $counts
+## $optimization_time
+##    user  system elapsed 
+##   4.412   0.001   4.417 
+## 
+## $mle
+## $mle$par
+## [1] 0.774845 1.200506
+## 
+## $mle$value
+## [1] -591.777
+## 
+## $mle$counts
 ## function gradient 
-##      205       NA 
+##      113       NA 
 ## 
-## $convergence
+## $mle$convergence
 ## [1] 0
 ## 
-## $message
+## $mle$message
 ## NULL
 ## 
-## $hessian
-##            [,1]       [,2]       [,3]        [,4]
-## [1,] -11.615459  -1.730155  -4.839460   -53.93176
-## [2,]  -1.730155  -1.992267  -1.541147   -31.41639
-## [3,]  -4.839460  -1.541147  -6.255686   -31.18471
-## [4,] -53.931758 -31.416388 -31.184705 -2998.51323</code></pre>
+## $mle$hessian
+##           [,1]       [,2]
+## [1,] -7.472186  -3.642946
+## [2,] -3.642946 -10.145071</code></pre>
+<pre class="r"><code>noncate</code></pre>
+<pre><code>## $optimization_time
+##    user  system elapsed 
+##  37.112   0.000  37.146 
+## 
+## $mle
+## $mle$par
+## [1] 0.774845 1.200506
+## 
+## $mle$value
+## [1] -591.777
+## 
+## $mle$counts
+## function gradient 
+##      113       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##           [,1]       [,2]
+## [1,] -7.472186  -3.642946
+## [2,] -3.642946 -10.145071</code></pre>
+</div>
+<div id="generate-a-dataset-with-10000basegene-500-genes-effect-size-2" class="section level5">
+<h5>generate a dataset with 10000base/gene, 500 genes, effect size 2</h5>
+<pre class="r"><code>mutation_count &lt;- mutation_simulator_v2(gene_number = 500,window_number=10000,feature_prob = 0.2,base_rate = 2e-6,sample_size = 314, p_risk = 0.3, effect_size = 2)</code></pre>
+<pre><code>## Warning in merge.data.frame(data, feature_indicator_2, by.x = c(&quot;X1&quot;,
+## &quot;X2&quot;), : column names 'value.x', 'value.y' are duplicated in the result</code></pre>
+<pre class="r"><code>cate &lt;- estimate_effect_size_for_simulation_data_mixture_with_categorization(mutation_count)
+noncate &lt;- estimate_effect_size_for_simulation_data_mixture_without_categorization(mutation_count)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $partition_time1
+##    user  system elapsed 
+##   2.360   0.000   2.363 
+## 
+## $partition_time2
+##    user  system elapsed 
+##   3.242   0.000   3.245 
+## 
+## $optimization_time
+##    user  system elapsed 
+##   3.412   0.004   3.419 
+## 
+## $mle
+## $mle$par
+## [1] 0.6714944 0.7198011
+## 
+## $mle$value
+## [1] -53361.84
+## 
+## $mle$counts
+## function gradient 
+##       85       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##           [,1]      [,2]
+## [1,] -623.8983 -150.8741
+## [2,] -150.8741 -659.9368</code></pre>
+<pre class="r"><code>noncate</code></pre>
+<pre><code>## $optimization_time
+##     user   system  elapsed 
+## 1067.238    1.055 1069.208 
+## 
+## $mle
+## $mle$par
+## [1] 0.6714944 0.7198011
+## 
+## $mle$value
+## [1] -53361.84
+## 
+## $mle$counts
+## function gradient 
+##       85       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##           [,1]      [,2]
+## [1,] -623.8983 -150.8741
+## [2,] -150.8741 -659.9368</code></pre>
+<pre class="r"><code>dim(mutation_count$data)</code></pre>
+<pre><code>## [1] 5000000       6</code></pre>
+<pre class="r"><code>rm(mutation_count)</code></pre>
+</div>
+<div id="generate-a-dataset-with-10000basegene-5000-genes-effect-size-2" class="section level5">
+<h5>generate a dataset with 10000base/gene, 5000 genes, effect size 2</h5>
+<pre class="r"><code>mutation_count &lt;- mutation_simulator_v2(gene_number = 5000,window_number=10000,feature_prob = 0.2,base_rate = 2e-6,sample_size = 314, p_risk = 0.3, effect_size = 2)</code></pre>
+<pre><code>## Warning in merge.data.frame(data, feature_indicator_2, by.x = c(&quot;X1&quot;,
+## &quot;X2&quot;), : column names 'value.x', 'value.y' are duplicated in the result</code></pre>
+<pre class="r"><code>cate &lt;- estimate_effect_size_for_simulation_data_mixture_with_categorization(mutation_count)
+#noncate &lt;- estimate_effect_size_for_simulation_data_mixture_without_categorization(mutation_count)</code></pre>
+<pre class="r"><code>cate</code></pre>
+<pre><code>## $partition_time1
+##    user  system elapsed 
+## 121.604   3.505 125.225 
+## 
+## $partition_time2
+##    user  system elapsed 
+##  33.050   0.264  33.341 
+## 
+## $optimization_time
+##    user  system elapsed 
+##  44.696   0.000  44.731 
+## 
+## $mle
+## $mle$par
+## [1] 0.6917520 0.6801318
+## 
+## $mle$value
+## [1] -535124.2
+## 
+## $mle$counts
+## function gradient 
+##      113       NA 
+## 
+## $mle$convergence
+## [1] 0
+## 
+## $mle$message
+## NULL
+## 
+## $mle$hessian
+##           [,1]      [,2]
+## [1,] -6314.512 -1504.037
+## [2,] -1504.037 -6251.924</code></pre>
+<pre class="r"><code>#noncate
+dim(mutation_count$data)</code></pre>
+<pre><code>## [1] 50000000        6</code></pre>
+<pre class="r"><code>rm(mutation_count)</code></pre>
 </div>
 
 

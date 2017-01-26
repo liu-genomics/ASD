@@ -121,8 +121,11 @@ Assume baselevel mutation rate is 1 for every base. Five bins are used for each 
 </div>
 <div id="simulate-1e6-bases" class="section level5">
 <h5>simulate 1e6 bases</h5>
-<pre class="r"><code>data &lt;- sim_table(1e6)</code></pre>
-<pre class="r"><code>estimate &lt;- adjust_muatation_rate_optimization_test(data)</code></pre>
+<pre class="r"><code>data &lt;- sim_table(0.5e4)
+dim(data)</code></pre>
+<pre><code>## [1] 5000    8</code></pre>
+<pre class="r"><code>c = 1
+estimate &lt;- adjust_muatation_rate_optimization_test(data)</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -135,60 +138,60 @@ Assume baselevel mutation rate is 1 for every base. Five bins are used for each 
 <tbody>
 <tr class="odd">
 <td align="right">2.00</td>
-<td align="right">1.8511132</td>
-<td align="right">1.8480550</td>
-<td align="right">1.8541713</td>
+<td align="right">1.7298594</td>
+<td align="right">1.6852406</td>
+<td align="right">1.7744782</td>
 </tr>
 <tr class="even">
 <td align="right">0.50</td>
-<td align="right">0.3972284</td>
-<td align="right">0.3920624</td>
-<td align="right">0.4023945</td>
+<td align="right">-0.5650663</td>
+<td align="right">-0.6842861</td>
+<td align="right">-0.4458465</td>
 </tr>
 <tr class="odd">
 <td align="right">0.70</td>
-<td align="right">0.5258521</td>
-<td align="right">0.5209581</td>
-<td align="right">0.5307460</td>
+<td align="right">-0.0270520</td>
+<td align="right">-0.1225226</td>
+<td align="right">0.0684186</td>
 </tr>
 <tr class="even">
 <td align="right">1.40</td>
-<td align="right">1.2666233</td>
-<td align="right">1.2629656</td>
-<td align="right">1.2702809</td>
+<td align="right">0.7531050</td>
+<td align="right">0.6896723</td>
+<td align="right">0.8165378</td>
 </tr>
 <tr class="odd">
 <td align="right">0.00</td>
-<td align="right">-0.3302978</td>
-<td align="right">-0.3374861</td>
-<td align="right">-0.3231095</td>
+<td align="right">-1.7803705</td>
+<td align="right">-1.9920709</td>
+<td align="right">-1.5686701</td>
 </tr>
 <tr class="even">
 <td align="right">0.04</td>
-<td align="right">-0.0333894</td>
-<td align="right">-0.0341451</td>
-<td align="right">-0.0326337</td>
+<td align="right">-0.0246918</td>
+<td align="right">-0.0355439</td>
+<td align="right">-0.0138397</td>
 </tr>
 <tr class="odd">
 <td align="right">0.10</td>
-<td align="right">0.1429420</td>
-<td align="right">0.1422447</td>
-<td align="right">0.1436393</td>
+<td align="right">0.1780772</td>
+<td align="right">0.1682009</td>
+<td align="right">0.1879535</td>
 </tr>
 </tbody>
 </table>
 <pre><code>##    user  system elapsed 
-## 740.470  22.038 763.457</code></pre>
+##  72.709   0.057  72.837</code></pre>
 <pre><code>## $par
-## [1]  1.85111316  0.39722845  0.52585208  1.26662326 -0.33029778 -0.03338939
-## [7]  0.14294200
+## [1]  1.72985939 -0.56506634 -0.02705200  0.75310503 -1.78037053 -0.02469176
+## [7]  0.17807721
 ## 
 ## $value
-## [1] 207664.9
+## [1] 78.47511
 ## 
 ## $counts
 ## function gradient 
-##     1376       NA 
+##     2214       NA 
 ## 
 ## $convergence
 ## [1] 0
@@ -197,22 +200,22 @@ Assume baselevel mutation rate is 1 for every base. Five bins are used for each 
 ## NULL
 ## 
 ## $hessian
-##             [,1]        [,2]        [,3]        [,4]        [,5]
-## [1,]  -533168.38  -38735.341  -44251.894   -85546.90  -18744.905
-## [2,]   -38735.34 -154081.993  -12375.902   -24569.32   -5781.676
-## [3,]   -44251.89  -12375.902 -173338.115   -27174.44   -6227.445
-## [4,]   -85546.90  -24569.322  -27174.445  -335544.85  -11613.015
-## [5,]   -18744.91   -5781.676   -6227.445   -11613.02  -76873.408
-## [6,] -1568650.19 -451314.650 -510051.122  -984264.13 -224792.624
-## [7,] -1749814.53 -502606.953 -568057.339 -1100894.59 -251986.489
-##             [,6]        [,7]
-## [1,]  -1568650.2  -1749814.5
-## [2,]   -451314.7   -502607.0
-## [3,]   -510051.1   -568057.3
-## [4,]   -984264.1  -1100894.6
-## [5,]   -224792.6   -251986.5
-## [6,] -22504595.2 -20445245.6
-## [7,] -20445245.6 -26980926.8</code></pre>
+##             [,1]        [,2]         [,3]         [,4]        [,5]
+## [1,] -2435.48472  -59.867767  -133.013536  -298.110384  -18.699359
+## [2,]   -59.86777 -277.207163   -26.823039   -22.421436   -1.788749
+## [3,]  -133.01354  -26.823039  -441.675686   -68.001102   -2.451148
+## [4,]  -298.11038  -22.421436   -68.001102 -1054.363203   -8.027159
+## [5,]   -18.69936   -1.788749    -2.451148    -8.027159  -86.342379
+## [6,] -6776.48239 -783.666611 -1269.924465 -2893.172015 -240.043552
+## [7,] -7853.42558 -864.548876 -1494.273859 -3472.501293 -278.331363
+##              [,6]         [,7]
+## [1,]   -6776.4824   -7853.4256
+## [2,]    -783.6666    -864.5489
+## [3,]   -1269.9245   -1494.2739
+## [4,]   -2893.1720   -3472.5013
+## [5,]    -240.0436    -278.3314
+## [6,] -105756.5339  -97682.8006
+## [7,]  -97682.8006 -131646.2658</code></pre>
 </div>
 
 

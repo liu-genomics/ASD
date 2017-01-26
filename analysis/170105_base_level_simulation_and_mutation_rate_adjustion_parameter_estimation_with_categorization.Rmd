@@ -11,11 +11,13 @@ Assume baselevel mutation rate is 1 for every base. Five bins are used for each 
 ```
 
 ##### simulate 1e6 bases
-```{r,cache=TRUE,dependson=sim_table}
-data <- sim_table(1e6)
+```{r,cache=TRUE,cache.extra=sim_table}
+data <- sim_table(0.5e4)
+dim(data)
 ```
 
-```{r,cache=TRUE, dependson=adjust_muatation_rate_optimization_test}
+```{r,cache=TRUE, cache.extra =  adjust_muatation_rate_optimization_test, dependson=data}
+c = 1
 estimate <- adjust_muatation_rate_optimization_test(data)
 ```
 
@@ -27,4 +29,6 @@ lower<-estimate$mle$par-1.96*prop_sigma
 temp <- data.frame(true_value = c(2,0.5,0.7,1.4,0,0.2/5,0.5/5), estimate = estimate$mle$par, lower_bound = lower, upper_bound = upper)
 knitr::kable(temp)
 estimate$running_time
+estimate$mle
 ```
+

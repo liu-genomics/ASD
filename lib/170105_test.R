@@ -119,6 +119,7 @@ adjust_muatation_rate_optimization_test <- function(data){
   list(running_time = running_time2, mle = mle)
 }
 
+adjust_muatation_rate_optimization_test(data)
 
 
 
