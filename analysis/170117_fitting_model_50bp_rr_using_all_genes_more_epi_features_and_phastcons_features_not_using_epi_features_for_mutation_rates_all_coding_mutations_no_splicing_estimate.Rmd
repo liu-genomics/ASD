@@ -17,6 +17,8 @@ The RR of Brain H3K27ac was estimated from the mixture poisson model.
 
 ```{r}
 source("../lib/161117_glm_for_mutation_count.R")
+library(data.table)
+library(parallel)
 ```
 
 ##### all genes for fitting the 50bp-window model: estimate relative risk
