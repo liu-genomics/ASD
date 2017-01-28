@@ -11,6 +11,8 @@ source("../lib/170122_base_level_simulation_functions.R")
 ***
 **NOTE**
 
+This is used for a test run on rcc cluster
+
 1. First adjust for mutation rate for each 50bp window, then apply the the adjusting factor for each base so we could get the base-level adjusted mutation rate. When adjusting for mutation rates, only consider features including promoter, coding, within-10kb non-coding, and 50bp cg contents.
 2. Only consider the relative risk from active promoters and enhancers (union), marked by Noonan and Roadmap brain H3k27ac. 
 3. Only use bases from top 6% TADA genes for now.
@@ -72,7 +74,7 @@ annovar_input = "no.txt",
 gene_assign_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename.bed",
 gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
 report_proportion = 0.06,
-mutrate_ref_file = "/media/yuwen/Elements/mutation_rate_raw/MarkDaly/Daly_mutrate.bw",
+mutrate_ref_file = "../other_annotation/mutation_rate/Daly_mutrate.bw",
 node_n = 6))
 
 # transfomr mutation table
