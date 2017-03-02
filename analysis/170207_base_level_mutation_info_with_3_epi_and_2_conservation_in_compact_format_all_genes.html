@@ -269,7 +269,7 @@ div.tocify {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="index.html">Collaboration J Project</a>
+      <a class="navbar-brand" href="index.html">ASD Project</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
@@ -2741,6 +2741,823 @@ knitr::kable(performance_table(TADA_table_filtered))</code></pre>
 <td align="right">15.34435</td>
 <td align="right">0.3009029</td>
 <td align="right">0.2951882</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="cacluate-the-bayes-factor-table-for-splicing-mutations-summing-mutation-rate-from-chrx-and-chry-for-a-gene-if-it-is-on-both-chrx-and-chry" class="section level2">
+<h2><span class="header-section-number">3.4</span> <em>cacluate the bayes factor table for splicing mutations, summing mutation rate from ChrX and ChrY for a gene if it is on both ChrX and ChrY</em></h2>
+<pre class="r"><code>### currently the table below has duplicated entries, because there are a few genes that have appeared both on X chromosome and Y chromosome. 
+### Now I sum up the matation rates from both chrx and chrY for such genes. 
+
+head(splicing_BF_table$splicing_BF_table)</code></pre>
+<pre><code>##    genename logBF_splicing BF_splicing
+## 1:   SAMD11  -0.0105229458   0.9895322
+## 2:    NOC2L  -0.0099645541   0.9900849
+## 3:   KLHL17  -0.0060241772   0.9939939
+## 4:  PLEKHN1  -0.0105621082   0.9894935
+## 5:    PERM1  -0.0005756045   0.9994246
+## 6:     HES4  -0.0015764676   0.9984248</code></pre>
+<pre class="r"><code>splicing_BF_table_collapsed &lt;- by(splicing_BF_table$splicing_BF_table, splicing_BF_table$splicing_BF_table$genename, function(x) sum(x$logBF_splicing)) 
+#splicing_BF_table_collapsed 
+splicing_BF_table_collapsed &lt;- data.table(genename = names(splicing_BF_table_collapsed), logBF_splicing = as.vector(splicing_BF_table_collapsed), BF_splicing = exp(as.vector(splicing_BF_table_collapsed)))</code></pre>
+</div>
+<div id="now-combine-information-from-splicing-collapsed-version-to-other-non_coding-mutations" class="section level2">
+<h2><span class="header-section-number">3.5</span> <em>now combine information from splicing (collapsed version) to other non_coding mutations</em></h2>
+<pre class="r"><code>combined_BF_table &lt;- splicing_BF_table_collapsed[TADA_table$gene_BF_table, on = &quot;genename&quot;]
+combined_BF_table</code></pre>
+<pre><code>##        genename logBF_splicing BF_splicing logBF_noncoding logBF_coding
+##     1:    SCN2A   -0.015087809   0.9850254    -0.006766934    23.561577
+##     2:     CHD8   -0.013165998   0.9869203    -0.014154934    22.713553
+##     3:  SYNGAP1   -0.012624522   0.9874548    -0.053829740    15.412931
+##     4:   ARID1B   -0.013266887   0.9868207    -0.032391010    14.856753
+##     5:   DYRK1A   -0.008601051   0.9914358    -0.042500155    14.746632
+##    ---                                                                 
+## 18661:     PKD1   -0.021357969   0.9788685    -0.059707314    -4.269452
+## 18662:     PLEC   -0.015255892   0.9848599    -0.157351908    -5.001259
+## 18663:    FCGBP   -0.008248457   0.9917855    -0.015437672    -5.176946
+## 18664:      TTN   -0.219350162   0.8030405     0.000000000    -5.905323
+## 18665:    MUC16   -0.054426911   0.9470277     0.000000000    -6.536660
+##        logBF_all BF_noncoding    BF_coding       BF_all   FDR_coding
+##     1: 23.554810    0.9932559 1.708689e+10 1.697165e+10 9.168826e-10
+##     2: 22.699398    0.9859448 7.317632e+09 7.214781e+09 1.528915e-09
+##     3: 15.359101    0.9475934 4.940272e+06 4.681369e+06 1.058088e-06
+##     4: 14.824362    0.9681280 2.832734e+06 2.742449e+06 2.176203e-06
+##     5: 14.704131    0.9583903 2.537352e+06 2.431774e+06 2.975838e-06
+##    ---                                                              
+## 18661: -4.329160    0.9420402 1.398944e-02 1.317862e-02 9.412171e-01
+## 18662: -5.158611    0.8544033 6.729469e-03 5.749681e-03 9.412202e-01
+## 18663: -5.192383    0.9846809 5.645222e-03 5.558742e-03 9.412233e-01
+## 18664: -5.905323    1.0000000 2.724902e-03 2.724902e-03 9.412265e-01
+## 18665: -6.536660    1.0000000 1.449321e-03 1.449321e-03 9.412296e-01
+##             FDR_all
+##     1: 9.231080e-10
+##     2: 1.547288e-09
+##     3: 1.116561e-06
+##     4: 2.265576e-06
+##     5: 3.100950e-06
+##    ---             
+## 18661: 9.412750e-01
+## 18662: 9.412781e-01
+## 18663: 9.412813e-01
+## 18664: 9.412844e-01
+## 18665: 9.412875e-01</code></pre>
+<pre class="r"><code># get a list of genes that don&#39;t have splicing info.
+genes_with_no_info_from_splicing_BF_table &lt;- combined_BF_table[is.na(combined_BF_table$logBF_splicing),]$genename
+
+# change the logBF_splicing of these genes to 0 and BF of these genes to 1
+combined_BF_table[is.na(combined_BF_table$logBF_splicing),][,c(&quot;logBF_splicing&quot;)] = 0
+combined_BF_table[is.na(combined_BF_table$BF_splicing),][,c(&quot;BF_splicing&quot;)] = 1
+
+combined_BF_table[is.element(combined_BF_table$genename, genes_with_no_info_from_splicing_BF_table),]</code></pre>
+<pre><code>##       genename logBF_splicing BF_splicing logBF_noncoding logBF_coding
+##    1:     MLL3              0           1      0.00000000     5.368897
+##    2:     MLL5              0           1      0.00000000     4.721863
+##    3:     MFRP              0           1     -0.01754074     3.984587
+##    4:     CCIN              0           1     -0.02681743     3.931569
+##    5:  IRF2BPL              0           1     -0.08355408     3.470252
+##   ---                                                                 
+## 2943:    GPR98              0           1      0.00000000    -2.599270
+## 2944:    EPPK1              0           1     -0.08886584    -2.573861
+## 2945:  PRIC285              0           1      0.00000000    -2.703290
+## 2946:   ZNF469              0           1     -0.01039400    -2.763213
+## 2947:     MLL2              0           1      0.00000000    -2.906505
+##       logBF_all BF_noncoding    BF_coding       BF_all FDR_coding
+##    1:  5.368897    1.0000000 214.62602200 214.62602200 0.02174861
+##    2:  4.721863    1.0000000 112.37739057 112.37739057 0.04279135
+##    3:  3.967047    0.9826122  53.76310336  52.82828156 0.08571576
+##    4:  3.904751    0.9735390  50.98689831  49.63773219 0.09362261
+##    5:  3.386698    0.9198413  32.14482920  29.56814282 0.14422228
+##   ---                                                            
+## 2943: -2.599270    1.0000000   0.07432784   0.07432784 0.94111490
+## 2944: -2.662726    0.9149683   0.07624065   0.06975778 0.94110618
+## 2945: -2.703290    1.0000000   0.06698477   0.06698477 0.94112368
+## 2946: -2.773607    0.9896598   0.06308872   0.06243637 0.94112956
+## 2947: -2.906505    1.0000000   0.05466643   0.05466643 0.94115027
+##          FDR_all
+##    1: 0.02255157
+##    2: 0.04192966
+##    3: 0.09149403
+##    4: 0.10120764
+##    5: 0.15439946
+##   ---           
+## 2943: 0.94116712
+## 2944: 0.94117878
+## 2945: 0.94118463
+## 2946: 0.94119051
+## 2947: 0.94120826</code></pre>
+<pre class="r"><code># add splicing info to BF_all
+combined_BF_table$logBF_all &lt;- combined_BF_table$logBF_splicing + combined_BF_table$logBF_noncoding + combined_BF_table$logBF_coding
+combined_BF_table$BF_all &lt;- exp(combined_BF_table$logBF_all)
+combined_BF_table &lt;- combined_BF_table[order(combined_BF_table$BF_all, decreasing = TRUE),]
+combined_BF_table$FDR_all = Bayesian.FDR(combined_BF_table$BF_all, 0.94)$FDR # here 0.94 was chosen to be consisten with the prior used for getting BF and FDR using other types of mutations. 
+
+head(combined_BF_table)</code></pre>
+<pre><code>##    genename logBF_splicing BF_splicing logBF_noncoding logBF_coding
+## 1:    SCN2A   -0.015087809   0.9850254    -0.006766934     23.56158
+## 2:     CHD8   -0.013165998   0.9869203    -0.014154934     22.71355
+## 3:  SYNGAP1   -0.012624522   0.9874548    -0.053829740     15.41293
+## 4:   ARID1B   -0.013266887   0.9868207    -0.032391010     14.85675
+## 5:   DYRK1A   -0.008601051   0.9914358    -0.042500155     14.74663
+## 6:    KDM5B   -0.009239517   0.9908030    -0.053723033     12.62463
+##    logBF_all BF_noncoding    BF_coding       BF_all   FDR_coding
+## 1:  23.53972    0.9932559 1.708689e+10 1.671751e+10 9.168826e-10
+## 2:  22.68623    0.9859448 7.317632e+09 7.120414e+09 1.528915e-09
+## 3:  15.34648    0.9475934 4.940272e+06 4.622641e+06 1.058088e-06
+## 4:  14.81110    0.9681280 2.832734e+06 2.706306e+06 2.176203e-06
+## 5:  14.69553    0.9583903 2.537352e+06 2.410947e+06 2.975838e-06
+## 6:  12.56167    0.9476946 3.039542e+05 2.854065e+05 1.106990e-05
+##         FDR_all
+## 1: 9.371414e-10
+## 2: 1.568694e-09
+## 3: 1.130747e-06
+## 4: 2.295289e-06
+## 5: 3.135850e-06
+## 6: 1.176145e-05</code></pre>
+<div id="number-of-gained-and-lost-genes-after-having-non-coding-mutations-and-splicing-mutations-1" class="section level3">
+<h3><span class="header-section-number">3.5.1</span> Number of gained and lost genes after having non-coding mutations and splicing mutations</h3>
+<pre class="r"><code>TADA_table_filtered =combined_BF_table[!is.element(combined_BF_table$genename, TADA_table$genes_with_no_epi),]
+knitr::kable(performance_table(TADA_table_filtered))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">novel</th>
+<th align="right">consistent</th>
+<th align="right">lost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>q0.1</td>
+<td align="right">3</td>
+<td align="right">55</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td>q0.2</td>
+<td align="right">11</td>
+<td align="right">87</td>
+<td align="right">6</td>
+</tr>
+<tr class="odd">
+<td>q0.3</td>
+<td align="right">11</td>
+<td align="right">126</td>
+<td align="right">6</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="fdr-0.1-new-genes" class="section level3">
+<h3><span class="header-section-number">3.5.2</span> FDR 0.1 new genes</h3>
+<pre class="r"><code>knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;= 0.1 &amp; TADA_table_filtered$FDR_all &lt; 0.1,])</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">genename</th>
+<th align="right">logBF_splicing</th>
+<th align="right">BF_splicing</th>
+<th align="right">logBF_noncoding</th>
+<th align="right">logBF_coding</th>
+<th align="right">logBF_all</th>
+<th align="right">BF_noncoding</th>
+<th align="right">BF_coding</th>
+<th align="right">BF_all</th>
+<th align="right">FDR_coding</th>
+<th align="right">FDR_all</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">JUP</td>
+<td align="right">-0.0064879</td>
+<td align="right">0.9935331</td>
+<td align="right">2.5872789</td>
+<td align="right">2.131726</td>
+<td align="right">4.712517</td>
+<td align="right">13.293549</td>
+<td align="right">8.429401</td>
+<td align="right">111.33199</td>
+<td align="right">0.4713748</td>
+<td align="right">0.0413829</td>
+</tr>
+<tr class="even">
+<td align="left">APBB1</td>
+<td align="right">-0.0052030</td>
+<td align="right">0.9948105</td>
+<td align="right">1.8901033</td>
+<td align="right">2.325413</td>
+<td align="right">4.210314</td>
+<td align="right">6.620052</td>
+<td align="right">10.230909</td>
+<td align="right">67.37767</td>
+<td align="right">0.4502329</td>
+<td align="right">0.0659406</td>
+</tr>
+<tr class="odd">
+<td align="left">ARHGAP5</td>
+<td align="right">-0.0030892</td>
+<td align="right">0.9969156</td>
+<td align="right">0.6316236</td>
+<td align="right">3.434124</td>
+<td align="right">4.062658</td>
+<td align="right">1.880661</td>
+<td align="right">31.004243</td>
+<td align="right">58.12864</td>
+<td align="right">0.1466769</td>
+<td align="right">0.0840828</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="fdr-0.2-new-genes" class="section level3">
+<h3><span class="header-section-number">3.5.3</span> FDR 0.2 new genes</h3>
+<pre class="r"><code>knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;= 0.2 &amp; TADA_table_filtered$FDR_all &lt; 0.2,])</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">genename</th>
+<th align="right">logBF_splicing</th>
+<th align="right">BF_splicing</th>
+<th align="right">logBF_noncoding</th>
+<th align="right">logBF_coding</th>
+<th align="right">logBF_all</th>
+<th align="right">BF_noncoding</th>
+<th align="right">BF_coding</th>
+<th align="right">BF_all</th>
+<th align="right">FDR_coding</th>
+<th align="right">FDR_all</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">JUP</td>
+<td align="right">-0.0064879</td>
+<td align="right">0.9935331</td>
+<td align="right">2.5872789</td>
+<td align="right">2.131726</td>
+<td align="right">4.712517</td>
+<td align="right">13.2935488</td>
+<td align="right">8.429401</td>
+<td align="right">111.33199</td>
+<td align="right">0.4713748</td>
+<td align="right">0.0413829</td>
+</tr>
+<tr class="even">
+<td align="left">APBB1</td>
+<td align="right">-0.0052030</td>
+<td align="right">0.9948105</td>
+<td align="right">1.8901033</td>
+<td align="right">2.325413</td>
+<td align="right">4.210314</td>
+<td align="right">6.6200523</td>
+<td align="right">10.230909</td>
+<td align="right">67.37767</td>
+<td align="right">0.4502329</td>
+<td align="right">0.0659406</td>
+</tr>
+<tr class="odd">
+<td align="left">PNPLA7</td>
+<td align="right">0.7138975</td>
+<td align="right">2.0419342</td>
+<td align="right">-0.0117036</td>
+<td align="right">2.863029</td>
+<td align="right">3.565223</td>
+<td align="right">0.9883646</td>
+<td align="right">17.514503</td>
+<td align="right">35.34734</td>
+<td align="right">0.2273822</td>
+<td align="right">0.1358965</td>
+</tr>
+<tr class="even">
+<td align="left">DOCK5</td>
+<td align="right">-0.0192641</td>
+<td align="right">0.9809203</td>
+<td align="right">0.6180382</td>
+<td align="right">2.897630</td>
+<td align="right">3.496404</td>
+<td align="right">1.8552847</td>
+<td align="right">18.131119</td>
+<td align="right">32.99658</td>
+<td align="right">0.2134403</td>
+<td align="right">0.1472411</td>
+</tr>
+<tr class="odd">
+<td align="left">PLA2G16</td>
+<td align="right">-0.0026059</td>
+<td align="right">0.9973975</td>
+<td align="right">0.5977041</td>
+<td align="right">2.828890</td>
+<td align="right">3.423988</td>
+<td align="right">1.8179402</td>
+<td align="right">16.926657</td>
+<td align="right">30.69157</td>
+<td align="right">0.2501432</td>
+<td align="right">0.1560570</td>
+</tr>
+<tr class="even">
+<td align="left">NME9</td>
+<td align="right">-0.0063909</td>
+<td align="right">0.9936295</td>
+<td align="right">0.6415416</td>
+<td align="right">2.787033</td>
+<td align="right">3.422184</td>
+<td align="right">1.8994068</td>
+<td align="right">16.232789</td>
+<td align="right">30.63625</td>
+<td align="right">0.2762552</td>
+<td align="right">0.1582017</td>
+</tr>
+<tr class="odd">
+<td align="left">HGF</td>
+<td align="right">0.7342728</td>
+<td align="right">2.0839660</td>
+<td align="right">-0.0049385</td>
+<td align="right">2.447064</td>
+<td align="right">3.176398</td>
+<td align="right">0.9950737</td>
+<td align="right">11.554370</td>
+<td align="right">23.96029</td>
+<td align="right">0.4257441</td>
+<td align="right">0.1822509</td>
+</tr>
+<tr class="even">
+<td align="left">MSL2</td>
+<td align="right">0.0000000</td>
+<td align="right">1.0000000</td>
+<td align="right">0.6235923</td>
+<td align="right">2.536128</td>
+<td align="right">3.159721</td>
+<td align="right">1.8656178</td>
+<td align="right">12.630673</td>
+<td align="right">23.56401</td>
+<td align="right">0.3972018</td>
+<td align="right">0.1866457</td>
+</tr>
+<tr class="odd">
+<td align="left">PPM1D</td>
+<td align="right">-0.0007843</td>
+<td align="right">0.9992160</td>
+<td align="right">0.6246737</td>
+<td align="right">2.526200</td>
+<td align="right">3.150089</td>
+<td align="right">1.8676365</td>
+<td align="right">12.505890</td>
+<td align="right">23.33815</td>
+<td align="right">0.4001637</td>
+<td align="right">0.1888176</td>
+</tr>
+<tr class="even">
+<td align="left">SLC38A3</td>
+<td align="right">-0.0049565</td>
+<td align="right">0.9950557</td>
+<td align="right">0.5877401</td>
+<td align="right">2.510331</td>
+<td align="right">3.093115</td>
+<td align="right">1.7999162</td>
+<td align="right">12.309005</td>
+<td align="right">22.04564</td>
+<td align="right">0.4074689</td>
+<td align="right">0.1932555</td>
+</tr>
+<tr class="odd">
+<td align="left">ARHGAP44</td>
+<td align="right">0.7308175</td>
+<td align="right">2.0767777</td>
+<td align="right">-0.0112135</td>
+<td align="right">2.362564</td>
+<td align="right">3.082168</td>
+<td align="right">0.9888491</td>
+<td align="right">10.618144</td>
+<td align="right">21.80563</td>
+<td align="right">0.4447959</td>
+<td align="right">0.1976005</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="fdr-0.3-new-genes-2" class="section level3">
+<h3><span class="header-section-number">3.5.4</span> FDR 0.3 new genes</h3>
+<pre class="r"><code>knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;= 0.3 &amp; TADA_table_filtered$FDR_all &lt; 0.3,])</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">genename</th>
+<th align="right">logBF_splicing</th>
+<th align="right">BF_splicing</th>
+<th align="right">logBF_noncoding</th>
+<th align="right">logBF_coding</th>
+<th align="right">logBF_all</th>
+<th align="right">BF_noncoding</th>
+<th align="right">BF_coding</th>
+<th align="right">BF_all</th>
+<th align="right">FDR_coding</th>
+<th align="right">FDR_all</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">JUP</td>
+<td align="right">-0.0064879</td>
+<td align="right">0.9935331</td>
+<td align="right">2.5872789</td>
+<td align="right">2.131726</td>
+<td align="right">4.712517</td>
+<td align="right">13.2935488</td>
+<td align="right">8.429401</td>
+<td align="right">111.33199</td>
+<td align="right">0.4713748</td>
+<td align="right">0.0413829</td>
+</tr>
+<tr class="even">
+<td align="left">APBB1</td>
+<td align="right">-0.0052030</td>
+<td align="right">0.9948105</td>
+<td align="right">1.8901033</td>
+<td align="right">2.325413</td>
+<td align="right">4.210314</td>
+<td align="right">6.6200523</td>
+<td align="right">10.230909</td>
+<td align="right">67.37767</td>
+<td align="right">0.4502329</td>
+<td align="right">0.0659406</td>
+</tr>
+<tr class="odd">
+<td align="left">HGF</td>
+<td align="right">0.7342728</td>
+<td align="right">2.0839660</td>
+<td align="right">-0.0049385</td>
+<td align="right">2.447064</td>
+<td align="right">3.176398</td>
+<td align="right">0.9950737</td>
+<td align="right">11.554370</td>
+<td align="right">23.96029</td>
+<td align="right">0.4257441</td>
+<td align="right">0.1822509</td>
+</tr>
+<tr class="even">
+<td align="left">MSL2</td>
+<td align="right">0.0000000</td>
+<td align="right">1.0000000</td>
+<td align="right">0.6235923</td>
+<td align="right">2.536128</td>
+<td align="right">3.159721</td>
+<td align="right">1.8656178</td>
+<td align="right">12.630673</td>
+<td align="right">23.56401</td>
+<td align="right">0.3972018</td>
+<td align="right">0.1866457</td>
+</tr>
+<tr class="odd">
+<td align="left">PPM1D</td>
+<td align="right">-0.0007843</td>
+<td align="right">0.9992160</td>
+<td align="right">0.6246737</td>
+<td align="right">2.526200</td>
+<td align="right">3.150089</td>
+<td align="right">1.8676365</td>
+<td align="right">12.505890</td>
+<td align="right">23.33815</td>
+<td align="right">0.4001637</td>
+<td align="right">0.1888176</td>
+</tr>
+<tr class="even">
+<td align="left">SLC38A3</td>
+<td align="right">-0.0049565</td>
+<td align="right">0.9950557</td>
+<td align="right">0.5877401</td>
+<td align="right">2.510331</td>
+<td align="right">3.093115</td>
+<td align="right">1.7999162</td>
+<td align="right">12.309005</td>
+<td align="right">22.04564</td>
+<td align="right">0.4074689</td>
+<td align="right">0.1932555</td>
+</tr>
+<tr class="odd">
+<td align="left">ARHGAP44</td>
+<td align="right">0.7308175</td>
+<td align="right">2.0767777</td>
+<td align="right">-0.0112135</td>
+<td align="right">2.362564</td>
+<td align="right">3.082168</td>
+<td align="right">0.9888491</td>
+<td align="right">10.618144</td>
+<td align="right">21.80563</td>
+<td align="right">0.4447959</td>
+<td align="right">0.1976005</td>
+</tr>
+<tr class="even">
+<td align="left">LRRC4</td>
+<td align="right">0.0000000</td>
+<td align="right">1.0000000</td>
+<td align="right">0.6103642</td>
+<td align="right">2.344952</td>
+<td align="right">2.955317</td>
+<td align="right">1.8411018</td>
+<td align="right">10.432776</td>
+<td align="right">19.20780</td>
+<td align="right">0.4477285</td>
+<td align="right">0.2105404</td>
+</tr>
+<tr class="odd">
+<td align="left">PLXNB1</td>
+<td align="right">-0.0173372</td>
+<td align="right">0.9828122</td>
+<td align="right">0.6101821</td>
+<td align="right">2.352516</td>
+<td align="right">2.945361</td>
+<td align="right">1.8407665</td>
+<td align="right">10.511988</td>
+<td align="right">19.01753</td>
+<td align="right">0.4468929</td>
+<td align="right">0.2148734</td>
+</tr>
+<tr class="even">
+<td align="left">CBX4</td>
+<td align="right">-0.0031636</td>
+<td align="right">0.9968414</td>
+<td align="right">0.5351793</td>
+<td align="right">2.237874</td>
+<td align="right">2.769890</td>
+<td align="right">1.7077544</td>
+<td align="right">9.373381</td>
+<td align="right">15.95687</td>
+<td align="right">0.4613862</td>
+<td align="right">0.2798614</td>
+</tr>
+<tr class="odd">
+<td align="left">SIRPB2</td>
+<td align="right">-0.0009817</td>
+<td align="right">0.9990188</td>
+<td align="right">-0.0047030</td>
+<td align="right">2.736432</td>
+<td align="right">2.730747</td>
+<td align="right">0.9953080</td>
+<td align="right">15.431826</td>
+<td align="right">15.34435</td>
+<td align="right">0.3009029</td>
+<td align="right">0.2951882</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.1-2" class="section level3">
+<h3><span class="header-section-number">3.5.5</span> Gene set enrichment analysis FDR 0.1</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.1 &amp; TADA_table_filtered$FDR_all &lt; 0.1, ]$genename, TADA_table_filtered$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">9.6533090</td>
+<td align="right">6.6578727</td>
+<td align="right">4.007815</td>
+<td align="right">3.5050705</td>
+<td align="right">2.1072233</td>
+<td align="right">16.5098650</td>
+<td align="right">3.1211229</td>
+<td align="right">2.5158636</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0011098</td>
+<td align="right">0.1428123</td>
+<td align="right">0.015525</td>
+<td align="right">0.0232116</td>
+<td align="right">0.4034691</td>
+<td align="right">0.0593588</td>
+<td align="right">0.2874136</td>
+<td align="right">0.1734212</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.2-2" class="section level3">
+<h3><span class="header-section-number">3.5.6</span> Gene set enrichment analysis FDR 0.2</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.2 &amp; TADA_table_filtered$FDR_all &lt; 0.2, ]$genename, TADA_table_filtered$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">2.6327206</td>
+<td align="right">1.8157835</td>
+<td align="right">1.8217338</td>
+<td align="right">1.2745711</td>
+<td align="right">1.1493945</td>
+<td align="right">4.5026905</td>
+<td align="right">1.7024307</td>
+<td align="right">1.3722892</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0972986</td>
+<td align="right">0.4317384</td>
+<td align="right">0.1137694</td>
+<td align="right">0.3873558</td>
+<td align="right">0.5386502</td>
+<td align="right">0.2010312</td>
+<td align="right">0.3316037</td>
+<td align="right">0.3286614</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.3-2" class="section level3">
+<h3><span class="header-section-number">3.5.7</span> Gene set enrichment analysis FDR 0.3</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.3 &amp; TADA_table_filtered$FDR_all &lt; 0.3, ]$genename, TADA_table_filtered$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">2.6327206</td>
+<td align="right">3.6315669</td>
+<td align="right">1.8217338</td>
+<td align="right">1.9118567</td>
+<td align="right">1.7240918</td>
+<td align="right">4.5026905</td>
+<td align="right">0.8512153</td>
+<td align="right">1.3722892</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0972986</td>
+<td align="right">0.1020691</td>
+<td align="right">0.1137694</td>
+<td align="right">0.0626662</td>
+<td align="right">0.2463658</td>
+<td align="right">0.2010312</td>
+<td align="right">0.7114238</td>
+<td align="right">0.3286614</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.1-all-genes-background" class="section level3">
+<h3><span class="header-section-number">3.5.8</span> Gene set enrichment analysis FDR 0.1, all genes background</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.1 &amp; TADA_table_filtered$FDR_all &lt; 0.1, ]$genename, combined_BF_table$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">10.8140209</td>
+<td align="right">7.6433251</td>
+<td align="right">4.486779</td>
+<td align="right">4.059374</td>
+<td align="right">2.0187108</td>
+<td align="right">18.6277445</td>
+<td align="right">3.5901135</td>
+<td align="right">2.8592218</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0007895</td>
+<td align="right">0.1252167</td>
+<td align="right">0.011065</td>
+<td align="right">0.014942</td>
+<td align="right">0.4180905</td>
+<td align="right">0.0527312</td>
+<td align="right">0.2534934</td>
+<td align="right">0.1377285</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.2-all-genes-background" class="section level3">
+<h3><span class="header-section-number">3.5.9</span> Gene set enrichment analysis FDR 0.2, all genes background</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.2 &amp; TADA_table_filtered$FDR_all &lt; 0.2, ]$genename, combined_BF_table$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">2.9492784</td>
+<td align="right">2.084543</td>
+<td align="right">2.0394449</td>
+<td align="right">1.4761359</td>
+<td align="right">1.1011150</td>
+<td align="right">5.0802940</td>
+<td align="right">1.9582437</td>
+<td align="right">1.5595755</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0741495</td>
+<td align="right">0.387760</td>
+<td align="right">0.0757617</td>
+<td align="right">0.2766396</td>
+<td align="right">0.5638718</td>
+<td align="right">0.1801839</td>
+<td align="right">0.2721838</td>
+<td align="right">0.2414526</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.3-all-genes-background" class="section level3">
+<h3><span class="header-section-number">3.5.10</span> Gene set enrichment analysis FDR 0.3, all genes background</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.3 &amp; TADA_table_filtered$FDR_all &lt; 0.3, ]$genename, combined_BF_table$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">2.9492784</td>
+<td align="right">4.1690864</td>
+<td align="right">2.0394449</td>
+<td align="right">2.2142038</td>
+<td align="right">1.6516725</td>
+<td align="right">5.0802940</td>
+<td align="right">0.9791219</td>
+<td align="right">1.5595755</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0741495</td>
+<td align="right">0.0804903</td>
+<td align="right">0.0757617</td>
+<td align="right">0.0319938</td>
+<td align="right">0.2682645</td>
+<td align="right">0.1801839</td>
+<td align="right">0.6577434</td>
+<td align="right">0.2414526</td>
 </tr>
 </tbody>
 </table>
