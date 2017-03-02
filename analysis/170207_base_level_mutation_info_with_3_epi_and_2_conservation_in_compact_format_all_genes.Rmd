@@ -1,4 +1,11 @@
-
+---
+output:
+  html_document:
+    toc: true
+    number_sections: true
+    theme: united
+    highlight: textmate
+---
 
 ```{r}
 library(data.table)
@@ -20,7 +27,7 @@ source("../lib/170122_base_level_simulation_functions.R")
 ***
 
 
-##### estimate relative risk from top 0.5% TADA genes, afeter adjusting for mutation rates
+# **Estimate relative risk from top 0.5% TADA genes, afeter adjusting for mutation rates**
 
 ```{r, cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_v2}
 new_control = new.env()
@@ -80,7 +87,7 @@ adjusted_base_level_rr$partition_time2
 ```
 
 
-##### now will run foward selection to select features.
+# **now will run foward selection to select features**
 Will start from Brain H3K27ac, to Epigenomc DHS, Encode DHS, to phylop and to Gerp.
 For each additional feature, after parameter optimization, will calculate the deviance between two models and then use 1 degree of freedom chi square distribution to see if the improvement is significant. 
 
@@ -244,14 +251,14 @@ pchisq(-2 * llr, df = 1, lower.tail = FALSE)
 ```
 
 
-> ##### Now start to identify new genes from the base-level model
+# **Now use estimated relative risks to identify new ASD genes**
 
 ```{r}
 source("../lib/TADA_denovo.R")
 source("../lib/170117_gene_validation_functions.R")
 ```
 
-###### Sart without using splicing mutations
+## *Sart without using splicing mutations*
 ```{r}
 TADA_table<-bayes_factor_for_each_gene_base_level_from_collapsed_data(adjusted_base_level_rr$base_info, 
                                                                       features = c(1), 
@@ -262,35 +269,37 @@ TADA_table<-bayes_factor_for_each_gene_base_level_from_collapsed_data(adjusted_b
 ```
 
 
-###### **#Number of gained and lost genes after having non-coding mutations**
+### Number of gained and lost genes after having non-coding mutations
 ```{r}
 TADA_table_filtered = TADA_table$gene_BF_table[!is.element(TADA_table$gene_BF_table$genename, TADA_table$genes_with_no_epi),]
 knitr::kable(performance_table(TADA_table_filtered))
 ```
 
-###### **#Gene set enrichment analysis FDR 0.1** 
+### Gene set enrichment analysis FDR 0.1
 ```{r}
 knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.1 & TADA_table_filtered$FDR_all < 0.1, ]$genename, TADA_table_filtered$genename))
 ```
 
-###### **#Gene set enrichment analysis FDR 0.2** 
+### Gene set enrichment analysis FDR 0.2
 ```{r}
 knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.2 & TADA_table_filtered$FDR_all < 0.2, ]$genename, TADA_table_filtered$genename))
 ```
 
-###### **#Gene set enrichment analysis FDR 0.3** 
+### Gene set enrichment analysis FDR 0.3
 ```{r}
 knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.3 & TADA_table_filtered$FDR_all < 0.3, ]$genename, TADA_table_filtered$genename))
 ```
 
-###### **FDR 0.3 new genes**
+### FDR 0.3 new genes
 ```{r}
 knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding >= 0.3 & TADA_table_filtered$FDR_all < 0.3,])
 ```
 
 
 
-##### cacluate the bayes factor table for splicing mutations. The mutation rate needs to be adjusted after taking into consideration of windows from introns far from TSSs
+## *cacluate the bayes factor table for splicing mutations* 
+
+* The mutation rate needs to be adjusted after taking into consideration of windows from introns far from TSSs
 ```{r, cache=TRUE, cache.extra=generate_BF_for_splicing_mutations}
 new_control = new.env()
 load("../data/debug_region_list_073116_data_matrixtransformed_for_old_code.Rdata", new_control)
@@ -335,7 +344,7 @@ splicing_BF_table_dup_removed <- splicing_BF_table$splicing_BF_table[!duplicated
 TADA_table$gene_BF_table
 ```
 
-##### now combine information from splicing to other non_coding mutations
+## *now combine information from splicing to other non_coding mutations*
 ```{r}
 combined_BF_table <- splicing_BF_table_dup_removed[TADA_table$gene_BF_table, on = "genename"]
 combined_BF_table
@@ -356,28 +365,28 @@ combined_BF_table$FDR_all = Bayesian.FDR(combined_BF_table$BF_all, 0.94)$FDR # h
 
 ```
 
-###### **#Number of gained and lost genes after having non-coding mutations and splicing mutations**
+### Number of gained and lost genes after having non-coding mutations and splicing mutations
 ```{r}
 TADA_table_filtered =combined_BF_table[!is.element(combined_BF_table$genename, TADA_table$genes_with_no_epi),]
 knitr::kable(performance_table(TADA_table_filtered))
 ```
 
-###### **#Gene set enrichment analysis FDR 0.1** 
+### Gene set enrichment analysis FDR 0.1
 ```{r}
 knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.1 & TADA_table_filtered$FDR_all < 0.1, ]$genename, TADA_table_filtered$genename))
 ```
 
-###### **#Gene set enrichment analysis FDR 0.2** 
+### Gene set enrichment analysis FDR 0.2
 ```{r}
 knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.2 & TADA_table_filtered$FDR_all < 0.2, ]$genename, TADA_table_filtered$genename))
 ```
 
-###### **#Gene set enrichment analysis FDR 0.3** 
+### Gene set enrichment analysis FDR 0.3
 ```{r}
 knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.3 & TADA_table_filtered$FDR_all < 0.3, ]$genename, TADA_table_filtered$genename))
 ```
 
-###### **FDR 0.3 new genes**
+### FDR 0.3 new genes
 ```{r}
 knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding >= 0.3 & TADA_table_filtered$FDR_all < 0.3,])
 ```
