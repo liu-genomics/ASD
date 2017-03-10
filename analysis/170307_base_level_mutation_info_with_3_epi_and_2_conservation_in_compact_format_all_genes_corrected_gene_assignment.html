@@ -1,0 +1,4763 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title></title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/united.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-1.1/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-1.1/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">ASD Project</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="meeting.html">Meeting</a>
+</li>
+<li>
+  <a href="Note.html">Note</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+
+</div>
+
+
+<pre class="r"><code>library(data.table)
+library(parallel)
+source(&quot;../lib/170122_base_level_simulation_functions.R&quot;)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;reshape&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:data.table&#39;:
+## 
+##     melt</code></pre>
+<hr />
+<p><strong>NOTE</strong></p>
+<ol style="list-style-type: decimal">
+<li>First adjust for mutation rate for each 50bp window, then apply the the adjusting factor for each base so we could get the base-level adjusted mutation rate. When adjusting for mutation rates, only consider features including promoter, coding, within-10kb non-coding, and 50bp cg contents.</li>
+<li>Only consider the relative risk from active promoters and enhancers (union), marked by Noonan and Roadmap brain H3k27ac.</li>
+<li>Only use bases from top 6% TADA genes for now.</li>
+<li>The model itself could be easily adapted to cases where more epigenomic features or functional annotations are included.</li>
+<li>The output will be R object which store base-level information in a compact mode</li>
+<li>100way phylop and gerp annotation is added, brain h3k27ac, fetal DHS and adult DHS.</li>
+<li>Use corrected gene assignment (See Note.html 170307)</li>
+</ol>
+<hr />
+<div id="estimate-relative-risk-from-top-6-tada-genes-afeter-adjusting-for-mutation-rates" class="section level1">
+<h1><span class="header-section-number">1</span> <strong>Estimate relative risk from top 6% TADA genes, afeter adjusting for mutation rates</strong></h1>
+<pre class="r"><code>new_control = new.env()
+load(&quot;../data/debug_region_list_073116_using_258_control_data_matrix.Rdata&quot;, new_control)
+
+prefix &lt;-system(&quot;date +%s&quot;, intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == &quot;dnv_proband&quot; &amp; new_control$data_matrix$Type == &quot;SNV&quot;,c(1,2,3,7)], paste(prefix,&quot;temp.bed&quot;,sep = &quot;&quot;), col.names = FALSE, row.names = FALSE, sep = &quot;\t&quot;, quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == &quot;dnv_proband&quot; ,c(1:5,8,7)], paste(prefix,&quot;annovar_input_temp.bed&quot;,sep = &quot;&quot;), col.names = FALSE, row.names = FALSE, sep = &quot;\t&quot;, quote = FALSE)
+
+# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
+
+preprocessing_time &lt;- system.time(adjusted_base_level_rr &lt;- adjust_mutation_rate_window_to_base_compact_more_feature_v2(mut_file = paste(prefix,&quot;temp.bed&quot;,sep = &quot;&quot;),
+window_file = &quot;../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed&quot;,
+cg_file = &quot;../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed.fasta.cg&quot;,
+mutrate_file = &quot;../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed.mutrate&quot;,
+sample_size = 314,
+epigenomic_marks = c(&quot;../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed&quot;,&quot;../other_annotation/epigenomic_annotation/Epigenome_E081_E082_intersection.bed&quot;,&quot;../other_annotation/epigenomic_annotation/encode_DHS_union.bed&quot;),
+sequence_annotation = c(&quot;phylop_100way&quot;, &quot;gerp&quot;), 
+sequence_annotation_cutoff = list(phylop_100way=2, gerp =2 ), 
+sequence_annotation_ref = list(phylop_100way = &quot;../other_annotation/conservation_annotation/hg19.100way.phyloP100way.bw&quot;, gerp = &quot;../other_annotation/conservation_annotation/hg19_gerp_score.bw&quot;),
+overlap = 0.5,
+rm_nonsyn = FALSE,
+annovar_folder = &quot;/media/yuwen/Elements/ANNOVAR/annovar/&quot;,
+annovar_input = &quot;no.txt&quot;,
+gene_assign_file = &quot;../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename_corrected.bed&quot;,
+gene_prior_file = &quot;../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt&quot;,
+report_proportion = 1,
+mutrate_ref_file = &quot;/media/yuwen/Elements/mutation_rate_raw/MarkDaly/Daly_mutrate.bw&quot;,
+node_n = 6,
+feature_start = 5,
+feature_end = 9,
+feature_number = 5, 
+chunk_partition_num =20))</code></pre>
+<pre><code>## 
+Read 21.7% of 7061846 rows
+Read 39.2% of 7061846 rows
+Read 50.8% of 7061846 rows
+Read 64.7% of 7061846 rows
+Read 81.4% of 7061846 rows
+Read 7061846 rows and 8 (of 8) columns from 0.337 GB file in 00:00:09</code></pre>
+<pre><code>## Warning in `[.data.table`(coverage, , `:=`(c(&quot;coding&quot;, &quot;promoter&quot;, &quot;nf&quot;), :
+## with=FALSE ignored, it isn&#39;t needed when using :=. See ?&#39;:=&#39; for examples.</code></pre>
+<pre><code>## 
+Read 43.5% of 7061846 rows
+Read 69.7% of 7061846 rows
+Read 93.6% of 7061846 rows
+Read 7061846 rows and 6 (of 6) columns from 0.342 GB file in 00:00:05
+## 
+Read 46.4% of 15595375 rows
+Read 74.6% of 15595375 rows
+Read 15595375 rows and 2 (of 2) columns from 0.399 GB file in 00:00:04
+## 
+Read 8.2% of 15595375 rows
+Read 30.8% of 15595375 rows
+Read 53.5% of 15595375 rows
+Read 76.1% of 15595375 rows
+Read 98.9% of 15595375 rows
+Read 15595375 rows and 8 (of 8) columns from 0.803 GB file in 00:00:07
+## 
+Read 19.0% of 15595375 rows
+Read 35.5% of 15595375 rows
+Read 51.2% of 15595375 rows
+Read 67.6% of 15595375 rows
+Read 81.9% of 15595375 rows
+Read 95.5% of 15595375 rows
+Read 15595375 rows and 8 (of 8) columns from 0.803 GB file in 00:00:08
+## 
+Read 0.0% of 15595375 rows
+Read 22.2% of 15595375 rows
+Read 44.8% of 15595375 rows
+Read 66.9% of 15595375 rows
+Read 89.4% of 15595375 rows
+Read 15595375 rows and 8 (of 8) columns from 0.803 GB file in 00:00:08
+## 
+Read 27.1% of 15595375 rows
+Read 49.2% of 15595375 rows
+Read 70.1% of 15595375 rows
+Read 91.6% of 15595375 rows
+Read 15595375 rows and 8 (of 8) columns from 0.803 GB file in 00:00:06
+## 
+Read 54.2% of 15595375 rows
+Read 86.9% of 15595375 rows
+Read 15595375 rows and 2 (of 2) columns from 0.316 GB file in 00:00:04
+## 
+Read 53.8% of 15595375 rows
+Read 87.3% of 15595375 rows
+Read 15595375 rows and 2 (of 2) columns from 0.307 GB file in 00:00:04
+## 
+Read 7.1% of 15582085 rows
+Read 37.9% of 15582085 rows
+Read 68.9% of 15582085 rows
+Read 15582085 rows and 2 (of 2) columns from 0.400 GB file in 00:00:05
+## 
+Read 26.2% of 15582085 rows
+Read 49.5% of 15582085 rows
+Read 72.8% of 15582085 rows
+Read 92.9% of 15582085 rows
+Read 15582085 rows and 8 (of 8) columns from 0.805 GB file in 00:00:06
+## 
+Read 28.9% of 15582085 rows
+Read 53.5% of 15582085 rows
+Read 77.8% of 15582085 rows
+Read 15582085 rows and 8 (of 8) columns from 0.805 GB file in 00:00:05
+## 
+Read 28.0% of 15582085 rows
+Read 50.6% of 15582085 rows
+Read 72.0% of 15582085 rows
+Read 91.5% of 15582085 rows
+Read 15582085 rows and 8 (of 8) columns from 0.805 GB file in 00:00:06
+## 
+Read 0.0% of 15582085 rows
+Read 24.5% of 15582085 rows
+Read 49.4% of 15582085 rows
+Read 74.1% of 15582085 rows
+Read 99.3% of 15582085 rows
+Read 15582085 rows and 8 (of 8) columns from 0.805 GB file in 00:00:07
+## 
+Read 61.2% of 15582085 rows
+Read 97.1% of 15582085 rows
+Read 15582085 rows and 2 (of 2) columns from 0.317 GB file in 00:00:04
+## 
+Read 67.9% of 15582085 rows
+Read 15582085 rows and 2 (of 2) columns from 0.308 GB file in 00:00:03
+## 
+Read 52.0% of 15582085 rows
+Read 85.4% of 15582085 rows
+Read 15582085 rows and 2 (of 2) columns from 0.308 GB file in 00:00:04
+## 
+Read 29.1% of 15582085 rows
+Read 53.2% of 15582085 rows
+Read 76.9% of 15582085 rows
+Read 15582085 rows and 8 (of 8) columns from 0.805 GB file in 00:00:05
+## 
+Read 22.8% of 15582085 rows
+Read 44.7% of 15582085 rows
+Read 65.6% of 15582085 rows
+Read 86.2% of 15582085 rows
+Read 15582085 rows and 8 (of 8) columns from 0.805 GB file in 00:00:06
+## 
+Read 23.0% of 15586833 rows
+Read 43.1% of 15586833 rows
+Read 63.6% of 15586833 rows
+Read 81.6% of 15586833 rows
+Read 15586833 rows and 8 (of 8) columns from 0.806 GB file in 00:00:06
+## 
+Read 34.1% of 15586833 rows
+Read 59.2% of 15586833 rows
+Read 84.4% of 15586833 rows
+Read 15586833 rows and 8 (of 8) columns from 0.806 GB file in 00:00:05
+## 
+Read 61.7% of 15586833 rows
+Read 98.2% of 15586833 rows
+Read 15586833 rows and 2 (of 2) columns from 0.319 GB file in 00:00:04
+## 
+Read 66.6% of 15586833 rows
+Read 15586833 rows and 2 (of 2) columns from 0.309 GB file in 00:00:03
+## 
+Read 45.4% of 15585557 rows
+Read 72.7% of 15585557 rows
+Read 99.7% of 15585557 rows
+Read 15585557 rows and 2 (of 2) columns from 0.402 GB file in 00:00:05
+## 
+Read 26.3% of 15585557 rows
+Read 48.5% of 15585557 rows
+Read 70.8% of 15585557 rows
+Read 90.5% of 15585557 rows
+Read 15585557 rows and 8 (of 8) columns from 0.808 GB file in 00:00:06
+## 
+Read 28.7% of 15585557 rows
+Read 51.1% of 15585557 rows
+Read 74.0% of 15585557 rows
+Read 96.6% of 15585557 rows
+Read 15585557 rows and 8 (of 8) columns from 0.808 GB file in 00:00:06
+## 
+Read 0.0% of 15585557 rows
+Read 23.7% of 15585557 rows
+Read 47.8% of 15585557 rows
+Read 72.0% of 15585557 rows
+Read 96.3% of 15585557 rows
+Read 15585557 rows and 8 (of 8) columns from 0.808 GB file in 00:00:07
+## 
+Read 0.0% of 15585557 rows
+Read 24.0% of 15585557 rows
+Read 47.9% of 15585557 rows
+Read 72.0% of 15585557 rows
+Read 96.2% of 15585557 rows
+Read 15585557 rows and 8 (of 8) columns from 0.808 GB file in 00:00:07
+## 
+Read 50.6% of 15585557 rows
+Read 81.9% of 15585557 rows
+Read 15585557 rows and 2 (of 2) columns from 0.320 GB file in 00:00:04
+## 
+Read 59.7% of 15585557 rows
+Read 95.2% of 15585557 rows
+Read 15585557 rows and 2 (of 2) columns from 0.310 GB file in 00:00:04
+## 
+Read 51.0% of 15584990 rows
+Read 83.3% of 15584990 rows
+Read 15584990 rows and 2 (of 2) columns from 0.402 GB file in 00:00:04
+## 
+Read 24.1% of 15584990 rows
+Read 43.4% of 15584990 rows
+Read 64.1% of 15584990 rows
+Read 85.1% of 15584990 rows
+Read 15584990 rows and 8 (of 8) columns from 0.808 GB file in 00:00:06
+## 
+Read 15.2% of 15584990 rows
+Read 33.8% of 15584990 rows
+Read 53.1% of 15584990 rows
+Read 72.2% of 15584990 rows
+Read 91.6% of 15584990 rows
+Read 15584990 rows and 8 (of 8) columns from 0.808 GB file in 00:00:07
+## 
+Read 31.2% of 15584990 rows
+Read 58.5% of 15584990 rows
+Read 85.5% of 15584990 rows
+Read 15584990 rows and 8 (of 8) columns from 0.808 GB file in 00:00:05
+## 
+Read 24.5% of 15584990 rows
+Read 43.8% of 15584990 rows
+Read 63.7% of 15584990 rows
+Read 83.3% of 15584990 rows
+Read 15584990 rows and 8 (of 8) columns from 0.808 GB file in 00:00:06
+## 
+Read 69.6% of 15584990 rows
+Read 15584990 rows and 2 (of 2) columns from 0.320 GB file in 00:00:03
+## 
+Read 72.8% of 15584990 rows
+Read 15584990 rows and 2 (of 2) columns from 0.310 GB file in 00:00:03
+## 
+Read 47.7% of 15585065 rows
+Read 77.4% of 15585065 rows
+Read 15585065 rows and 2 (of 2) columns from 0.403 GB file in 00:00:04
+## 
+Read 22.2% of 15585065 rows
+Read 48.8% of 15585065 rows
+Read 75.3% of 15585065 rows
+Read 15585065 rows and 8 (of 8) columns from 0.809 GB file in 00:00:05
+## 
+Read 29.8% of 15585065 rows
+Read 55.4% of 15585065 rows
+Read 81.3% of 15585065 rows
+Read 15585065 rows and 8 (of 8) columns from 0.809 GB file in 00:00:05
+## 
+Read 35.7% of 15585065 rows
+Read 62.8% of 15585065 rows
+Read 89.4% of 15585065 rows
+Read 15585065 rows and 8 (of 8) columns from 0.809 GB file in 00:00:05
+## 
+Read 33.4% of 15585065 rows
+Read 59.9% of 15585065 rows
+Read 86.6% of 15585065 rows
+Read 15585065 rows and 8 (of 8) columns from 0.809 GB file in 00:00:05
+## 
+Read 68.2% of 15585065 rows
+Read 15585065 rows and 2 (of 2) columns from 0.320 GB file in 00:00:03
+## 
+Read 72.9% of 15585065 rows
+Read 15585065 rows and 2 (of 2) columns from 0.311 GB file in 00:00:03
+## 
+Read 32.4% of 15577031 rows
+Read 54.5% of 15577031 rows
+Read 78.3% of 15577031 rows
+Read 15577031 rows and 2 (of 2) columns from 0.400 GB file in 00:00:05
+## 
+Read 20.5% of 15585065 rows
+Read 40.9% of 15585065 rows
+Read 61.1% of 15585065 rows
+Read 81.1% of 15585065 rows
+Read 15585065 rows and 8 (of 8) columns from 0.809 GB file in 00:00:06
+## 
+Read 16.8% of 15585065 rows
+Read 37.6% of 15585065 rows
+Read 59.8% of 15585065 rows
+Read 80.4% of 15585065 rows
+Read 96.7% of 15585065 rows
+Read 15585065 rows and 8 (of 8) columns from 0.809 GB file in 00:00:07
+## 
+Read 30.9% of 15585065 rows
+Read 57.3% of 15585065 rows
+Read 83.4% of 15585065 rows
+Read 15585065 rows and 8 (of 8) columns from 0.809 GB file in 00:00:05
+## 
+Read 24.1% of 15585065 rows
+Read 47.9% of 15585065 rows
+Read 71.8% of 15585065 rows
+Read 95.5% of 15585065 rows
+Read 15585065 rows and 8 (of 8) columns from 0.809 GB file in 00:00:06
+## 
+Read 68.8% of 15577031 rows
+Read 15577031 rows and 2 (of 2) columns from 0.318 GB file in 00:00:03
+## 
+Read 59.0% of 15577031 rows
+Read 97.3% of 15577031 rows
+Read 15577031 rows and 2 (of 2) columns from 0.318 GB file in 00:00:04
+## 
+Written 24.6% of 15588838 rows in 3 secs using 8 threads. anyBufferGrown=no; maxBuffUsed=45%. Finished in 9 secs.      
+Written 29.2% of 15588838 rows in 4 secs using 8 threads. anyBufferGrown=no; maxBuffUsed=45%. Finished in 9 secs.      
+Written 52.6% of 15588838 rows in 5 secs using 8 threads. anyBufferGrown=no; maxBuffUsed=45%. Finished in 4 secs.      
+Written 76.0% of 15588838 rows in 6 secs using 8 threads. anyBufferGrown=no; maxBuffUsed=45%. Finished in 1 secs.      
+Written 90.1% of 15588838 rows in 7 secs using 8 threads. anyBufferGrown=no; maxBuffUsed=45%. Finished in 0 secs.      
+                                                                                                                                     
+
+Read 48.6% of 15577031 rows
+Read 81.2% of 15577031 rows
+Read 15577031 rows and 2 (of 2) columns from 0.318 GB file in 00:00:04
+## 
+Read 25.0% of 15588838 rows
+Read 47.0% of 15588838 rows
+Read 69.0% of 15588838 rows
+Read 91.2% of 15588838 rows
+Read 15588838 rows and 8 (of 8) columns from 0.806 GB file in 00:00:06
+## 
+Read 30.9% of 15588838 rows
+Read 57.3% of 15588838 rows
+Read 83.5% of 15588838 rows
+Read 15588838 rows and 8 (of 8) columns from 0.806 GB file in 00:00:05
+## 
+Read 35.3% of 15588838 rows
+Read 61.8% of 15588838 rows
+Read 88.1% of 15588838 rows
+Read 15588838 rows and 8 (of 8) columns from 0.806 GB file in 00:00:05
+## 
+Read 31.0% of 15588838 rows
+Read 57.3% of 15588838 rows
+Read 83.5% of 15588838 rows
+Read 15588838 rows and 8 (of 8) columns from 0.806 GB file in 00:00:05
+## 
+Read 62.8% of 15577031 rows
+Read 15577031 rows and 2 (of 2) columns from 0.318 GB file in 00:00:03
+## 
+Read 58.9% of 15577031 rows
+Read 95.3% of 15577031 rows
+Read 15577031 rows and 2 (of 2) columns from 0.318 GB file in 00:00:04
+## 
+Read 62.6% of 15577031 rows
+Read 99.0% of 15577031 rows
+Read 15577031 rows and 2 (of 2) columns from 0.318 GB file in 00:00:04
+## 
+Read 31.9% of 15588856 rows
+Read 58.9% of 15588856 rows
+Read 85.4% of 15588856 rows
+Read 15588856 rows and 8 (of 8) columns from 0.806 GB file in 00:00:05
+## 
+Read 31.6% of 15588856 rows
+Read 58.4% of 15588856 rows
+Read 85.3% of 15588856 rows
+Read 15588856 rows and 8 (of 8) columns from 0.806 GB file in 00:00:05
+## 
+Read 36.2% of 15588856 rows
+Read 63.6% of 15588856 rows
+Read 90.7% of 15588856 rows
+Read 15588856 rows and 8 (of 8) columns from 0.806 GB file in 00:00:05
+## 
+Read 0.0% of 15588856 rows
+Read 26.8% of 15588856 rows
+Read 53.9% of 15588856 rows
+Read 81.0% of 15588856 rows
+Read 15588856 rows and 8 (of 8) columns from 0.806 GB file in 00:00:07
+## 
+Read 60.7% of 15577031 rows
+Read 97.5% of 15577031 rows
+Read 15577031 rows and 2 (of 2) columns from 0.318 GB file in 00:00:04
+## 
+Read 71.4% of 15588856 rows
+Read 15588856 rows and 2 (of 2) columns from 0.308 GB file in 00:00:03
+## 
+Read 42.3% of 15588801 rows
+Read 72.4% of 15588801 rows
+Read 15588801 rows and 2 (of 2) columns from 0.400 GB file in 00:00:04
+## 
+Read 23.7% of 15588856 rows
+Read 47.1% of 15588856 rows
+Read 70.7% of 15588856 rows
+Read 94.0% of 15588856 rows
+Read 15588856 rows and 8 (of 8) columns from 0.806 GB file in 00:00:06
+## 
+Read 0.0% of 15588856 rows
+Read 25.6% of 15588856 rows
+Read 51.4% of 15588856 rows
+Read 77.5% of 15588856 rows
+Read 15588856 rows and 8 (of 8) columns from 0.806 GB file in 00:00:07
+## 
+Read 36.5% of 15588801 rows
+Read 63.9% of 15588801 rows
+Read 91.3% of 15588801 rows
+Read 15588801 rows and 8 (of 8) columns from 0.806 GB file in 00:00:05
+## 
+Read 25.0% of 15588801 rows
+Read 42.7% of 15588801 rows
+Read 59.5% of 15588801 rows
+Read 76.9% of 15588801 rows
+Read 95.8% of 15588801 rows
+Read 15588801 rows and 8 (of 8) columns from 0.806 GB file in 00:00:07
+## 
+Read 68.6% of 15588801 rows
+Read 15588801 rows and 2 (of 2) columns from 0.318 GB file in 00:00:03
+## 
+Read 72.9% of 15588801 rows
+Read 15588801 rows and 2 (of 2) columns from 0.309 GB file in 00:00:03
+## 
+Read 55.6% of 15589073 rows
+Read 88.8% of 15589073 rows
+Read 15589073 rows and 2 (of 2) columns from 0.401 GB file in 00:00:04
+## 
+Read 31.2% of 15589073 rows
+Read 53.4% of 15589073 rows
+Read 76.0% of 15589073 rows
+Read 93.4% of 15589073 rows
+Read 15589073 rows and 8 (of 8) columns from 0.807 GB file in 00:00:06
+## 
+Read 31.7% of 15589073 rows
+Read 58.6% of 15589073 rows
+Read 85.4% of 15589073 rows
+Read 15589073 rows and 8 (of 8) columns from 0.807 GB file in 00:00:05
+## 
+Read 36.4% of 15589073 rows
+Read 63.4% of 15589073 rows
+Read 90.7% of 15589073 rows
+Read 15589073 rows and 8 (of 8) columns from 0.807 GB file in 00:00:05
+## 
+Read 0.0% of 15589073 rows
+Read 26.5% of 15589073 rows
+Read 53.0% of 15589073 rows
+Read 79.4% of 15589073 rows
+Read 15589073 rows and 8 (of 8) columns from 0.807 GB file in 00:00:07
+## 
+Read 16.1% of 15589073 rows
+Read 56.2% of 15589073 rows
+Read 96.4% of 15589073 rows
+Read 15589073 rows and 2 (of 2) columns from 0.319 GB file in 00:00:05
+## 
+Read 73.3% of 15589073 rows
+Read 15589073 rows and 2 (of 2) columns from 0.309 GB file in 00:00:03
+## 
+Read 45.7% of 15585004 rows
+Read 74.0% of 15585004 rows
+Read 15585004 rows and 2 (of 2) columns from 0.401 GB file in 00:00:04
+## 
+Read 22.3% of 15585004 rows
+Read 40.6% of 15585004 rows
+Read 56.8% of 15585004 rows
+Read 73.4% of 15585004 rows
+Read 90.9% of 15585004 rows
+Read 15585004 rows and 8 (of 8) columns from 0.807 GB file in 00:00:07
+## 
+Read 21.1% of 15585004 rows
+Read 39.2% of 15585004 rows
+Read 57.0% of 15585004 rows
+Read 74.9% of 15585004 rows
+Read 93.5% of 15585004 rows
+Read 15585004 rows and 8 (of 8) columns from 0.807 GB file in 00:00:07
+## 
+Read 32.9% of 15585004 rows
+Read 59.3% of 15585004 rows
+Read 84.6% of 15585004 rows
+Read 15585004 rows and 8 (of 8) columns from 0.807 GB file in 00:00:05
+## 
+Read 31.1% of 15585004 rows
+Read 57.4% of 15585004 rows
+Read 84.2% of 15585004 rows
+Read 15585004 rows and 8 (of 8) columns from 0.807 GB file in 00:00:05
+## 
+Read 68.5% of 15585004 rows
+Read 15585004 rows and 2 (of 2) columns from 0.319 GB file in 00:00:03
+## 
+Read 57.6% of 15585004 rows
+Read 95.1% of 15585004 rows
+Read 15585004 rows and 2 (of 2) columns from 0.309 GB file in 00:00:04
+## 
+Read 47.6% of 15588071 rows
+Read 77.6% of 15588071 rows
+Read 15588071 rows and 2 (of 2) columns from 0.400 GB file in 00:00:04
+## 
+Read 30.3% of 15588071 rows
+Read 50.5% of 15588071 rows
+Read 62.4% of 15588071 rows
+Read 73.9% of 15588071 rows
+Read 86.0% of 15588071 rows
+Read 99.5% of 15588071 rows
+Read 15588071 rows and 8 (of 8) columns from 0.804 GB file in 00:00:08
+## 
+Read 18.1% of 15588071 rows
+Read 36.8% of 15588071 rows
+Read 54.9% of 15588071 rows
+Read 72.0% of 15588071 rows
+Read 88.1% of 15588071 rows
+Read 15588071 rows and 8 (of 8) columns from 0.804 GB file in 00:00:07
+## 
+Read 32.4% of 15588071 rows
+Read 59.8% of 15588071 rows
+Read 87.2% of 15588071 rows
+Read 15588071 rows and 8 (of 8) columns from 0.804 GB file in 00:00:05
+## 
+Read 31.9% of 15588071 rows
+Read 58.8% of 15588071 rows
+Read 86.0% of 15588071 rows
+Read 15588071 rows and 8 (of 8) columns from 0.804 GB file in 00:00:05
+## 
+Read 67.9% of 15588071 rows
+Read 15588071 rows and 2 (of 2) columns from 0.317 GB file in 00:00:03
+## 
+Read 73.4% of 15588071 rows
+Read 15588071 rows and 2 (of 2) columns from 0.307 GB file in 00:00:03
+## 
+Read 43.9% of 15585724 rows
+Read 69.4% of 15585724 rows
+Read 97.8% of 15585724 rows
+Read 15585724 rows and 2 (of 2) columns from 0.398 GB file in 00:00:05
+## 
+Read 21.4% of 15585724 rows
+Read 37.9% of 15585724 rows
+Read 55.2% of 15585724 rows
+Read 72.1% of 15585724 rows
+Read 89.6% of 15585724 rows
+Read 15585724 rows and 8 (of 8) columns from 0.803 GB file in 00:00:07
+## 
+Read 19.1% of 15585724 rows
+Read 39.3% of 15585724 rows
+Read 59.9% of 15585724 rows
+Read 80.5% of 15585724 rows
+Read 15585724 rows and 8 (of 8) columns from 0.803 GB file in 00:00:06
+## 
+Read 33.9% of 15585724 rows
+Read 61.1% of 15585724 rows
+Read 88.0% of 15585724 rows
+Read 15585724 rows and 8 (of 8) columns from 0.803 GB file in 00:00:05
+## 
+Read 31.8% of 15585724 rows
+Read 58.7% of 15585724 rows
+Read 85.8% of 15585724 rows
+Read 15585724 rows and 8 (of 8) columns from 0.803 GB file in 00:00:05
+## 
+Read 69.1% of 15585724 rows
+Read 15585724 rows and 2 (of 2) columns from 0.316 GB file in 00:00:03
+## 
+Read 0.4% of 15585724 rows
+Read 41.9% of 15585724 rows
+Read 84.1% of 15585724 rows
+Read 15585724 rows and 2 (of 2) columns from 0.306 GB file in 00:00:05
+## 
+Read 40.7% of 15587312 rows
+Read 66.5% of 15587312 rows
+Read 93.5% of 15587312 rows
+Read 15587312 rows and 2 (of 2) columns from 0.400 GB file in 00:00:05
+## 
+Read 24.8% of 15587312 rows
+Read 47.1% of 15587312 rows
+Read 69.6% of 15587312 rows
+Read 92.2% of 15587312 rows
+Read 15587312 rows and 8 (of 8) columns from 0.806 GB file in 00:00:06
+## 
+Read 24.6% of 15587312 rows
+Read 39.1% of 15587312 rows
+Read 57.4% of 15587312 rows
+Read 75.2% of 15587312 rows
+Read 92.9% of 15587312 rows
+Read 15587312 rows and 8 (of 8) columns from 0.806 GB file in 00:00:07
+## 
+Read 0.0% of 15587312 rows
+Read 27.2% of 15587312 rows
+Read 54.7% of 15587312 rows
+Read 82.0% of 15587312 rows
+Read 15587312 rows and 8 (of 8) columns from 0.806 GB file in 00:00:06
+## 
+Read 33.9% of 15587312 rows
+Read 60.8% of 15587312 rows
+Read 84.8% of 15587312 rows
+Read 15587312 rows and 8 (of 8) columns from 0.806 GB file in 00:00:05
+## 
+Read 69.0% of 15587312 rows
+Read 15587312 rows and 2 (of 2) columns from 0.318 GB file in 00:00:03
+## 
+Read 69.0% of 15587312 rows
+Read 15587312 rows and 2 (of 2) columns from 0.309 GB file in 00:00:03
+## 
+Read 43.6% of 15591452 rows
+Read 71.1% of 15591452 rows
+Read 99.5% of 15591452 rows
+Read 15591452 rows and 2 (of 2) columns from 0.400 GB file in 00:00:05
+## 
+Read 16.2% of 15591452 rows
+Read 36.8% of 15591452 rows
+Read 57.8% of 15591452 rows
+Read 78.1% of 15591452 rows
+Read 99.1% of 15591452 rows
+Read 15591452 rows and 8 (of 8) columns from 0.805 GB file in 00:00:07
+## 
+Read 11.2% of 15591452 rows
+Read 28.2% of 15591452 rows
+Read 44.4% of 15591452 rows
+Read 60.9% of 15591452 rows
+Read 78.9% of 15591452 rows
+Read 96.7% of 15591452 rows
+Read 15591452 rows and 8 (of 8) columns from 0.805 GB file in 00:00:08
+## 
+Read 0.0% of 15591452 rows
+Read 26.6% of 15591452 rows
+Read 53.5% of 15591452 rows
+Read 80.1% of 15591452 rows
+Read 15591452 rows and 8 (of 8) columns from 0.805 GB file in 00:00:07
+## 
+Read 35.7% of 15591452 rows
+Read 62.7% of 15591452 rows
+Read 89.6% of 15591452 rows
+Read 15591452 rows and 8 (of 8) columns from 0.805 GB file in 00:00:05
+## 
+Read 0.0% of 15591452 rows
+Read 39.4% of 15591452 rows
+Read 76.1% of 15591452 rows
+Read 15591452 rows and 2 (of 2) columns from 0.318 GB file in 00:00:06
+## 
+Read 66.6% of 15591452 rows
+Read 15591452 rows and 2 (of 2) columns from 0.309 GB file in 00:00:03
+## 
+Read 47.3% of 15591885 rows
+Read 77.1% of 15591885 rows
+Read 15591885 rows and 2 (of 2) columns from 0.401 GB file in 00:00:04
+## 
+Read 27.5% of 15591885 rows
+Read 47.9% of 15591885 rows
+Read 66.9% of 15591885 rows
+Read 86.3% of 15591885 rows
+Read 15591885 rows and 8 (of 8) columns from 0.806 GB file in 00:00:06
+## 
+Read 20.0% of 15591885 rows
+Read 42.1% of 15591885 rows
+Read 64.7% of 15591885 rows
+Read 86.8% of 15591885 rows
+Read 15591885 rows and 8 (of 8) columns from 0.806 GB file in 00:00:06
+## 
+Read 0.0% of 15591885 rows
+Read 26.7% of 15591885 rows
+Read 53.7% of 15591885 rows
+Read 80.7% of 15591885 rows
+Read 15591885 rows and 8 (of 8) columns from 0.806 GB file in 00:00:07
+## 
+Read 36.1% of 15591885 rows
+Read 62.9% of 15591885 rows
+Read 90.0% of 15591885 rows
+Read 15591885 rows and 8 (of 8) columns from 0.806 GB file in 00:00:05
+## 
+Read 68.4% of 15591885 rows
+Read 15591885 rows and 2 (of 2) columns from 0.318 GB file in 00:00:03
+## 
+Read 73.0% of 15591885 rows
+Read 15591885 rows and 2 (of 2) columns from 0.308 GB file in 00:00:03
+## 
+Read 33.3% of 15586562 rows
+Read 55.6% of 15586562 rows
+Read 79.4% of 15586562 rows
+Read 15586562 rows and 2 (of 2) columns from 0.400 GB file in 00:00:05
+## 
+Read 25.5% of 15586562 rows
+Read 46.2% of 15586562 rows
+Read 61.8% of 15586562 rows
+Read 81.2% of 15586562 rows
+Read 15586562 rows and 8 (of 8) columns from 0.805 GB file in 00:00:06
+## 
+Read 19.8% of 15586562 rows
+Read 37.3% of 15586562 rows
+Read 54.9% of 15586562 rows
+Read 73.5% of 15586562 rows
+Read 92.2% of 15586562 rows
+Read 15586562 rows and 8 (of 8) columns from 0.805 GB file in 00:00:07
+## 
+Read 0.0% of 15586562 rows
+Read 26.6% of 15586562 rows
+Read 53.5% of 15586562 rows
+Read 78.8% of 15586562 rows
+Read 15586562 rows and 8 (of 8) columns from 0.805 GB file in 00:00:07
+## 
+Read 35.4% of 15586562 rows
+Read 62.3% of 15586562 rows
+Read 89.2% of 15586562 rows
+Read 15586562 rows and 8 (of 8) columns from 0.805 GB file in 00:00:05
+## 
+Read 67.9% of 15586562 rows
+Read 15586562 rows and 2 (of 2) columns from 0.318 GB file in 00:00:03
+## 
+Read 72.1% of 15586562 rows
+Read 15586562 rows and 2 (of 2) columns from 0.309 GB file in 00:00:03
+## 
+Read 45.2% of 15585917 rows
+Read 73.8% of 15585917 rows
+Read 15585917 rows and 2 (of 2) columns from 0.400 GB file in 00:00:04
+## 
+Read 12.5% of 15585917 rows
+Read 33.8% of 15585917 rows
+Read 55.8% of 15585917 rows
+Read 77.4% of 15585917 rows
+Read 99.4% of 15585917 rows
+Read 15585917 rows and 8 (of 8) columns from 0.805 GB file in 00:00:07
+## 
+Read 21.8% of 15585917 rows
+Read 41.2% of 15585917 rows
+Read 60.6% of 15585917 rows
+Read 80.8% of 15585917 rows
+Read 15585917 rows and 8 (of 8) columns from 0.805 GB file in 00:00:06
+## 
+Read 35.5% of 15585917 rows
+Read 63.1% of 15585917 rows
+Read 90.2% of 15585917 rows
+Read 15585917 rows and 8 (of 8) columns from 0.805 GB file in 00:00:05
+## 
+Read 36.6% of 15585917 rows
+Read 64.0% of 15585917 rows
+Read 91.3% of 15585917 rows
+Read 15585917 rows and 8 (of 8) columns from 0.805 GB file in 00:00:05
+## 
+Read 69.3% of 15585917 rows
+Read 15585917 rows and 2 (of 2) columns from 0.318 GB file in 00:00:03
+## 
+Read 68.7% of 15585917 rows
+Read 15585917 rows and 2 (of 2) columns from 0.308 GB file in 00:00:03
+## 
+Read 42.2% of 15581791 rows
+Read 69.0% of 15581791 rows
+Read 96.5% of 15581791 rows
+Read 15581791 rows and 2 (of 2) columns from 0.398 GB file in 00:00:05
+## 
+Read 25.3% of 15581791 rows
+Read 38.8% of 15581791 rows
+Read 59.4% of 15581791 rows
+Read 80.5% of 15581791 rows
+Read 15581791 rows and 8 (of 8) columns from 0.803 GB file in 00:00:06
+## 
+Read 19.1% of 15581791 rows
+Read 37.0% of 15581791 rows
+Read 56.9% of 15581791 rows
+Read 75.4% of 15581791 rows
+Read 94.3% of 15581791 rows
+Read 15581791 rows and 8 (of 8) columns from 0.803 GB file in 00:00:07
+## 
+Read 0.0% of 15581791 rows
+Read 27.0% of 15581791 rows
+Read 54.2% of 15581791 rows
+Read 81.4% of 15581791 rows
+Read 15581791 rows and 8 (of 8) columns from 0.803 GB file in 00:00:07
+## 
+Read 36.1% of 15581791 rows
+Read 63.3% of 15581791 rows
+Read 90.2% of 15581791 rows
+Read 15581791 rows and 8 (of 8) columns from 0.803 GB file in 00:00:05
+## 
+Read 68.3% of 15581791 rows
+Read 15581791 rows and 2 (of 2) columns from 0.316 GB file in 00:00:03
+## 
+Read 71.7% of 15581791 rows
+Read 15581791 rows and 2 (of 2) columns from 0.307 GB file in 00:00:03</code></pre>
+<pre class="r"><code>rm(new_control)
+system(paste(&quot;rm &quot;,prefix,&quot;annovar_input_temp.bed&quot;,sep = &quot;&quot;))
+system(paste(&quot;rm &quot;,prefix, &quot;temp.bed&quot;,sep = &quot;&quot;))</code></pre>
+<pre class="r"><code># notice now feature start is 5, and feature end is 6, two features 
+simulation_estimate &lt;- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data(data = adjusted_base_level_rr$base_info, feature_start = 5, feature_end = 9, feature_number = 5, gene_prior_file = &quot;../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt&quot;, sample_size = 314)
+fisher_info&lt;-solve(-simulation_estimate$mle$hessian)
+prop_sigma&lt;-sqrt(diag(fisher_info))
+upper&lt;-simulation_estimate$mle$par+1.96*prop_sigma
+lower&lt;-simulation_estimate$mle$par-1.96*prop_sigma
+a = data.frame(relative_risk = simulation_estimate$mle$par, lower_bound = lower, upper_bournd = upper)
+rownames(a) = c(&quot;Noonan+Roadmap Brain H3K27ac enhancer + promoter&quot;,&quot;Epigenome_DHS&quot;, &quot;ENCODE_DHS&quot;, &quot;Phylop&gt;2&quot;, &quot;Gerp&gt;2&quot;)
+knitr::kable(a)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">relative_risk</th>
+<th align="right">lower_bound</th>
+<th align="right">upper_bournd</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Noonan+Roadmap Brain H3K27ac enhancer + promoter</td>
+<td align="right">0.7682939</td>
+<td align="right">0.0388038</td>
+<td align="right">1.4977841</td>
+</tr>
+<tr class="even">
+<td>Epigenome_DHS</td>
+<td align="right">-0.8734997</td>
+<td align="right">-2.6653718</td>
+<td align="right">0.9183723</td>
+</tr>
+<tr class="odd">
+<td>ENCODE_DHS</td>
+<td align="right">-0.2163944</td>
+<td align="right">-1.2543758</td>
+<td align="right">0.8215870</td>
+</tr>
+<tr class="even">
+<td>Phylop&gt;2</td>
+<td align="right">-0.5854587</td>
+<td align="right">-2.5829143</td>
+<td align="right">1.4119969</td>
+</tr>
+<tr class="odd">
+<td>Gerp&gt;2</td>
+<td align="right">0.7791350</td>
+<td align="right">-0.0059806</td>
+<td align="right">1.5642507</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>adjusted_base_level_rr$partition_time1</code></pre>
+<pre><code>##  [1] 1.053 1.154 0.000 1.122 1.418 1.479 0.000 0.000 0.000 0.001 1.378
+## [12] 1.412 1.597 1.599 1.585 1.559 1.472 1.509 1.570 1.708</code></pre>
+<pre class="r"><code>adjusted_base_level_rr$partition_time2</code></pre>
+<pre><code>##  [1] 29.656 27.977  0.000 32.384 33.122 33.346  0.000  0.000  0.000  0.000
+## [11] 35.460 34.239 35.028 34.427 34.308 34.505 34.828 34.552 34.059 34.090</code></pre>
+</div>
+<div id="now-will-run-foward-selection-to-select-features" class="section level1">
+<h1><span class="header-section-number">2</span> <strong>now will run foward selection to select features</strong></h1>
+<p>Will start from Brain H3K27ac, to Epigenomc DHS, Encode DHS, to phylop and to Gerp. For each additional feature, after parameter optimization, will calculate the deviance between two models and then use 1 degree of freedom chi square distribution to see if the improvement is significant.</p>
+<pre class="r"><code># model with only Brain H3K27ac data
+model_estimate_1 &lt;- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_model_selection(data = adjusted_base_level_rr$base_info, features = c(1), gene_prior_file = &quot;../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt&quot;, sample_size = 314)
+
+
+model_estimate_1$mle</code></pre>
+<pre><code>## $par
+## [1] 0.5774843
+## 
+## $value
+## [1] -19354.1
+## 
+## $counts
+## function gradient 
+##       NA       NA 
+## 
+## $convergence
+## [1] 0
+## 
+## $message
+## NULL
+## 
+## $hessian
+##           [,1]
+## [1,] -10.67147</code></pre>
+<pre class="r"><code>fisher_info&lt;-solve(-model_estimate_1$mle$hessian)
+prop_sigma&lt;-sqrt(diag(fisher_info))
+upper&lt;-model_estimate_1$mle$par+1.96*prop_sigma
+lower&lt;-model_estimate_1$mle$par-1.96*prop_sigma
+a = data.frame(relative_risk = model_estimate_1$mle$par, lower_bound = lower, upper_bournd = upper)
+rownames(a) = c(&quot;Noonan+Roadmap Brain H3K27ac enhancer + promoter&quot;)
+knitr::kable(a)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">relative_risk</th>
+<th align="right">lower_bound</th>
+<th align="right">upper_bournd</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Noonan+Roadmap Brain H3K27ac enhancer + promoter</td>
+<td align="right">0.5774843</td>
+<td align="right">-0.0225055</td>
+<td align="right">1.177474</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># model with Brain H3K27ac data + Epigenome brain DHS
+model_estimate_2 &lt;- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_model_selection(data = adjusted_base_level_rr$base_info, features = c(1,2), gene_prior_file = &quot;../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt&quot;, sample_size = 314)</code></pre>
+<pre><code>## Warning in if (features != 0) {: the condition has length &gt; 1 and only the
+## first element will be used</code></pre>
+<pre class="r"><code>model_estimate_2$mle</code></pre>
+<pre><code>## $par
+## [1]  0.7695152 -0.7051705
+## 
+## $value
+## [1] -19353.5
+## 
+## $counts
+## function gradient 
+##       45       NA 
+## 
+## $convergence
+## [1] 0
+## 
+## $message
+## NULL
+## 
+## $hessian
+##            [,1]      [,2]
+## [1,] -12.643515 -1.907812
+## [2,]  -1.907812 -1.755968</code></pre>
+<pre class="r"><code>fisher_info&lt;-solve(-model_estimate_2$mle$hessian)
+prop_sigma&lt;-sqrt(diag(fisher_info))
+upper&lt;-model_estimate_2$mle$par+1.96*prop_sigma
+lower&lt;-model_estimate_2$mle$par-1.96*prop_sigma
+a = data.frame(relative_risk = model_estimate_2$mle$par, lower_bound = lower, upper_bournd = upper)
+rownames(a) = c(&quot;Noonan+Roadmap Brain H3K27ac enhancer + promoter&quot;, &quot;Epigenome DHS&quot;)
+knitr::kable(a)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">relative_risk</th>
+<th align="right">lower_bound</th>
+<th align="right">upper_bournd</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Noonan+Roadmap Brain H3K27ac enhancer + promoter</td>
+<td align="right">0.7695152</td>
+<td align="right">0.1666731</td>
+<td align="right">1.3723574</td>
+</tr>
+<tr class="even">
+<td>Epigenome DHS</td>
+<td align="right">-0.7051705</td>
+<td align="right">-2.3228007</td>
+<td align="right">0.9124597</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># calculate chi-square p-value 
+llr &lt;- model_estimate_1$mle$value - model_estimate_2$mle$value
+
+llr</code></pre>
+<pre><code>## [1] -0.598804</code></pre>
+<pre class="r"><code># calculate chi-squre pvalue
+pchisq(-2 * llr, df = 1, lower.tail = FALSE)</code></pre>
+<pre><code>## [1] 0.2738003</code></pre>
+<pre class="r"><code># model with Brain H3K27ac data + ENCODE DHS
+model_estimate_3 &lt;- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_model_selection(data = adjusted_base_level_rr$base_info, features = c(1,3), gene_prior_file = &quot;../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt&quot;, sample_size = 314)</code></pre>
+<pre><code>## Warning in if (features != 0) {: the condition has length &gt; 1 and only the
+## first element will be used</code></pre>
+<pre class="r"><code>model_estimate_3$mle</code></pre>
+<pre><code>## $par
+## [1]  0.807910 -0.457547
+## 
+## $value
+## [1] -19353.74
+## 
+## $counts
+## function gradient 
+##       55       NA 
+## 
+## $convergence
+## [1] 0
+## 
+## $message
+## NULL
+## 
+## $hessian
+##            [,1]      [,2]
+## [1,] -10.472501 -4.151079
+## [2,]  -4.151079 -5.039730</code></pre>
+<pre class="r"><code>fisher_info&lt;-solve(-model_estimate_3$mle$hessian)
+prop_sigma&lt;-sqrt(diag(fisher_info))
+upper&lt;-model_estimate_3$mle$par+1.96*prop_sigma
+lower&lt;-model_estimate_3$mle$par-1.96*prop_sigma
+a = data.frame(relative_risk = model_estimate_3$mle$par, lower_bound = lower, upper_bournd = upper)
+rownames(a) = c(&quot;Noonan+Roadmap Brain H3K27ac enhancer + promoter&quot;, &quot;Encode DHS&quot;)
+knitr::kable(a)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">relative_risk</th>
+<th align="right">lower_bound</th>
+<th align="right">upper_bournd</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Noonan+Roadmap Brain H3K27ac enhancer + promoter</td>
+<td align="right">0.807910</td>
+<td align="right">0.069908</td>
+<td align="right">1.5459119</td>
+</tr>
+<tr class="even">
+<td>Encode DHS</td>
+<td align="right">-0.457547</td>
+<td align="right">-1.521394</td>
+<td align="right">0.6062997</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># calculate chi-square p-value 
+llr &lt;- model_estimate_1$mle$value - model_estimate_3$mle$value
+
+llr</code></pre>
+<pre><code>## [1] -0.3667536</code></pre>
+<pre class="r"><code># calculate chi-squre pvalue
+pchisq(-2 * llr, df = 1, lower.tail = FALSE)</code></pre>
+<pre><code>## [1] 0.3917487</code></pre>
+<pre class="r"><code># model with Brain H3K27ac data + Phylop &gt; 2
+model_estimate_4 &lt;- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_model_selection(data = adjusted_base_level_rr$base_info, features = c(1,4), gene_prior_file = &quot;../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt&quot;, sample_size = 314)</code></pre>
+<pre><code>## Warning in if (features != 0) {: the condition has length &gt; 1 and only the
+## first element will be used</code></pre>
+<pre class="r"><code>model_estimate_4$mle</code></pre>
+<pre><code>## $par
+## [1]  0.58107300 -0.07197632
+## 
+## $value
+## [1] -19354.1
+## 
+## $counts
+## function gradient 
+##       47       NA 
+## 
+## $convergence
+## [1] 0
+## 
+## $message
+## NULL
+## 
+## $hessian
+##             [,1]       [,2]
+## [1,] -10.6682910 -0.7773842
+## [2,]  -0.7773842 -1.1347065</code></pre>
+<pre class="r"><code>fisher_info&lt;-solve(-model_estimate_4$mle$hessian)
+prop_sigma&lt;-sqrt(diag(fisher_info))
+upper&lt;-model_estimate_4$mle$par+1.96*prop_sigma
+lower&lt;-model_estimate_4$mle$par-1.96*prop_sigma
+a = data.frame(relative_risk = model_estimate_4$mle$par, lower_bound = lower, upper_bournd = upper)
+rownames(a) = c(&quot;Noonan+Roadmap Brain H3K27ac enhancer + promoter&quot;, &quot;PhyloP &gt; 2&quot;)
+knitr::kable(a)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">relative_risk</th>
+<th align="right">lower_bound</th>
+<th align="right">upper_bournd</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Noonan+Roadmap Brain H3K27ac enhancer + promoter</td>
+<td align="right">0.5810730</td>
+<td align="right">-0.0345701</td>
+<td align="right">1.196716</td>
+</tr>
+<tr class="even">
+<td>PhyloP &gt; 2</td>
+<td align="right">-0.0719763</td>
+<td align="right">-1.9596838</td>
+<td align="right">1.815731</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># calculate chi-square p-value 
+llr &lt;- model_estimate_1$mle$value - model_estimate_4$mle$value
+
+llr</code></pre>
+<pre><code>## [1] -0.003428041</code></pre>
+<pre class="r"><code># calculate chi-squre pvalue
+pchisq(-2 * llr, df = 1, lower.tail = FALSE)</code></pre>
+<pre><code>## [1] 0.9340094</code></pre>
+<pre class="r"><code># model with Brain H3K27ac data + GERP &gt; 2
+model_estimate_5 &lt;- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_model_selection(data = adjusted_base_level_rr$base_info, features = c(1,5), gene_prior_file = &quot;../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt&quot;, sample_size = 314)</code></pre>
+<pre><code>## Warning in if (features != 0) {: the condition has length &gt; 1 and only the
+## first element will be used</code></pre>
+<pre class="r"><code>model_estimate_5$mle</code></pre>
+<pre><code>## $par
+## [1] 0.4453450 0.6022498
+## 
+## $value
+## [1] -19353.25
+## 
+## $counts
+## function gradient 
+##       71       NA 
+## 
+## $convergence
+## [1] 0
+## 
+## $message
+## NULL
+## 
+## $hessian
+##            [,1]      [,2]
+## [1,] -11.017224 -3.750102
+## [2,]  -3.750102 -7.296915</code></pre>
+<pre class="r"><code>fisher_info&lt;-solve(-model_estimate_5$mle$hessian)
+prop_sigma&lt;-sqrt(diag(fisher_info))
+upper&lt;-model_estimate_5$mle$par+1.96*prop_sigma
+lower&lt;-model_estimate_5$mle$par-1.96*prop_sigma
+a = data.frame(relative_risk = model_estimate_5$mle$par, lower_bound = lower, upper_bournd = upper)
+rownames(a) = c(&quot;Noonan+Roadmap Brain H3K27ac enhancer + promoter&quot;, &quot;GERP &gt; 2&quot;)
+knitr::kable(a)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">relative_risk</th>
+<th align="right">lower_bound</th>
+<th align="right">upper_bournd</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Noonan+Roadmap Brain H3K27ac enhancer + promoter</td>
+<td align="right">0.4453450</td>
+<td align="right">-0.2047483</td>
+<td align="right">1.095438</td>
+</tr>
+<tr class="even">
+<td>GERP &gt; 2</td>
+<td align="right">0.6022498</td>
+<td align="right">-0.1965577</td>
+<td align="right">1.401057</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># calculate chi-square p-value 
+llr &lt;- model_estimate_1$mle$value - model_estimate_5$mle$value
+
+llr</code></pre>
+<pre><code>## [1] -0.8565047</code></pre>
+<pre class="r"><code># calculate chi-squre pvalue
+pchisq(-2 * llr, df = 1, lower.tail = FALSE)</code></pre>
+<pre><code>## [1] 0.1905954</code></pre>
+<pre class="r"><code># model with only Brain H3K27ac data
+model_estimate_1 &lt;- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_model_selection(data = adjusted_base_level_rr$base_info, features = c(1), gene_prior_file = &quot;../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt&quot;, sample_size = 314)
+
+
+model_estimate_1$mle</code></pre>
+<pre><code>## $par
+## [1] 0.5774843
+## 
+## $value
+## [1] -19354.1
+## 
+## $counts
+## function gradient 
+##       NA       NA 
+## 
+## $convergence
+## [1] 0
+## 
+## $message
+## NULL
+## 
+## $hessian
+##           [,1]
+## [1,] -10.67147</code></pre>
+<pre class="r"><code>fisher_info&lt;-solve(-model_estimate_1$mle$hessian)
+prop_sigma&lt;-sqrt(diag(fisher_info))
+upper&lt;-model_estimate_1$mle$par+1.96*prop_sigma
+lower&lt;-model_estimate_1$mle$par-1.96*prop_sigma
+a = data.frame(relative_risk = model_estimate_1$mle$par, lower_bound = lower, upper_bournd = upper)
+rownames(a) = c(&quot;Noonan+Roadmap Brain H3K27ac enhancer + promoter&quot;)
+knitr::kable(a)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">relative_risk</th>
+<th align="right">lower_bound</th>
+<th align="right">upper_bournd</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Noonan+Roadmap Brain H3K27ac enhancer + promoter</td>
+<td align="right">0.5774843</td>
+<td align="right">-0.0225055</td>
+<td align="right">1.177474</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># model without any parameters
+model_estimate_0 &lt;- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_model_selection(data = adjusted_base_level_rr$base_info, features = 0, gene_prior_file = &quot;../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt&quot;, sample_size = 314)
+
+model_estimate_0$likelihood</code></pre>
+<pre><code>## [1] -19355.17</code></pre>
+<pre class="r"><code># calculate chi-square p-value 
+llr &lt;- model_estimate_0$likelihood - model_estimate_1$mle$value
+
+llr</code></pre>
+<pre><code>## [1] -1.07135</code></pre>
+<pre class="r"><code># calculate chi-squre pvalue
+pchisq(-2 * llr, df = 1, lower.tail = FALSE)</code></pre>
+<pre><code>## [1] 0.1432496</code></pre>
+</div>
+<div id="now-use-estimated-relative-risks-to-identify-new-asd-genes" class="section level1">
+<h1><span class="header-section-number">3</span> <strong>Now use estimated relative risks to identify new ASD genes</strong></h1>
+<pre class="r"><code>source(&quot;../lib/TADA_denovo.R&quot;)
+source(&quot;../lib/170117_gene_validation_functions.R&quot;)</code></pre>
+<div id="sart-without-using-splicing-mutations" class="section level2">
+<h2><span class="header-section-number">3.1</span> <em>Sart without using splicing mutations</em></h2>
+<p>rr is estimated from top 6% TADA genes.</p>
+<pre class="r"><code>TADA_table&lt;-bayes_factor_for_each_gene_base_level_from_collapsed_data(adjusted_base_level_rr$base_info, 
+                                                                      features = c(1), 
+                                                                      rr = 0.6878655,
+                                                                      coding_bayes_table_file = &quot;../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_BF_for_de_novo_mutations.txt&quot;,
+                                                                      TADA_p0 = 0.94)</code></pre>
+<div id="number-of-gained-and-lost-genes-after-having-non-coding-mutations" class="section level3">
+<h3><span class="header-section-number">3.1.1</span> Number of gained and lost genes after having non-coding mutations</h3>
+<pre class="r"><code>TADA_table_filtered = TADA_table$gene_BF_table[!is.element(TADA_table$gene_BF_table$genename, TADA_table$genes_with_no_epi),]
+knitr::kable(performance_table(TADA_table_filtered))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">novel</th>
+<th align="right">consistent</th>
+<th align="right">lost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>q0.1</td>
+<td align="right">3</td>
+<td align="right">55</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td>q0.2</td>
+<td align="right">8</td>
+<td align="right">90</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
+<td>q0.3</td>
+<td align="right">10</td>
+<td align="right">128</td>
+<td align="right">6</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.1" class="section level3">
+<h3><span class="header-section-number">3.1.2</span> Gene set enrichment analysis FDR 0.1</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.1 &amp; TADA_table_filtered$FDR_all &lt; 0.1, ]$genename, TADA_table_filtered$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">10.1417323</td>
+<td align="right">7.002928</td>
+<td align="right">4.2017566</td>
+<td align="right">3.6816183</td>
+<td align="right">2.0295758</td>
+<td align="right">17.1733333</td>
+<td align="right">3.2792793</td>
+<td align="right">2.6470635</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0009571</td>
+<td align="right">0.136116</td>
+<td align="right">0.0134728</td>
+<td align="right">0.0200297</td>
+<td align="right">0.4162422</td>
+<td align="right">0.0571102</td>
+<td align="right">0.2750129</td>
+<td align="right">0.1583212</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.2" class="section level3">
+<h3><span class="header-section-number">3.1.3</span> Gene set enrichment analysis FDR 0.2</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.2 &amp; TADA_table_filtered$FDR_all &lt; 0.2, ]$genename, TADA_table_filtered$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">3.8031496</td>
+<td align="right">2.626098</td>
+<td align="right">2.100878</td>
+<td align="right">1.3806069</td>
+<td align="right">0.7610909</td>
+<td align="right">6.4400000</td>
+<td align="right">2.4594595</td>
+<td align="right">0.9926488</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0366814</td>
+<td align="right">0.323104</td>
+<td align="right">0.097816</td>
+<td align="right">0.3759333</td>
+<td align="right">0.7620320</td>
+<td align="right">0.1451587</td>
+<td align="right">0.1917884</td>
+<td align="right">0.6375717</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.3" class="section level3">
+<h3><span class="header-section-number">3.1.4</span> Gene set enrichment analysis FDR 0.3</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.3 &amp; TADA_table_filtered$FDR_all &lt; 0.3, ]$genename, TADA_table_filtered$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">4.0566929</td>
+<td align="right">4.2017566</td>
+<td align="right">2.1008783</td>
+<td align="right">1.8408091</td>
+<td align="right">1.826618</td>
+<td align="right">5.152000</td>
+<td align="right">0.9837838</td>
+<td align="right">1.1911786</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0121542</td>
+<td align="right">0.0790228</td>
+<td align="right">0.0648284</td>
+<td align="right">0.1058807</td>
+<td align="right">0.217982</td>
+<td align="right">0.178038</td>
+<td align="right">0.6577594</td>
+<td align="right">0.4799846</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="fdr-0.3-new-genes" class="section level3">
+<h3><span class="header-section-number">3.1.5</span> FDR 0.3 new genes</h3>
+<pre class="r"><code>knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;= 0.3 &amp; TADA_table_filtered$FDR_all &lt; 0.3,])</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">genename</th>
+<th align="right">logBF_noncoding</th>
+<th align="right">logBF_coding</th>
+<th align="right">logBF_all</th>
+<th align="right">BF_noncoding</th>
+<th align="right">BF_coding</th>
+<th align="right">BF_all</th>
+<th align="right">FDR_coding</th>
+<th align="right">FDR_all</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">JUP</td>
+<td align="right">2.7059171</td>
+<td align="right">2.131726</td>
+<td align="right">4.837643</td>
+<td align="right">14.9680372</td>
+<td align="right">8.429401</td>
+<td align="right">126.17159</td>
+<td align="right">0.4713748</td>
+<td align="right">0.0392983</td>
+</tr>
+<tr class="even">
+<td align="left">APBB1</td>
+<td align="right">1.9762766</td>
+<td align="right">2.325413</td>
+<td align="right">4.301690</td>
+<td align="right">7.2158255</td>
+<td align="right">10.230909</td>
+<td align="right">73.82446</td>
+<td align="right">0.4502329</td>
+<td align="right">0.0602921</td>
+</tr>
+<tr class="odd">
+<td align="left">MSL2</td>
+<td align="right">0.6517667</td>
+<td align="right">2.536128</td>
+<td align="right">3.187895</td>
+<td align="right">1.9189281</td>
+<td align="right">12.630673</td>
+<td align="right">24.23735</td>
+<td align="right">0.3972018</td>
+<td align="right">0.1750198</td>
+</tr>
+<tr class="even">
+<td align="left">PPM1D</td>
+<td align="right">0.6529174</td>
+<td align="right">2.526200</td>
+<td align="right">3.179117</td>
+<td align="right">1.9211373</td>
+<td align="right">12.505890</td>
+<td align="right">24.02553</td>
+<td align="right">0.4001637</td>
+<td align="right">0.1796785</td>
+</tr>
+<tr class="odd">
+<td align="left">SLC38A3</td>
+<td align="right">0.6136223</td>
+<td align="right">2.510331</td>
+<td align="right">3.123953</td>
+<td align="right">1.8471101</td>
+<td align="right">12.309005</td>
+<td align="right">22.73609</td>
+<td align="right">0.4074689</td>
+<td align="right">0.1820814</td>
+</tr>
+<tr class="even">
+<td align="left">PLXNB1</td>
+<td align="right">0.6374991</td>
+<td align="right">2.352516</td>
+<td align="right">2.990015</td>
+<td align="right">1.8917440</td>
+<td align="right">10.511988</td>
+<td align="right">19.88599</td>
+<td align="right">0.4468929</td>
+<td align="right">0.2009838</td>
+</tr>
+<tr class="odd">
+<td align="left">LRRC4</td>
+<td align="right">0.6376929</td>
+<td align="right">2.344952</td>
+<td align="right">2.982645</td>
+<td align="right">1.8921106</td>
+<td align="right">10.432776</td>
+<td align="right">19.73997</td>
+<td align="right">0.4477285</td>
+<td align="right">0.2033059</td>
+</tr>
+<tr class="even">
+<td align="left">DLL1</td>
+<td align="right">0.5865129</td>
+<td align="right">2.233998</td>
+<td align="right">2.820511</td>
+<td align="right">1.7977086</td>
+<td align="right">9.337119</td>
+<td align="right">16.78542</td>
+<td align="right">0.4626166</td>
+<td align="right">0.2553612</td>
+</tr>
+<tr class="odd">
+<td align="left">CBX4</td>
+<td align="right">0.5577009</td>
+<td align="right">2.237874</td>
+<td align="right">2.795575</td>
+<td align="right">1.7466522</td>
+<td align="right">9.373381</td>
+<td align="right">16.37204</td>
+<td align="right">0.4613862</td>
+<td align="right">0.2720426</td>
+</tr>
+<tr class="even">
+<td align="left">SIRPB2</td>
+<td align="right">-0.0050037</td>
+<td align="right">2.736432</td>
+<td align="right">2.731428</td>
+<td align="right">0.9950088</td>
+<td align="right">15.431826</td>
+<td align="right">15.35480</td>
+<td align="right">0.3009029</td>
+<td align="right">0.2965225</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="cacluate-the-bayes-factor-table-for-splicing-mutations" class="section level2">
+<h2><span class="header-section-number">3.2</span> <em>cacluate the bayes factor table for splicing mutations</em></h2>
+<ul>
+<li>The mutation rate needs to be adjusted after taking into consideration of windows from introns far from TSSs</li>
+</ul>
+<pre class="r"><code>new_control = new.env()
+load(&quot;../data/debug_region_list_073116_data_matrixtransformed_for_old_code.Rdata&quot;, new_control)
+
+prefix &lt;-system(&quot;date +%s&quot;, intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == &quot;dnv_proband&quot; &amp; new_control$data_matrix$Type == &quot;SNV&quot;,c(1,2,3,7)], paste(prefix,&quot;temp.bed&quot;,sep = &quot;&quot;), col.names = FALSE, row.names = FALSE, sep = &quot;\t&quot;, quote = FALSE)
+#write.table(new_control$data_matrix[new_control$data_matrix$Prediction == &quot;dnv_proband&quot; ,c(1:5,8,7)], paste(prefix,&quot;annovar_input_temp.bed&quot;,sep = &quot;&quot;), col.names = FALSE, row.names = FALSE, sep = &quot;\t&quot;, quote = FALSE)
+
+# SNV_ID for cases or controls. 
+SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == &quot;dnv_proband&quot; &amp; new_control$data_matrix$Type == &quot;SNV&quot;,c(1,2,3,7)]$ID
+proband_SNV_mut_spidex &lt;- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID),] # this will be paseed as an argument to the function below
+
+### generate Bayes factor table for splicing mutations
+splicing_BF_table &lt;- generate_BF_for_splicing_mutations(mut_file = paste(prefix,&quot;temp.bed&quot;,sep = &quot;&quot;), 
+                                               window_file = &quot;../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed&quot;, 
+                                               cg_file = &quot;../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg&quot;, 
+                                               mutrate_file = &quot;../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate&quot;, 
+                                               sample_size = 314,
+                                               rm_nonsyn = FALSE,
+                                               annovar_folder = &quot;/media/yuwen/Elements/ANNOVAR/annovar/&quot;, 
+                                               annovar_input = &quot;no.txt&quot;, 
+                                               spidex_mutrate_prefix = &quot;../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct&quot;,
+                                               splicing_cutoff = -1.416,
+                                               log_splicing_rr = log(2.1),
+                                               proband_SNV_mut_spidex = proband_SNV_mut_spidex)</code></pre>
+<pre><code>## 
+Read 43.3% of 8286737 rows
+Read 52.6% of 8286737 rows
+Read 75.4% of 8286737 rows
+Read 97.6% of 8286737 rows
+Read 8286737 rows and 8 (of 8) columns from 0.405 GB file in 00:00:12
+## 
+Read 95.9% of 8286737 rows
+Read 8286737 rows and 2 (of 2) columns from 0.128 GB file in 00:00:03</code></pre>
+<pre><code>## Warning in `[.data.table`(coverage, , `:=`(c(&quot;coding&quot;, &quot;promoter&quot;, &quot;nf&quot;, :
+## with=FALSE ignored, it isn&#39;t needed when using :=. See ?&#39;:=&#39; for examples.</code></pre>
+<pre><code>## 
+Read 24.5% of 8286737 rows
+Read 48.3% of 8286737 rows
+Read 72.0% of 8286737 rows
+Read 95.9% of 8286737 rows
+Read 8286737 rows and 6 (of 6) columns from 0.410 GB file in 00:00:06
+## 
+Read 83.5% of 3197446 rows
+Read 3197446 rows and 10 (of 10) columns from 0.298 GB file in 00:00:03</code></pre>
+<pre class="r"><code>rm(new_control)
+system(paste(&quot;rm &quot;,prefix,&quot;annovar_input_temp.bed&quot;,sep = &quot;&quot;))
+system(paste(&quot;rm &quot;,prefix, &quot;temp.bed&quot;,sep = &quot;&quot;))</code></pre>
+<pre class="r"><code>### currently the table below has duplicated entries, because there are a few genes that have appeared both on X chromosome and Y chromosome. 
+### Right now, I first remove genes that appear on both chromosomes
+splicing_BF_table_dup_removed &lt;- splicing_BF_table$splicing_BF_table[!duplicated(splicing_BF_table$splicing_BF_table$genename)]</code></pre>
+<pre class="r"><code>TADA_table$gene_BF_table</code></pre>
+<pre><code>##        genename logBF_noncoding logBF_coding logBF_all BF_noncoding
+##     1:    SCN2A    -0.007199589    23.561577 23.554378    0.9928263
+##     2:     CHD8    -0.015059952    22.713553 22.698493    0.9850529
+##     3:  SYNGAP1    -0.057271429    15.412931 15.355659    0.9443377
+##     4:   ARID1B    -0.034461980    14.856753 14.822291    0.9661251
+##     5:   DYRK1A    -0.045217469    14.746632 14.701414    0.9557896
+##    ---                                                             
+## 18661:     PKD1    -0.037956440    -4.269452 -4.307409    0.9627549
+## 18662:     PLEC    -0.166838592    -5.001259 -5.168098    0.8463362
+## 18663:    FCGBP    -0.016424704    -5.176946 -5.193370    0.9837094
+## 18664:      TTN     0.000000000    -5.905323 -5.905323    1.0000000
+## 18665:    MUC16     0.000000000    -6.536660 -6.536660    1.0000000
+##           BF_coding       BF_all   FDR_coding      FDR_all
+##     1: 1.708689e+10 1.696431e+10 9.168826e-10 9.235076e-10
+##     2: 7.317632e+09 7.208255e+09 1.528915e-09 1.548471e-09
+##     3: 4.940272e+06 4.665285e+06 1.058088e-06 1.120408e-06
+##     4: 2.832734e+06 2.736776e+06 2.176203e-06 2.271422e-06
+##     5: 2.537352e+06 2.425175e+06 2.975838e-06 3.109132e-06
+##    ---                                                    
+## 18661: 1.398944e-02 1.346840e-02 9.412171e-01 9.412696e-01
+## 18662: 6.729469e-03 5.695393e-03 9.412202e-01 9.412727e-01
+## 18663: 5.645222e-03 5.553258e-03 9.412233e-01 9.412759e-01
+## 18664: 2.724902e-03 2.724902e-03 9.412265e-01 9.412790e-01
+## 18665: 1.449321e-03 1.449321e-03 9.412296e-01 9.412821e-01</code></pre>
+</div>
+<div id="now-combine-information-from-splicing-to-other-non_coding-mutations" class="section level2">
+<h2><span class="header-section-number">3.3</span> <em>now combine information from splicing to other non_coding mutations</em></h2>
+<pre class="r"><code>combined_BF_table &lt;- splicing_BF_table_dup_removed[TADA_table$gene_BF_table, on = &quot;genename&quot;]
+combined_BF_table</code></pre>
+<pre><code>##        genename logBF_splicing BF_splicing logBF_noncoding logBF_coding
+##     1:    SCN2A   -0.015087809   0.9850254    -0.007199589    23.561577
+##     2:     CHD8   -0.013165998   0.9869203    -0.015059952    22.713553
+##     3:  SYNGAP1   -0.012624522   0.9874548    -0.057271429    15.412931
+##     4:   ARID1B   -0.013266887   0.9868207    -0.034461980    14.856753
+##     5:   DYRK1A   -0.008601051   0.9914358    -0.045217469    14.746632
+##    ---                                                                 
+## 18661:     PKD1   -0.021357969   0.9788685    -0.037956440    -4.269452
+## 18662:     PLEC   -0.015255892   0.9848599    -0.166838592    -5.001259
+## 18663:    FCGBP   -0.008248457   0.9917855    -0.016424704    -5.176946
+## 18664:      TTN   -0.219350162   0.8030405     0.000000000    -5.905323
+## 18665:    MUC16   -0.054426911   0.9470277     0.000000000    -6.536660
+##        logBF_all BF_noncoding    BF_coding       BF_all   FDR_coding
+##     1: 23.554378    0.9928263 1.708689e+10 1.696431e+10 9.168826e-10
+##     2: 22.698493    0.9850529 7.317632e+09 7.208255e+09 1.528915e-09
+##     3: 15.355659    0.9443377 4.940272e+06 4.665285e+06 1.058088e-06
+##     4: 14.822291    0.9661251 2.832734e+06 2.736776e+06 2.176203e-06
+##     5: 14.701414    0.9557896 2.537352e+06 2.425175e+06 2.975838e-06
+##    ---                                                              
+## 18661: -4.307409    0.9627549 1.398944e-02 1.346840e-02 9.412171e-01
+## 18662: -5.168098    0.8463362 6.729469e-03 5.695393e-03 9.412202e-01
+## 18663: -5.193370    0.9837094 5.645222e-03 5.553258e-03 9.412233e-01
+## 18664: -5.905323    1.0000000 2.724902e-03 2.724902e-03 9.412265e-01
+## 18665: -6.536660    1.0000000 1.449321e-03 1.449321e-03 9.412296e-01
+##             FDR_all
+##     1: 9.235076e-10
+##     2: 1.548471e-09
+##     3: 1.120408e-06
+##     4: 2.271422e-06
+##     5: 3.109132e-06
+##    ---             
+## 18661: 9.412696e-01
+## 18662: 9.412727e-01
+## 18663: 9.412759e-01
+## 18664: 9.412790e-01
+## 18665: 9.412821e-01</code></pre>
+<pre class="r"><code># get a list of genes that don&#39;t have splicing info.
+genes_with_no_info_from_splicing_BF_table &lt;- combined_BF_table[is.na(combined_BF_table$logBF_splicing),]$genename
+
+# change the logBF_splicing of these genes to 0 and BF of these genes to 1
+combined_BF_table[is.na(combined_BF_table$logBF_splicing),][,c(&quot;logBF_splicing&quot;)] = 0
+combined_BF_table[is.na(combined_BF_table$BF_splicing),][,c(&quot;BF_splicing&quot;)] = 1
+
+combined_BF_table[is.element(combined_BF_table$genename, genes_with_no_info_from_splicing_BF_table),]</code></pre>
+<pre><code>##       genename logBF_splicing BF_splicing logBF_noncoding logBF_coding
+##    1:     MLL3              0           1      0.00000000     5.368897
+##    2:     MLL5              0           1      0.00000000     4.721863
+##    3:     MFRP              0           1     -0.01973011     3.984587
+##    4:     CCIN              0           1     -0.02853204     3.931569
+##    5:  IRF2BPL              0           1     -0.08889624     3.470252
+##   ---                                                                 
+## 2943:    GPR98              0           1      0.00000000    -2.599270
+## 2944:    EPPK1              0           1     -0.09454762    -2.573861
+## 2945:  PRIC285              0           1      0.00000000    -2.703290
+## 2946:   ZNF469              0           1     -0.01105856    -2.763213
+## 2947:     MLL2              0           1      0.00000000    -2.906505
+##       logBF_all BF_noncoding    BF_coding       BF_all FDR_coding
+##    1:  5.368897    1.0000000 214.62602200 214.62602200 0.02174861
+##    2:  4.721863    1.0000000 112.37739057 112.37739057 0.04279135
+##    3:  3.964857    0.9804633  53.76310336  52.71274749 0.08571576
+##    4:  3.903037    0.9718712  50.98689831  49.55269555 0.09362261
+##    5:  3.381355    0.9149405  32.14482920  29.41060622 0.14422228
+##   ---                                                            
+## 2943: -2.599270    1.0000000   0.07432784   0.07432784 0.94111490
+## 2944: -2.668408    0.9097844   0.07624065   0.06936255 0.94110618
+## 2945: -2.703290    1.0000000   0.06698477   0.06698477 0.94112368
+## 2946: -2.774272    0.9890024   0.06308872   0.06239489 0.94112956
+## 2947: -2.906505    1.0000000   0.05466643   0.05466643 0.94115027
+##          FDR_all
+##    1: 0.02250175
+##    2: 0.04377809
+##    3: 0.09106765
+##    4: 0.10081230
+##    5: 0.15851972
+##   ---           
+## 2943: 0.94116170
+## 2944: 0.94117336
+## 2945: 0.94117922
+## 2946: 0.94118510
+## 2947: 0.94119989</code></pre>
+<pre class="r"><code># add splicing info to BF_all
+combined_BF_table$logBF_all &lt;- combined_BF_table$logBF_splicing + combined_BF_table$logBF_noncoding + combined_BF_table$logBF_coding
+combined_BF_table$BF_all &lt;- exp(combined_BF_table$logBF_all)
+combined_BF_table &lt;- combined_BF_table[order(combined_BF_table$BF_all, decreasing = TRUE),]
+combined_BF_table$FDR_all = Bayesian.FDR(combined_BF_table$BF_all, 0.94)$FDR # here 0.94 was chosen to be consisten with the prior used for getting BF and FDR using other types of mutations. </code></pre>
+<div id="number-of-gained-and-lost-genes-after-having-non-coding-mutations-and-splicing-mutations" class="section level3">
+<h3><span class="header-section-number">3.3.1</span> Number of gained and lost genes after having non-coding mutations and splicing mutations</h3>
+<pre class="r"><code>TADA_table_filtered =combined_BF_table[!is.element(combined_BF_table$genename, TADA_table$genes_with_no_epi),]
+knitr::kable(performance_table(TADA_table_filtered))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">novel</th>
+<th align="right">consistent</th>
+<th align="right">lost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>q0.1</td>
+<td align="right">3</td>
+<td align="right">55</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td>q0.2</td>
+<td align="right">11</td>
+<td align="right">87</td>
+<td align="right">6</td>
+</tr>
+<tr class="odd">
+<td>q0.3</td>
+<td align="right">13</td>
+<td align="right">127</td>
+<td align="right">7</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.1-1" class="section level3">
+<h3><span class="header-section-number">3.3.2</span> Gene set enrichment analysis FDR 0.1</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.1 &amp; TADA_table_filtered$FDR_all &lt; 0.1, ]$genename, TADA_table_filtered$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">10.1417323</td>
+<td align="right">7.002928</td>
+<td align="right">4.2017566</td>
+<td align="right">3.6816183</td>
+<td align="right">2.0295758</td>
+<td align="right">17.1733333</td>
+<td align="right">3.2792793</td>
+<td align="right">2.6470635</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0009571</td>
+<td align="right">0.136116</td>
+<td align="right">0.0134728</td>
+<td align="right">0.0200297</td>
+<td align="right">0.4162422</td>
+<td align="right">0.0571102</td>
+<td align="right">0.2750129</td>
+<td align="right">0.1583212</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.2-1" class="section level3">
+<h3><span class="header-section-number">3.3.3</span> Gene set enrichment analysis FDR 0.2</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.2 &amp; TADA_table_filtered$FDR_all &lt; 0.2, ]$genename, TADA_table_filtered$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">2.7659270</td>
+<td align="right">1.9098894</td>
+<td align="right">1.9098894</td>
+<td align="right">1.3387703</td>
+<td align="right">1.1070413</td>
+<td align="right">4.6836364</td>
+<td align="right">1.7886978</td>
+<td align="right">1.4438528</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0865437</td>
+<td align="right">0.4152823</td>
+<td align="right">0.0962071</td>
+<td align="right">0.3476588</td>
+<td align="right">0.5607078</td>
+<td align="right">0.1940017</td>
+<td align="right">0.3096695</td>
+<td align="right">0.2917652</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.3-1" class="section level3">
+<h3><span class="header-section-number">3.3.4</span> Gene set enrichment analysis FDR 0.3</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.3 &amp; TADA_table_filtered$FDR_all &lt; 0.3, ]$genename, TADA_table_filtered$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">3.1205330</td>
+<td align="right">3.2321205</td>
+<td align="right">1.939272</td>
+<td align="right">1.6992084</td>
+<td align="right">1.8734545</td>
+<td align="right">3.9630769</td>
+<td align="right">0.7567568</td>
+<td align="right">1.5271520</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0325754</td>
+<td align="right">0.1248277</td>
+<td align="right">0.065048</td>
+<td align="right">0.1125229</td>
+<td align="right">0.1518223</td>
+<td align="right">0.2250079</td>
+<td align="right">0.7519303</td>
+<td align="right">0.2106458</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="fdr-0.3-new-genes-1" class="section level3">
+<h3><span class="header-section-number">3.3.5</span> FDR 0.3 new genes</h3>
+<pre class="r"><code>knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;= 0.3 &amp; TADA_table_filtered$FDR_all &lt; 0.3,])</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">genename</th>
+<th align="right">logBF_splicing</th>
+<th align="right">BF_splicing</th>
+<th align="right">logBF_noncoding</th>
+<th align="right">logBF_coding</th>
+<th align="right">logBF_all</th>
+<th align="right">BF_noncoding</th>
+<th align="right">BF_coding</th>
+<th align="right">BF_all</th>
+<th align="right">FDR_coding</th>
+<th align="right">FDR_all</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">JUP</td>
+<td align="right">-0.0064879</td>
+<td align="right">0.9935331</td>
+<td align="right">2.7059171</td>
+<td align="right">2.131726</td>
+<td align="right">4.831155</td>
+<td align="right">14.9680372</td>
+<td align="right">8.429401</td>
+<td align="right">125.35565</td>
+<td align="right">0.4713748</td>
+<td align="right">0.0387097</td>
+</tr>
+<tr class="even">
+<td align="left">APBB1</td>
+<td align="right">-0.0052030</td>
+<td align="right">0.9948105</td>
+<td align="right">1.9762766</td>
+<td align="right">2.325413</td>
+<td align="right">4.296487</td>
+<td align="right">7.2158255</td>
+<td align="right">10.230909</td>
+<td align="right">73.44134</td>
+<td align="right">0.4502329</td>
+<td align="right">0.0602304</td>
+</tr>
+<tr class="odd">
+<td align="left">MSL2</td>
+<td align="right">0.0000000</td>
+<td align="right">1.0000000</td>
+<td align="right">0.6517667</td>
+<td align="right">2.536128</td>
+<td align="right">3.187895</td>
+<td align="right">1.9189281</td>
+<td align="right">12.630673</td>
+<td align="right">24.23735</td>
+<td align="right">0.3972018</td>
+<td align="right">0.1818968</td>
+</tr>
+<tr class="even">
+<td align="left">PPM1D</td>
+<td align="right">-0.0007843</td>
+<td align="right">0.9992160</td>
+<td align="right">0.6529174</td>
+<td align="right">2.526200</td>
+<td align="right">3.178333</td>
+<td align="right">1.9211373</td>
+<td align="right">12.505890</td>
+<td align="right">24.00670</td>
+<td align="right">0.4001637</td>
+<td align="right">0.1840926</td>
+</tr>
+<tr class="odd">
+<td align="left">HGF</td>
+<td align="right">0.7342728</td>
+<td align="right">2.0839660</td>
+<td align="right">-0.0052543</td>
+<td align="right">2.447064</td>
+<td align="right">3.176082</td>
+<td align="right">0.9947595</td>
+<td align="right">11.554370</td>
+<td align="right">23.95273</td>
+<td align="right">0.4257441</td>
+<td align="right">0.1862491</td>
+</tr>
+<tr class="even">
+<td align="left">SLC38A3</td>
+<td align="right">-0.0049565</td>
+<td align="right">0.9950557</td>
+<td align="right">0.6136223</td>
+<td align="right">2.510331</td>
+<td align="right">3.118997</td>
+<td align="right">1.8471101</td>
+<td align="right">12.309005</td>
+<td align="right">22.62367</td>
+<td align="right">0.4074689</td>
+<td align="right">0.1905775</td>
+</tr>
+<tr class="odd">
+<td align="left">ARHGAP44</td>
+<td align="right">0.7308175</td>
+<td align="right">2.0767777</td>
+<td align="right">-0.0119305</td>
+<td align="right">2.362564</td>
+<td align="right">3.081451</td>
+<td align="right">0.9881404</td>
+<td align="right">10.618144</td>
+<td align="right">21.79000</td>
+<td align="right">0.4447959</td>
+<td align="right">0.1971148</td>
+</tr>
+<tr class="even">
+<td align="left">LRRC4</td>
+<td align="right">0.0000000</td>
+<td align="right">1.0000000</td>
+<td align="right">0.6376929</td>
+<td align="right">2.344952</td>
+<td align="right">2.982645</td>
+<td align="right">1.8921106</td>
+<td align="right">10.432776</td>
+<td align="right">19.73997</td>
+<td align="right">0.4477285</td>
+<td align="right">0.2100236</td>
+</tr>
+<tr class="odd">
+<td align="left">PLXNB1</td>
+<td align="right">-0.0173372</td>
+<td align="right">0.9828122</td>
+<td align="right">0.6374991</td>
+<td align="right">2.352516</td>
+<td align="right">2.972678</td>
+<td align="right">1.8917440</td>
+<td align="right">10.511988</td>
+<td align="right">19.54419</td>
+<td align="right">0.4468929</td>
+<td align="right">0.2121592</td>
+</tr>
+<tr class="even">
+<td align="left">DLL1</td>
+<td align="right">-0.0056156</td>
+<td align="right">0.9944002</td>
+<td align="right">0.5865129</td>
+<td align="right">2.233998</td>
+<td align="right">2.814895</td>
+<td align="right">1.7977086</td>
+<td align="right">9.337119</td>
+<td align="right">16.69142</td>
+<td align="right">0.4626166</td>
+<td align="right">0.2555491</td>
+</tr>
+<tr class="odd">
+<td align="left">CBX4</td>
+<td align="right">-0.0031636</td>
+<td align="right">0.9968414</td>
+<td align="right">0.5577009</td>
+<td align="right">2.237874</td>
+<td align="right">2.792411</td>
+<td align="right">1.7466522</td>
+<td align="right">9.373381</td>
+<td align="right">16.32032</td>
+<td align="right">0.4613862</td>
+<td align="right">0.2718822</td>
+</tr>
+<tr class="even">
+<td align="left">SIRPB2</td>
+<td align="right">-0.0009817</td>
+<td align="right">0.9990188</td>
+<td align="right">-0.0050037</td>
+<td align="right">2.736432</td>
+<td align="right">2.730447</td>
+<td align="right">0.9950088</td>
+<td align="right">15.431826</td>
+<td align="right">15.33974</td>
+<td align="right">0.3009029</td>
+<td align="right">0.2959941</td>
+</tr>
+<tr class="odd">
+<td align="left">NUDT17</td>
+<td align="right">-0.0038667</td>
+<td align="right">0.9961408</td>
+<td align="right">-0.0070642</td>
+<td align="right">2.732393</td>
+<td align="right">2.721462</td>
+<td align="right">0.9929607</td>
+<td align="right">15.369624</td>
+<td align="right">15.20253</td>
+<td align="right">0.3048205</td>
+<td align="right">0.2999054</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="cacluate-the-bayes-factor-table-for-splicing-mutations-summing-mutation-rate-from-chrx-and-chry-for-a-gene-if-it-is-on-both-chrx-and-chry" class="section level2">
+<h2><span class="header-section-number">3.4</span> <em>cacluate the bayes factor table for splicing mutations, summing mutation rate from ChrX and ChrY for a gene if it is on both ChrX and ChrY</em></h2>
+<pre class="r"><code>### currently the table below has duplicated entries, because there are a few genes that have appeared both on X chromosome and Y chromosome. 
+### Now I sum up the matation rates from both chrx and chrY for such genes. 
+
+head(splicing_BF_table$splicing_BF_table)</code></pre>
+<pre><code>##    genename logBF_splicing BF_splicing
+## 1:   SAMD11  -0.0105229458   0.9895322
+## 2:    NOC2L  -0.0099645541   0.9900849
+## 3:   KLHL17  -0.0060241772   0.9939939
+## 4:  PLEKHN1  -0.0105621082   0.9894935
+## 5:    PERM1  -0.0005756045   0.9994246
+## 6:     HES4  -0.0015764676   0.9984248</code></pre>
+<pre class="r"><code>splicing_BF_table_collapsed &lt;- by(splicing_BF_table$splicing_BF_table, splicing_BF_table$splicing_BF_table$genename, function(x) sum(x$logBF_splicing)) 
+#splicing_BF_table_collapsed 
+splicing_BF_table_collapsed &lt;- data.table(genename = names(splicing_BF_table_collapsed), logBF_splicing = as.vector(splicing_BF_table_collapsed), BF_splicing = exp(as.vector(splicing_BF_table_collapsed)))</code></pre>
+</div>
+<div id="now-combine-information-from-splicing-collapsed-version-to-other-non_coding-mutations" class="section level2">
+<h2><span class="header-section-number">3.5</span> <em>now combine information from splicing (collapsed version) to other non_coding mutations</em></h2>
+<pre class="r"><code>combined_BF_table &lt;- splicing_BF_table_collapsed[TADA_table$gene_BF_table, on = &quot;genename&quot;]
+combined_BF_table</code></pre>
+<pre><code>##        genename logBF_splicing BF_splicing logBF_noncoding logBF_coding
+##     1:    SCN2A   -0.015087809   0.9850254    -0.007199589    23.561577
+##     2:     CHD8   -0.013165998   0.9869203    -0.015059952    22.713553
+##     3:  SYNGAP1   -0.012624522   0.9874548    -0.057271429    15.412931
+##     4:   ARID1B   -0.013266887   0.9868207    -0.034461980    14.856753
+##     5:   DYRK1A   -0.008601051   0.9914358    -0.045217469    14.746632
+##    ---                                                                 
+## 18661:     PKD1   -0.021357969   0.9788685    -0.037956440    -4.269452
+## 18662:     PLEC   -0.015255892   0.9848599    -0.166838592    -5.001259
+## 18663:    FCGBP   -0.008248457   0.9917855    -0.016424704    -5.176946
+## 18664:      TTN   -0.219350162   0.8030405     0.000000000    -5.905323
+## 18665:    MUC16   -0.054426911   0.9470277     0.000000000    -6.536660
+##        logBF_all BF_noncoding    BF_coding       BF_all   FDR_coding
+##     1: 23.554378    0.9928263 1.708689e+10 1.696431e+10 9.168826e-10
+##     2: 22.698493    0.9850529 7.317632e+09 7.208255e+09 1.528915e-09
+##     3: 15.355659    0.9443377 4.940272e+06 4.665285e+06 1.058088e-06
+##     4: 14.822291    0.9661251 2.832734e+06 2.736776e+06 2.176203e-06
+##     5: 14.701414    0.9557896 2.537352e+06 2.425175e+06 2.975838e-06
+##    ---                                                              
+## 18661: -4.307409    0.9627549 1.398944e-02 1.346840e-02 9.412171e-01
+## 18662: -5.168098    0.8463362 6.729469e-03 5.695393e-03 9.412202e-01
+## 18663: -5.193370    0.9837094 5.645222e-03 5.553258e-03 9.412233e-01
+## 18664: -5.905323    1.0000000 2.724902e-03 2.724902e-03 9.412265e-01
+## 18665: -6.536660    1.0000000 1.449321e-03 1.449321e-03 9.412296e-01
+##             FDR_all
+##     1: 9.235076e-10
+##     2: 1.548471e-09
+##     3: 1.120408e-06
+##     4: 2.271422e-06
+##     5: 3.109132e-06
+##    ---             
+## 18661: 9.412696e-01
+## 18662: 9.412727e-01
+## 18663: 9.412759e-01
+## 18664: 9.412790e-01
+## 18665: 9.412821e-01</code></pre>
+<pre class="r"><code># get a list of genes that don&#39;t have splicing info.
+genes_with_no_info_from_splicing_BF_table &lt;- combined_BF_table[is.na(combined_BF_table$logBF_splicing),]$genename
+
+# change the logBF_splicing of these genes to 0 and BF of these genes to 1
+combined_BF_table[is.na(combined_BF_table$logBF_splicing),][,c(&quot;logBF_splicing&quot;)] = 0
+combined_BF_table[is.na(combined_BF_table$BF_splicing),][,c(&quot;BF_splicing&quot;)] = 1
+
+combined_BF_table[is.element(combined_BF_table$genename, genes_with_no_info_from_splicing_BF_table),]</code></pre>
+<pre><code>##       genename logBF_splicing BF_splicing logBF_noncoding logBF_coding
+##    1:     MLL3              0           1      0.00000000     5.368897
+##    2:     MLL5              0           1      0.00000000     4.721863
+##    3:     MFRP              0           1     -0.01973011     3.984587
+##    4:     CCIN              0           1     -0.02853204     3.931569
+##    5:  IRF2BPL              0           1     -0.08889624     3.470252
+##   ---                                                                 
+## 2943:    GPR98              0           1      0.00000000    -2.599270
+## 2944:    EPPK1              0           1     -0.09454762    -2.573861
+## 2945:  PRIC285              0           1      0.00000000    -2.703290
+## 2946:   ZNF469              0           1     -0.01105856    -2.763213
+## 2947:     MLL2              0           1      0.00000000    -2.906505
+##       logBF_all BF_noncoding    BF_coding       BF_all FDR_coding
+##    1:  5.368897    1.0000000 214.62602200 214.62602200 0.02174861
+##    2:  4.721863    1.0000000 112.37739057 112.37739057 0.04279135
+##    3:  3.964857    0.9804633  53.76310336  52.71274749 0.08571576
+##    4:  3.903037    0.9718712  50.98689831  49.55269555 0.09362261
+##    5:  3.381355    0.9149405  32.14482920  29.41060622 0.14422228
+##   ---                                                            
+## 2943: -2.599270    1.0000000   0.07432784   0.07432784 0.94111490
+## 2944: -2.668408    0.9097844   0.07624065   0.06936255 0.94110618
+## 2945: -2.703290    1.0000000   0.06698477   0.06698477 0.94112368
+## 2946: -2.774272    0.9890024   0.06308872   0.06239489 0.94112956
+## 2947: -2.906505    1.0000000   0.05466643   0.05466643 0.94115027
+##          FDR_all
+##    1: 0.02250175
+##    2: 0.04377809
+##    3: 0.09106765
+##    4: 0.10081230
+##    5: 0.15851972
+##   ---           
+## 2943: 0.94116170
+## 2944: 0.94117336
+## 2945: 0.94117922
+## 2946: 0.94118510
+## 2947: 0.94119989</code></pre>
+<pre class="r"><code># add splicing info to BF_all
+combined_BF_table$logBF_all &lt;- combined_BF_table$logBF_splicing + combined_BF_table$logBF_noncoding + combined_BF_table$logBF_coding
+combined_BF_table$BF_all &lt;- exp(combined_BF_table$logBF_all)
+combined_BF_table &lt;- combined_BF_table[order(combined_BF_table$BF_all, decreasing = TRUE),]
+combined_BF_table$FDR_all = Bayesian.FDR(combined_BF_table$BF_all, 0.94)$FDR # here 0.94 was chosen to be consisten with the prior used for getting BF and FDR using other types of mutations. 
+
+head(combined_BF_table)</code></pre>
+<pre><code>##    genename logBF_splicing BF_splicing logBF_noncoding logBF_coding
+## 1:    SCN2A   -0.015087809   0.9850254    -0.007199589     23.56158
+## 2:     CHD8   -0.013165998   0.9869203    -0.015059952     22.71355
+## 3:  SYNGAP1   -0.012624522   0.9874548    -0.057271429     15.41293
+## 4:   ARID1B   -0.013266887   0.9868207    -0.034461980     14.85675
+## 5:   DYRK1A   -0.008601051   0.9914358    -0.045217469     14.74663
+## 6:    KDM5B   -0.009239517   0.9908030    -0.057157899     12.62463
+##    logBF_all BF_noncoding    BF_coding       BF_all   FDR_coding
+## 1:  23.53929    0.9928263 1.708689e+10 1.671028e+10 9.168826e-10
+## 2:  22.68533    0.9850529 7.317632e+09 7.113973e+09 1.528915e-09
+## 3:  15.34303    0.9443377 4.940272e+06 4.606758e+06 1.058088e-06
+## 4:  14.80902    0.9661251 2.832734e+06 2.700707e+06 2.176203e-06
+## 5:  14.69281    0.9557896 2.537352e+06 2.404405e+06 2.975838e-06
+## 6:  12.55823    0.9444449 3.039542e+05 2.844278e+05 1.106990e-05
+##         FDR_all
+## 1: 9.375469e-10
+## 2: 1.569893e-09
+## 3: 1.134643e-06
+## 4: 2.301211e-06
+## 5: 3.144124e-06
+## 6: 1.179982e-05</code></pre>
+<div id="number-of-gained-and-lost-genes-after-having-non-coding-mutations-and-splicing-mutations-1" class="section level3">
+<h3><span class="header-section-number">3.5.1</span> Number of gained and lost genes after having non-coding mutations and splicing mutations</h3>
+<pre class="r"><code>TADA_table_filtered =combined_BF_table[!is.element(combined_BF_table$genename, TADA_table$genes_with_no_epi),]
+knitr::kable(performance_table(TADA_table_filtered))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">novel</th>
+<th align="right">consistent</th>
+<th align="right">lost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>q0.1</td>
+<td align="right">3</td>
+<td align="right">55</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td>q0.2</td>
+<td align="right">11</td>
+<td align="right">87</td>
+<td align="right">6</td>
+</tr>
+<tr class="odd">
+<td>q0.3</td>
+<td align="right">13</td>
+<td align="right">127</td>
+<td align="right">7</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="fdr-0.1-new-genes" class="section level3">
+<h3><span class="header-section-number">3.5.2</span> FDR 0.1 new genes</h3>
+<pre class="r"><code>knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;= 0.1 &amp; TADA_table_filtered$FDR_all &lt; 0.1,])</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">genename</th>
+<th align="right">logBF_splicing</th>
+<th align="right">BF_splicing</th>
+<th align="right">logBF_noncoding</th>
+<th align="right">logBF_coding</th>
+<th align="right">logBF_all</th>
+<th align="right">BF_noncoding</th>
+<th align="right">BF_coding</th>
+<th align="right">BF_all</th>
+<th align="right">FDR_coding</th>
+<th align="right">FDR_all</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">JUP</td>
+<td align="right">-0.0064879</td>
+<td align="right">0.9935331</td>
+<td align="right">2.7059171</td>
+<td align="right">2.131726</td>
+<td align="right">4.831155</td>
+<td align="right">14.968037</td>
+<td align="right">8.429401</td>
+<td align="right">125.35565</td>
+<td align="right">0.4713748</td>
+<td align="right">0.0387097</td>
+</tr>
+<tr class="even">
+<td align="left">APBB1</td>
+<td align="right">-0.0052030</td>
+<td align="right">0.9948105</td>
+<td align="right">1.9762766</td>
+<td align="right">2.325413</td>
+<td align="right">4.296487</td>
+<td align="right">7.215826</td>
+<td align="right">10.230909</td>
+<td align="right">73.44134</td>
+<td align="right">0.4502329</td>
+<td align="right">0.0602304</td>
+</tr>
+<tr class="odd">
+<td align="left">ARHGAP5</td>
+<td align="right">-0.0030892</td>
+<td align="right">0.9969156</td>
+<td align="right">0.6603115</td>
+<td align="right">3.434124</td>
+<td align="right">4.091346</td>
+<td align="right">1.935395</td>
+<td align="right">31.004243</td>
+<td align="right">59.82038</td>
+<td align="right">0.1466769</td>
+<td align="right">0.0811431</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="fdr-0.2-new-genes" class="section level3">
+<h3><span class="header-section-number">3.5.3</span> FDR 0.2 new genes</h3>
+<pre class="r"><code>knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;= 0.2 &amp; TADA_table_filtered$FDR_all &lt; 0.2,])</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">genename</th>
+<th align="right">logBF_splicing</th>
+<th align="right">BF_splicing</th>
+<th align="right">logBF_noncoding</th>
+<th align="right">logBF_coding</th>
+<th align="right">logBF_all</th>
+<th align="right">BF_noncoding</th>
+<th align="right">BF_coding</th>
+<th align="right">BF_all</th>
+<th align="right">FDR_coding</th>
+<th align="right">FDR_all</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">JUP</td>
+<td align="right">-0.0064879</td>
+<td align="right">0.9935331</td>
+<td align="right">2.7059171</td>
+<td align="right">2.131726</td>
+<td align="right">4.831155</td>
+<td align="right">14.9680372</td>
+<td align="right">8.429401</td>
+<td align="right">125.35565</td>
+<td align="right">0.4713748</td>
+<td align="right">0.0387097</td>
+</tr>
+<tr class="even">
+<td align="left">APBB1</td>
+<td align="right">-0.0052030</td>
+<td align="right">0.9948105</td>
+<td align="right">1.9762766</td>
+<td align="right">2.325413</td>
+<td align="right">4.296487</td>
+<td align="right">7.2158255</td>
+<td align="right">10.230909</td>
+<td align="right">73.44134</td>
+<td align="right">0.4502329</td>
+<td align="right">0.0602304</td>
+</tr>
+<tr class="odd">
+<td align="left">PNPLA7</td>
+<td align="right">0.7138975</td>
+<td align="right">2.0419342</td>
+<td align="right">-0.0124519</td>
+<td align="right">2.863029</td>
+<td align="right">3.564475</td>
+<td align="right">0.9876253</td>
+<td align="right">17.514503</td>
+<td align="right">35.32090</td>
+<td align="right">0.2273822</td>
+<td align="right">0.1356378</td>
+</tr>
+<tr class="even">
+<td align="left">DOCK5</td>
+<td align="right">-0.0192641</td>
+<td align="right">0.9809203</td>
+<td align="right">0.6458575</td>
+<td align="right">2.897630</td>
+<td align="right">3.524223</td>
+<td align="right">1.9076222</td>
+<td align="right">18.131119</td>
+<td align="right">33.92741</td>
+<td align="right">0.2134403</td>
+<td align="right">0.1403192</td>
+</tr>
+<tr class="odd">
+<td align="left">NME9</td>
+<td align="right">-0.0063909</td>
+<td align="right">0.9936295</td>
+<td align="right">0.6735085</td>
+<td align="right">2.787033</td>
+<td align="right">3.454151</td>
+<td align="right">1.9611058</td>
+<td align="right">16.232789</td>
+<td align="right">31.63142</td>
+<td align="right">0.2762552</td>
+<td align="right">0.1535456</td>
+</tr>
+<tr class="even">
+<td align="left">PLA2G16</td>
+<td align="right">-0.0026059</td>
+<td align="right">0.9973975</td>
+<td align="right">0.6242234</td>
+<td align="right">2.828890</td>
+<td align="right">3.450507</td>
+<td align="right">1.8667956</td>
+<td align="right">16.926657</td>
+<td align="right">31.51637</td>
+<td align="right">0.2501432</td>
+<td align="right">0.1556705</td>
+</tr>
+<tr class="odd">
+<td align="left">MSL2</td>
+<td align="right">0.0000000</td>
+<td align="right">1.0000000</td>
+<td align="right">0.6517667</td>
+<td align="right">2.536128</td>
+<td align="right">3.187895</td>
+<td align="right">1.9189281</td>
+<td align="right">12.630673</td>
+<td align="right">24.23735</td>
+<td align="right">0.3972018</td>
+<td align="right">0.1818968</td>
+</tr>
+<tr class="even">
+<td align="left">PPM1D</td>
+<td align="right">-0.0007843</td>
+<td align="right">0.9992160</td>
+<td align="right">0.6529174</td>
+<td align="right">2.526200</td>
+<td align="right">3.178333</td>
+<td align="right">1.9211373</td>
+<td align="right">12.505890</td>
+<td align="right">24.00670</td>
+<td align="right">0.4001637</td>
+<td align="right">0.1840926</td>
+</tr>
+<tr class="odd">
+<td align="left">HGF</td>
+<td align="right">0.7342728</td>
+<td align="right">2.0839660</td>
+<td align="right">-0.0052543</td>
+<td align="right">2.447064</td>
+<td align="right">3.176082</td>
+<td align="right">0.9947595</td>
+<td align="right">11.554370</td>
+<td align="right">23.95273</td>
+<td align="right">0.4257441</td>
+<td align="right">0.1862491</td>
+</tr>
+<tr class="even">
+<td align="left">SLC38A3</td>
+<td align="right">-0.0049565</td>
+<td align="right">0.9950557</td>
+<td align="right">0.6136223</td>
+<td align="right">2.510331</td>
+<td align="right">3.118997</td>
+<td align="right">1.8471101</td>
+<td align="right">12.309005</td>
+<td align="right">22.62367</td>
+<td align="right">0.4074689</td>
+<td align="right">0.1905775</td>
+</tr>
+<tr class="odd">
+<td align="left">ARHGAP44</td>
+<td align="right">0.7308175</td>
+<td align="right">2.0767777</td>
+<td align="right">-0.0119305</td>
+<td align="right">2.362564</td>
+<td align="right">3.081451</td>
+<td align="right">0.9881404</td>
+<td align="right">10.618144</td>
+<td align="right">21.79000</td>
+<td align="right">0.4447959</td>
+<td align="right">0.1971148</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="fdr-0.3-new-genes-2" class="section level3">
+<h3><span class="header-section-number">3.5.4</span> FDR 0.3 new genes</h3>
+<pre class="r"><code>knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;= 0.3 &amp; TADA_table_filtered$FDR_all &lt; 0.3,])</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">genename</th>
+<th align="right">logBF_splicing</th>
+<th align="right">BF_splicing</th>
+<th align="right">logBF_noncoding</th>
+<th align="right">logBF_coding</th>
+<th align="right">logBF_all</th>
+<th align="right">BF_noncoding</th>
+<th align="right">BF_coding</th>
+<th align="right">BF_all</th>
+<th align="right">FDR_coding</th>
+<th align="right">FDR_all</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">JUP</td>
+<td align="right">-0.0064879</td>
+<td align="right">0.9935331</td>
+<td align="right">2.7059171</td>
+<td align="right">2.131726</td>
+<td align="right">4.831155</td>
+<td align="right">14.9680372</td>
+<td align="right">8.429401</td>
+<td align="right">125.35565</td>
+<td align="right">0.4713748</td>
+<td align="right">0.0387097</td>
+</tr>
+<tr class="even">
+<td align="left">APBB1</td>
+<td align="right">-0.0052030</td>
+<td align="right">0.9948105</td>
+<td align="right">1.9762766</td>
+<td align="right">2.325413</td>
+<td align="right">4.296487</td>
+<td align="right">7.2158255</td>
+<td align="right">10.230909</td>
+<td align="right">73.44134</td>
+<td align="right">0.4502329</td>
+<td align="right">0.0602304</td>
+</tr>
+<tr class="odd">
+<td align="left">MSL2</td>
+<td align="right">0.0000000</td>
+<td align="right">1.0000000</td>
+<td align="right">0.6517667</td>
+<td align="right">2.536128</td>
+<td align="right">3.187895</td>
+<td align="right">1.9189281</td>
+<td align="right">12.630673</td>
+<td align="right">24.23735</td>
+<td align="right">0.3972018</td>
+<td align="right">0.1818968</td>
+</tr>
+<tr class="even">
+<td align="left">PPM1D</td>
+<td align="right">-0.0007843</td>
+<td align="right">0.9992160</td>
+<td align="right">0.6529174</td>
+<td align="right">2.526200</td>
+<td align="right">3.178333</td>
+<td align="right">1.9211373</td>
+<td align="right">12.505890</td>
+<td align="right">24.00670</td>
+<td align="right">0.4001637</td>
+<td align="right">0.1840926</td>
+</tr>
+<tr class="odd">
+<td align="left">HGF</td>
+<td align="right">0.7342728</td>
+<td align="right">2.0839660</td>
+<td align="right">-0.0052543</td>
+<td align="right">2.447064</td>
+<td align="right">3.176082</td>
+<td align="right">0.9947595</td>
+<td align="right">11.554370</td>
+<td align="right">23.95273</td>
+<td align="right">0.4257441</td>
+<td align="right">0.1862491</td>
+</tr>
+<tr class="even">
+<td align="left">SLC38A3</td>
+<td align="right">-0.0049565</td>
+<td align="right">0.9950557</td>
+<td align="right">0.6136223</td>
+<td align="right">2.510331</td>
+<td align="right">3.118997</td>
+<td align="right">1.8471101</td>
+<td align="right">12.309005</td>
+<td align="right">22.62367</td>
+<td align="right">0.4074689</td>
+<td align="right">0.1905775</td>
+</tr>
+<tr class="odd">
+<td align="left">ARHGAP44</td>
+<td align="right">0.7308175</td>
+<td align="right">2.0767777</td>
+<td align="right">-0.0119305</td>
+<td align="right">2.362564</td>
+<td align="right">3.081451</td>
+<td align="right">0.9881404</td>
+<td align="right">10.618144</td>
+<td align="right">21.79000</td>
+<td align="right">0.4447959</td>
+<td align="right">0.1971148</td>
+</tr>
+<tr class="even">
+<td align="left">LRRC4</td>
+<td align="right">0.0000000</td>
+<td align="right">1.0000000</td>
+<td align="right">0.6376929</td>
+<td align="right">2.344952</td>
+<td align="right">2.982645</td>
+<td align="right">1.8921106</td>
+<td align="right">10.432776</td>
+<td align="right">19.73997</td>
+<td align="right">0.4477285</td>
+<td align="right">0.2100236</td>
+</tr>
+<tr class="odd">
+<td align="left">PLXNB1</td>
+<td align="right">-0.0173372</td>
+<td align="right">0.9828122</td>
+<td align="right">0.6374991</td>
+<td align="right">2.352516</td>
+<td align="right">2.972678</td>
+<td align="right">1.8917440</td>
+<td align="right">10.511988</td>
+<td align="right">19.54419</td>
+<td align="right">0.4468929</td>
+<td align="right">0.2121592</td>
+</tr>
+<tr class="even">
+<td align="left">DLL1</td>
+<td align="right">-0.0056156</td>
+<td align="right">0.9944002</td>
+<td align="right">0.5865129</td>
+<td align="right">2.233998</td>
+<td align="right">2.814895</td>
+<td align="right">1.7977086</td>
+<td align="right">9.337119</td>
+<td align="right">16.69142</td>
+<td align="right">0.4626166</td>
+<td align="right">0.2555491</td>
+</tr>
+<tr class="odd">
+<td align="left">CBX4</td>
+<td align="right">-0.0031636</td>
+<td align="right">0.9968414</td>
+<td align="right">0.5577009</td>
+<td align="right">2.237874</td>
+<td align="right">2.792411</td>
+<td align="right">1.7466522</td>
+<td align="right">9.373381</td>
+<td align="right">16.32032</td>
+<td align="right">0.4613862</td>
+<td align="right">0.2718822</td>
+</tr>
+<tr class="even">
+<td align="left">SIRPB2</td>
+<td align="right">-0.0009817</td>
+<td align="right">0.9990188</td>
+<td align="right">-0.0050037</td>
+<td align="right">2.736432</td>
+<td align="right">2.730447</td>
+<td align="right">0.9950088</td>
+<td align="right">15.431826</td>
+<td align="right">15.33974</td>
+<td align="right">0.3009029</td>
+<td align="right">0.2959941</td>
+</tr>
+<tr class="odd">
+<td align="left">NUDT17</td>
+<td align="right">-0.0038667</td>
+<td align="right">0.9961408</td>
+<td align="right">-0.0070642</td>
+<td align="right">2.732393</td>
+<td align="right">2.721462</td>
+<td align="right">0.9929607</td>
+<td align="right">15.369624</td>
+<td align="right">15.20253</td>
+<td align="right">0.3048205</td>
+<td align="right">0.2999054</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.1-2" class="section level3">
+<h3><span class="header-section-number">3.5.5</span> Gene set enrichment analysis FDR 0.1</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.1 &amp; TADA_table_filtered$FDR_all &lt; 0.1, ]$genename, TADA_table_filtered$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">10.1417323</td>
+<td align="right">7.002928</td>
+<td align="right">4.2017566</td>
+<td align="right">3.6816183</td>
+<td align="right">2.0295758</td>
+<td align="right">17.1733333</td>
+<td align="right">3.2792793</td>
+<td align="right">2.6470635</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0009571</td>
+<td align="right">0.136116</td>
+<td align="right">0.0134728</td>
+<td align="right">0.0200297</td>
+<td align="right">0.4162422</td>
+<td align="right">0.0571102</td>
+<td align="right">0.2750129</td>
+<td align="right">0.1583212</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.2-2" class="section level3">
+<h3><span class="header-section-number">3.5.6</span> Gene set enrichment analysis FDR 0.2</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.2 &amp; TADA_table_filtered$FDR_all &lt; 0.2, ]$genename, TADA_table_filtered$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">2.7659270</td>
+<td align="right">1.9098894</td>
+<td align="right">1.9098894</td>
+<td align="right">1.3387703</td>
+<td align="right">1.1070413</td>
+<td align="right">4.6836364</td>
+<td align="right">1.7886978</td>
+<td align="right">1.4438528</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0865437</td>
+<td align="right">0.4152823</td>
+<td align="right">0.0962071</td>
+<td align="right">0.3476588</td>
+<td align="right">0.5607078</td>
+<td align="right">0.1940017</td>
+<td align="right">0.3096695</td>
+<td align="right">0.2917652</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.3-2" class="section level3">
+<h3><span class="header-section-number">3.5.7</span> Gene set enrichment analysis FDR 0.3</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.3 &amp; TADA_table_filtered$FDR_all &lt; 0.3, ]$genename, TADA_table_filtered$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">3.1205330</td>
+<td align="right">3.2321205</td>
+<td align="right">1.939272</td>
+<td align="right">1.6992084</td>
+<td align="right">1.8734545</td>
+<td align="right">3.9630769</td>
+<td align="right">0.7567568</td>
+<td align="right">1.5271520</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0325754</td>
+<td align="right">0.1248277</td>
+<td align="right">0.065048</td>
+<td align="right">0.1125229</td>
+<td align="right">0.1518223</td>
+<td align="right">0.2250079</td>
+<td align="right">0.7519303</td>
+<td align="right">0.2106458</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.1-all-genes-background" class="section level3">
+<h3><span class="header-section-number">3.5.8</span> Gene set enrichment analysis FDR 0.1, all genes background</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.1 &amp; TADA_table_filtered$FDR_all &lt; 0.1, ]$genename, combined_BF_table$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">10.8140209</td>
+<td align="right">7.6433251</td>
+<td align="right">4.486779</td>
+<td align="right">4.059374</td>
+<td align="right">2.0187108</td>
+<td align="right">18.6277445</td>
+<td align="right">3.5901135</td>
+<td align="right">2.8592218</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0007895</td>
+<td align="right">0.1252167</td>
+<td align="right">0.011065</td>
+<td align="right">0.014942</td>
+<td align="right">0.4180905</td>
+<td align="right">0.0527312</td>
+<td align="right">0.2534934</td>
+<td align="right">0.1377285</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.2-all-genes-background" class="section level3">
+<h3><span class="header-section-number">3.5.9</span> Gene set enrichment analysis FDR 0.2, all genes background</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.2 &amp; TADA_table_filtered$FDR_all &lt; 0.2, ]$genename, combined_BF_table$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">2.9492784</td>
+<td align="right">2.084543</td>
+<td align="right">2.0394449</td>
+<td align="right">1.4761359</td>
+<td align="right">1.1011150</td>
+<td align="right">5.0802940</td>
+<td align="right">1.9582437</td>
+<td align="right">1.5595755</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0741495</td>
+<td align="right">0.387760</td>
+<td align="right">0.0757617</td>
+<td align="right">0.2766396</td>
+<td align="right">0.5638718</td>
+<td align="right">0.1801839</td>
+<td align="right">0.2721838</td>
+<td align="right">0.2414526</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.3-all-genes-background" class="section level3">
+<h3><span class="header-section-number">3.5.10</span> Gene set enrichment analysis FDR 0.3, all genes background</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.3 &amp; TADA_table_filtered$FDR_all &lt; 0.3, ]$genename, combined_BF_table$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">3.3273910</td>
+<td align="right">3.5276885</td>
+<td align="right">2.0708210</td>
+<td align="right">1.8735571</td>
+<td align="right">1.8634253</td>
+<td align="right">4.2987103</td>
+<td align="right">0.8284877</td>
+<td align="right">1.6495510</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0263924</td>
+<td align="right">0.1078553</td>
+<td align="right">0.0488869</td>
+<td align="right">0.0753298</td>
+<td align="right">0.1540661</td>
+<td align="right">0.2092794</td>
+<td align="right">0.7183838</td>
+<td align="right">0.1655924</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.3-all-genes-background-remove-sirpb1-which-doesnt-have-splicing-mutations-or-h3k27ac-mutations" class="section level3">
+<h3><span class="header-section-number">3.5.11</span> Gene set enrichment analysis FDR 0.3, all genes background, remove SIRPB1 which doesn’t have splicing mutations or H3k27ac mutations</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.3 &amp; TADA_table_filtered$FDR_all &lt; 0.3 &amp; TADA_table_filtered$genename != &quot;SIRPB2&quot;, ]$genename, combined_BF_table$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">3.6046736</td>
+<td align="right">3.8216626</td>
+<td align="right">2.2433894</td>
+<td align="right">2.0296868</td>
+<td align="right">2.0187108</td>
+<td align="right">4.6569361</td>
+<td align="right">0.8975284</td>
+<td align="right">1.7870136</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0196844</td>
+<td align="right">0.0938821</td>
+<td align="right">0.0322847</td>
+<td align="right">0.0508991</td>
+<td align="right">0.1218395</td>
+<td align="right">0.1948627</td>
+<td align="right">0.6895398</td>
+<td align="right">0.1248076</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="check-the-bayes-factors-of-two-genes-identified-as-novel-in-the-previous-manuscript-but-not-in-the-current-analysis" class="section level2">
+<h2><span class="header-section-number">3.6</span> check the Bayes factors of two genes identified as novel in the previous manuscript but not in the current analysis</h2>
+<pre class="r"><code>TADA_table_filtered[genename == &quot;DLL1&quot;]</code></pre>
+<pre><code>##    genename logBF_splicing BF_splicing logBF_noncoding logBF_coding
+## 1:     DLL1   -0.005615582   0.9944002       0.5865129     2.233998
+##    logBF_all BF_noncoding BF_coding   BF_all FDR_coding   FDR_all
+## 1:  2.814895     1.797709  9.337119 16.69142  0.4626166 0.2555491</code></pre>
+<pre class="r"><code>TADA_table_filtered[genename == &quot;DPYSL2&quot;]</code></pre>
+<pre><code>##    genename logBF_splicing BF_splicing logBF_noncoding logBF_coding
+## 1:   DPYSL2   -0.005779591   0.9942371      -0.1210354     2.562573
+##    logBF_all BF_noncoding BF_coding   BF_all FDR_coding   FDR_all
+## 1:  2.435758    0.8860026  12.96915 11.42448  0.3817878 0.4213018</code></pre>
+<pre class="r"><code># The reason DPYSL2 wasn&#39;t found this time is because of the different enhancer partition stratagy that I used. There is one mutation that in the H3k27ac regions just out side of regions within 10kb of TSS. With the old criteria, I would call this mutation as a relevant H3k27ac mutation, but not with the new criteria. 
+
+adjusted_base_level_rr$base_info[[&quot;DLL1&quot;]]</code></pre>
+<pre><code>## $`0.0.0.0.0`
+## $`0.0.0.0.0`$feature_vector
+## [1] 0 0 0 0 0
+## 
+## $`0.0.0.0.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`0.0.0.0.0`$sum_mut_rate
+## [1] 0.01739753
+## 
+## $`0.0.0.0.0`$sum_mut_count
+## [1] 0
+## 
+## $`0.0.0.0.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.0.0.0.0`
+## $`1.0.0.0.0`$feature_vector
+## [1] 1 0 0 0 0
+## 
+## $`1.0.0.0.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.0.0.0.0`$sum_mut_rate
+## [1] 0.01142344
+## 
+## $`1.0.0.0.0`$sum_mut_count
+## [1] 0
+## 
+## $`1.0.0.0.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`0.0.1.0.0`
+## $`0.0.1.0.0`$feature_vector
+## [1] 0 0 1 0 0
+## 
+## $`0.0.1.0.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`0.0.1.0.0`$sum_mut_rate
+## [1] 0.0007551056
+## 
+## $`0.0.1.0.0`$sum_mut_count
+## [1] 0
+## 
+## $`0.0.1.0.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.0.1.0.0`
+## $`1.0.1.0.0`$feature_vector
+## [1] 1 0 1 0 0
+## 
+## $`1.0.1.0.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.0.1.0.0`$sum_mut_rate
+## [1] 0.05557182
+## 
+## $`1.0.1.0.0`$sum_mut_count
+## [1] 0
+## 
+## $`1.0.1.0.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.1.1.0.0`
+## $`1.1.1.0.0`$feature_vector
+## [1] 1 1 1 0 0
+## 
+## $`1.1.1.0.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.1.1.0.0`$sum_mut_rate
+## [1] 0.01050364
+## 
+## $`1.1.1.0.0`$sum_mut_count
+## [1] 0
+## 
+## $`1.1.1.0.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`0.0.0.1.0`
+## $`0.0.0.1.0`$feature_vector
+## [1] 0 0 0 1 0
+## 
+## $`0.0.0.1.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`0.0.0.1.0`$sum_mut_rate
+## [1] 3.781501e-05
+## 
+## $`0.0.0.1.0`$sum_mut_count
+## [1] 0
+## 
+## $`0.0.0.1.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.0.0.1.0`
+## $`1.0.0.1.0`$feature_vector
+## [1] 1 0 0 1 0
+## 
+## $`1.0.0.1.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.0.0.1.0`$sum_mut_rate
+## [1] 3.439932e-05
+## 
+## $`1.0.0.1.0`$sum_mut_count
+## [1] 0
+## 
+## $`1.0.0.1.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`0.0.1.1.0`
+## $`0.0.1.1.0`$feature_vector
+## [1] 0 0 1 1 0
+## 
+## $`0.0.1.1.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`0.0.1.1.0`$sum_mut_rate
+## [1] 4.675854e-06
+## 
+## $`0.0.1.1.0`$sum_mut_count
+## [1] 0
+## 
+## $`0.0.1.1.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.0.1.1.0`
+## $`1.0.1.1.0`$feature_vector
+## [1] 1 0 1 1 0
+## 
+## $`1.0.1.1.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.0.1.1.0`$sum_mut_rate
+## [1] 0.0007783185
+## 
+## $`1.0.1.1.0`$sum_mut_count
+## [1] 0
+## 
+## $`1.0.1.1.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.1.1.1.0`
+## $`1.1.1.1.0`$feature_vector
+## [1] 1 1 1 1 0
+## 
+## $`1.1.1.1.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.1.1.1.0`$sum_mut_rate
+## [1] 0.0009480907
+## 
+## $`1.1.1.1.0`$sum_mut_count
+## [1] 0
+## 
+## $`1.1.1.1.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`0.0.0.0.1`
+## $`0.0.0.0.1`$feature_vector
+## [1] 0 0 0 0 1
+## 
+## $`0.0.0.0.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`0.0.0.0.1`$sum_mut_rate
+## [1] 0.00103451
+## 
+## $`0.0.0.0.1`$sum_mut_count
+## [1] 0
+## 
+## $`0.0.0.0.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.0.0.0.1`
+## $`1.0.0.0.1`$feature_vector
+## [1] 1 0 0 0 1
+## 
+## $`1.0.0.0.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.0.0.0.1`$sum_mut_rate
+## [1] 0.0007166294
+## 
+## $`1.0.0.0.1`$sum_mut_count
+## [1] 0
+## 
+## $`1.0.0.0.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`0.0.1.0.1`
+## $`0.0.1.0.1`$feature_vector
+## [1] 0 0 1 0 1
+## 
+## $`0.0.1.0.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`0.0.1.0.1`$sum_mut_rate
+## [1] 0.0001116215
+## 
+## $`0.0.1.0.1`$sum_mut_count
+## [1] 0
+## 
+## $`0.0.1.0.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.0.1.0.1`
+## $`1.0.1.0.1`$feature_vector
+## [1] 1 0 1 0 1
+## 
+## $`1.0.1.0.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.0.1.0.1`$sum_mut_rate
+## [1] 0.007488922
+## 
+## $`1.0.1.0.1`$sum_mut_count
+## [1] 0
+## 
+## $`1.0.1.0.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.1.1.0.1`
+## $`1.1.1.0.1`$feature_vector
+## [1] 1 1 1 0 1
+## 
+## $`1.1.1.0.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.1.1.0.1`$sum_mut_rate
+## [1] 0.00300415
+## 
+## $`1.1.1.0.1`$sum_mut_count
+## [1] 0
+## 
+## $`1.1.1.0.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`0.0.0.1.1`
+## $`0.0.0.1.1`$feature_vector
+## [1] 0 0 0 1 1
+## 
+## $`0.0.0.1.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`0.0.0.1.1`$sum_mut_rate
+## [1] 0.0001233598
+## 
+## $`0.0.0.1.1`$sum_mut_count
+## [1] 0
+## 
+## $`0.0.0.1.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.0.0.1.1`
+## $`1.0.0.1.1`$feature_vector
+## [1] 1 0 0 1 1
+## 
+## $`1.0.0.1.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.0.0.1.1`$sum_mut_rate
+## [1] 0.0002068859
+## 
+## $`1.0.0.1.1`$sum_mut_count
+## [1] 0
+## 
+## $`1.0.0.1.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`0.0.1.1.1`
+## $`0.0.1.1.1`$feature_vector
+## [1] 0 0 1 1 1
+## 
+## $`0.0.1.1.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`0.0.1.1.1`$sum_mut_rate
+## [1] 0.0002071235
+## 
+## $`0.0.1.1.1`$sum_mut_count
+## [1] 0
+## 
+## $`0.0.1.1.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.0.1.1.1`
+## $`1.0.1.1.1`$feature_vector
+## [1] 1 0 1 1 1
+## 
+## $`1.0.1.1.1`$sum_mut_rate_count
+## [1] -12.13684
+## 
+## $`1.0.1.1.1`$sum_mut_rate
+## [1] 0.004942341
+## 
+## $`1.0.1.1.1`$sum_mut_count
+## [1] 1
+## 
+## $`1.0.1.1.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.1.1.1.1`
+## $`1.1.1.1.1`$feature_vector
+## [1] 1 1 1 1 1
+## 
+## $`1.1.1.1.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.1.1.1.1`$sum_mut_rate
+## [1] 0.006813154
+## 
+## $`1.1.1.1.1`$sum_mut_count
+## [1] 0
+## 
+## $`1.1.1.1.1`$log_fcount
+## [1] 0</code></pre>
+<pre class="r"><code>adjusted_base_level_rr$base_info[[&quot;DPYSL2&quot;]]</code></pre>
+<pre><code>## $`0.0.0.0.0`
+## $`0.0.0.0.0`$feature_vector
+## [1] 0 0 0 0 0
+## 
+## $`0.0.0.0.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`0.0.0.0.0`$sum_mut_rate
+## [1] 0.07754723
+## 
+## $`0.0.0.0.0`$sum_mut_count
+## [1] 0
+## 
+## $`0.0.0.0.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.0.0.0.0`
+## $`1.0.0.0.0`$feature_vector
+## [1] 1 0 0 0 0
+## 
+## $`1.0.0.0.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.0.0.0.0`$sum_mut_rate
+## [1] 0.04417674
+## 
+## $`1.0.0.0.0`$sum_mut_count
+## [1] 0
+## 
+## $`1.0.0.0.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.1.0.0.0`
+## $`1.1.0.0.0`$feature_vector
+## [1] 1 1 0 0 0
+## 
+## $`1.1.0.0.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.1.0.0.0`$sum_mut_rate
+## [1] 0.002018688
+## 
+## $`1.1.0.0.0`$sum_mut_count
+## [1] 0
+## 
+## $`1.1.0.0.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`0.0.1.0.0`
+## $`0.0.1.0.0`$feature_vector
+## [1] 0 0 1 0 0
+## 
+## $`0.0.1.0.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`0.0.1.0.0`$sum_mut_rate
+## [1] 0.001240709
+## 
+## $`0.0.1.0.0`$sum_mut_count
+## [1] 0
+## 
+## $`0.0.1.0.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.0.1.0.0`
+## $`1.0.1.0.0`$feature_vector
+## [1] 1 0 1 0 0
+## 
+## $`1.0.1.0.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.0.1.0.0`$sum_mut_rate
+## [1] 0.02262611
+## 
+## $`1.0.1.0.0`$sum_mut_count
+## [1] 0
+## 
+## $`1.0.1.0.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`0.1.1.0.0`
+## $`0.1.1.0.0`$feature_vector
+## [1] 0 1 1 0 0
+## 
+## $`0.1.1.0.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`0.1.1.0.0`$sum_mut_rate
+## [1] 0.0007258228
+## 
+## $`0.1.1.0.0`$sum_mut_count
+## [1] 0
+## 
+## $`0.1.1.0.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.1.1.0.0`
+## $`1.1.1.0.0`$feature_vector
+## [1] 1 1 1 0 0
+## 
+## $`1.1.1.0.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.1.1.0.0`$sum_mut_rate
+## [1] 0.02412869
+## 
+## $`1.1.1.0.0`$sum_mut_count
+## [1] 0
+## 
+## $`1.1.1.0.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`0.0.0.1.0`
+## $`0.0.0.1.0`$feature_vector
+## [1] 0 0 0 1 0
+## 
+## $`0.0.0.1.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`0.0.0.1.0`$sum_mut_rate
+## [1] 0.0003336686
+## 
+## $`0.0.0.1.0`$sum_mut_count
+## [1] 0
+## 
+## $`0.0.0.1.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.0.0.1.0`
+## $`1.0.0.1.0`$feature_vector
+## [1] 1 0 0 1 0
+## 
+## $`1.0.0.1.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.0.0.1.0`$sum_mut_rate
+## [1] 0.0001950623
+## 
+## $`1.0.0.1.0`$sum_mut_count
+## [1] 0
+## 
+## $`1.0.0.1.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.1.0.1.0`
+## $`1.1.0.1.0`$feature_vector
+## [1] 1 1 0 1 0
+## 
+## $`1.1.0.1.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.1.0.1.0`$sum_mut_rate
+## [1] 5.247234e-06
+## 
+## $`1.1.0.1.0`$sum_mut_count
+## [1] 0
+## 
+## $`1.1.0.1.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.0.1.1.0`
+## $`1.0.1.1.0`$feature_vector
+## [1] 1 0 1 1 0
+## 
+## $`1.0.1.1.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.0.1.1.0`$sum_mut_rate
+## [1] 0.0001767916
+## 
+## $`1.0.1.1.0`$sum_mut_count
+## [1] 0
+## 
+## $`1.0.1.1.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`0.1.1.1.0`
+## $`0.1.1.1.0`$feature_vector
+## [1] 0 1 1 1 0
+## 
+## $`0.1.1.1.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`0.1.1.1.0`$sum_mut_rate
+## [1] 3.4796e-06
+## 
+## $`0.1.1.1.0`$sum_mut_count
+## [1] 0
+## 
+## $`0.1.1.1.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.1.1.1.0`
+## $`1.1.1.1.0`$feature_vector
+## [1] 1 1 1 1 0
+## 
+## $`1.1.1.1.0`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.1.1.1.0`$sum_mut_rate
+## [1] 0.0003718765
+## 
+## $`1.1.1.1.0`$sum_mut_count
+## [1] 0
+## 
+## $`1.1.1.1.0`$log_fcount
+## [1] 0
+## 
+## 
+## $`0.0.0.0.1`
+## $`0.0.0.0.1`$feature_vector
+## [1] 0 0 0 0 1
+## 
+## $`0.0.0.0.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`0.0.0.0.1`$sum_mut_rate
+## [1] 0.005912668
+## 
+## $`0.0.0.0.1`$sum_mut_count
+## [1] 0
+## 
+## $`0.0.0.0.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.0.0.0.1`
+## $`1.0.0.0.1`$feature_vector
+## [1] 1 0 0 0 1
+## 
+## $`1.0.0.0.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.0.0.0.1`$sum_mut_rate
+## [1] 0.006621535
+## 
+## $`1.0.0.0.1`$sum_mut_count
+## [1] 0
+## 
+## $`1.0.0.0.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.1.0.0.1`
+## $`1.1.0.0.1`$feature_vector
+## [1] 1 1 0 0 1
+## 
+## $`1.1.0.0.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.1.0.0.1`$sum_mut_rate
+## [1] 0.0003336224
+## 
+## $`1.1.0.0.1`$sum_mut_count
+## [1] 0
+## 
+## $`1.1.0.0.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`0.0.1.0.1`
+## $`0.0.1.0.1`$feature_vector
+## [1] 0 0 1 0 1
+## 
+## $`0.0.1.0.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`0.0.1.0.1`$sum_mut_rate
+## [1] 0.0002811765
+## 
+## $`0.0.1.0.1`$sum_mut_count
+## [1] 0
+## 
+## $`0.0.1.0.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.0.1.0.1`
+## $`1.0.1.0.1`$feature_vector
+## [1] 1 0 1 0 1
+## 
+## $`1.0.1.0.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.0.1.0.1`$sum_mut_rate
+## [1] 0.005572002
+## 
+## $`1.0.1.0.1`$sum_mut_count
+## [1] 0
+## 
+## $`1.0.1.0.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`0.1.1.0.1`
+## $`0.1.1.0.1`$feature_vector
+## [1] 0 1 1 0 1
+## 
+## $`0.1.1.0.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`0.1.1.0.1`$sum_mut_rate
+## [1] 0.0001827274
+## 
+## $`0.1.1.0.1`$sum_mut_count
+## [1] 0
+## 
+## $`0.1.1.0.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.1.1.0.1`
+## $`1.1.1.0.1`$feature_vector
+## [1] 1 1 1 0 1
+## 
+## $`1.1.1.0.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.1.1.0.1`$sum_mut_rate
+## [1] 0.009406983
+## 
+## $`1.1.1.0.1`$sum_mut_count
+## [1] 0
+## 
+## $`1.1.1.0.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`0.0.0.1.1`
+## $`0.0.0.1.1`$feature_vector
+## [1] 0 0 0 1 1
+## 
+## $`0.0.0.1.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`0.0.0.1.1`$sum_mut_rate
+## [1] 0.0006319004
+## 
+## $`0.0.0.1.1`$sum_mut_count
+## [1] 0
+## 
+## $`0.0.0.1.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.0.0.1.1`
+## $`1.0.0.1.1`$feature_vector
+## [1] 1 0 0 1 1
+## 
+## $`1.0.0.1.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.0.0.1.1`$sum_mut_rate
+## [1] 0.0009399052
+## 
+## $`1.0.0.1.1`$sum_mut_count
+## [1] 0
+## 
+## $`1.0.0.1.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.1.0.1.1`
+## $`1.1.0.1.1`$feature_vector
+## [1] 1 1 0 1 1
+## 
+## $`1.1.0.1.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.1.0.1.1`$sum_mut_rate
+## [1] 1.192845e-05
+## 
+## $`1.1.0.1.1`$sum_mut_count
+## [1] 0
+## 
+## $`1.1.0.1.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`0.0.1.1.1`
+## $`0.0.1.1.1`$feature_vector
+## [1] 0 0 1 1 1
+## 
+## $`0.0.1.1.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`0.0.1.1.1`$sum_mut_rate
+## [1] 1.982752e-05
+## 
+## $`0.0.1.1.1`$sum_mut_count
+## [1] 0
+## 
+## $`0.0.1.1.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.0.1.1.1`
+## $`1.0.1.1.1`$feature_vector
+## [1] 1 0 1 1 1
+## 
+## $`1.0.1.1.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.0.1.1.1`$sum_mut_rate
+## [1] 0.001190406
+## 
+## $`1.0.1.1.1`$sum_mut_count
+## [1] 0
+## 
+## $`1.0.1.1.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`0.1.1.1.1`
+## $`0.1.1.1.1`$feature_vector
+## [1] 0 1 1 1 1
+## 
+## $`0.1.1.1.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`0.1.1.1.1`$sum_mut_rate
+## [1] 4.424171e-06
+## 
+## $`0.1.1.1.1`$sum_mut_count
+## [1] 0
+## 
+## $`0.1.1.1.1`$log_fcount
+## [1] 0
+## 
+## 
+## $`1.1.1.1.1`
+## $`1.1.1.1.1`$feature_vector
+## [1] 1 1 1 1 1
+## 
+## $`1.1.1.1.1`$sum_mut_rate_count
+## [1] 0
+## 
+## $`1.1.1.1.1`$sum_mut_rate
+## [1] 0.00454851
+## 
+## $`1.1.1.1.1`$sum_mut_count
+## [1] 0
+## 
+## $`1.1.1.1.1`$log_fcount
+## [1] 0</code></pre>
+</div>
+<div id="number-of-gained-and-lost-genes-remove-genes-that-dont-have-have-splicing-mutations-or-noncoding-mutations-and-dont-have-k27ac" class="section level2">
+<h2><span class="header-section-number">3.7</span> Number of gained and lost genes, remove genes that don’t have have splicing mutations or noncoding mutations, and don’t have K27ac</h2>
+<p>The qvalue of these genes just change from very little greater than 0.3 to very little bigger than 0.3 ##</p>
+<pre class="r"><code>TADA_table_filtered =combined_BF_table[!is.element(combined_BF_table$genename, TADA_table$genes_with_no_epi),]
+TADA_table_filtered = TADA_table_filtered[genename != &quot;SIRPB2&quot; &amp; genename != &quot;NUDT17&quot;]
+knitr::kable(performance_table(TADA_table_filtered))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">novel</th>
+<th align="right">consistent</th>
+<th align="right">lost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>q0.1</td>
+<td align="right">3</td>
+<td align="right">55</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td>q0.2</td>
+<td align="right">11</td>
+<td align="right">87</td>
+<td align="right">6</td>
+</tr>
+<tr class="odd">
+<td>q0.3</td>
+<td align="right">11</td>
+<td align="right">127</td>
+<td align="right">7</td>
+</tr>
+</tbody>
+</table>
+<div id="fdr-0.1-new-genes-1" class="section level3">
+<h3><span class="header-section-number">3.7.1</span> FDR 0.1 new genes</h3>
+<pre class="r"><code>knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;= 0.1 &amp; TADA_table_filtered$FDR_all &lt; 0.1,])</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">genename</th>
+<th align="right">logBF_splicing</th>
+<th align="right">BF_splicing</th>
+<th align="right">logBF_noncoding</th>
+<th align="right">logBF_coding</th>
+<th align="right">logBF_all</th>
+<th align="right">BF_noncoding</th>
+<th align="right">BF_coding</th>
+<th align="right">BF_all</th>
+<th align="right">FDR_coding</th>
+<th align="right">FDR_all</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">JUP</td>
+<td align="right">-0.0064879</td>
+<td align="right">0.9935331</td>
+<td align="right">2.7059171</td>
+<td align="right">2.131726</td>
+<td align="right">4.831155</td>
+<td align="right">14.968037</td>
+<td align="right">8.429401</td>
+<td align="right">125.35565</td>
+<td align="right">0.4713748</td>
+<td align="right">0.0387097</td>
+</tr>
+<tr class="even">
+<td align="left">APBB1</td>
+<td align="right">-0.0052030</td>
+<td align="right">0.9948105</td>
+<td align="right">1.9762766</td>
+<td align="right">2.325413</td>
+<td align="right">4.296487</td>
+<td align="right">7.215826</td>
+<td align="right">10.230909</td>
+<td align="right">73.44134</td>
+<td align="right">0.4502329</td>
+<td align="right">0.0602304</td>
+</tr>
+<tr class="odd">
+<td align="left">ARHGAP5</td>
+<td align="right">-0.0030892</td>
+<td align="right">0.9969156</td>
+<td align="right">0.6603115</td>
+<td align="right">3.434124</td>
+<td align="right">4.091346</td>
+<td align="right">1.935395</td>
+<td align="right">31.004243</td>
+<td align="right">59.82038</td>
+<td align="right">0.1466769</td>
+<td align="right">0.0811431</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="fdr-0.2-new-genes-1" class="section level3">
+<h3><span class="header-section-number">3.7.2</span> FDR 0.2 new genes</h3>
+<pre class="r"><code>knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;= 0.2 &amp; TADA_table_filtered$FDR_all &lt; 0.2,])</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">genename</th>
+<th align="right">logBF_splicing</th>
+<th align="right">BF_splicing</th>
+<th align="right">logBF_noncoding</th>
+<th align="right">logBF_coding</th>
+<th align="right">logBF_all</th>
+<th align="right">BF_noncoding</th>
+<th align="right">BF_coding</th>
+<th align="right">BF_all</th>
+<th align="right">FDR_coding</th>
+<th align="right">FDR_all</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">JUP</td>
+<td align="right">-0.0064879</td>
+<td align="right">0.9935331</td>
+<td align="right">2.7059171</td>
+<td align="right">2.131726</td>
+<td align="right">4.831155</td>
+<td align="right">14.9680372</td>
+<td align="right">8.429401</td>
+<td align="right">125.35565</td>
+<td align="right">0.4713748</td>
+<td align="right">0.0387097</td>
+</tr>
+<tr class="even">
+<td align="left">APBB1</td>
+<td align="right">-0.0052030</td>
+<td align="right">0.9948105</td>
+<td align="right">1.9762766</td>
+<td align="right">2.325413</td>
+<td align="right">4.296487</td>
+<td align="right">7.2158255</td>
+<td align="right">10.230909</td>
+<td align="right">73.44134</td>
+<td align="right">0.4502329</td>
+<td align="right">0.0602304</td>
+</tr>
+<tr class="odd">
+<td align="left">PNPLA7</td>
+<td align="right">0.7138975</td>
+<td align="right">2.0419342</td>
+<td align="right">-0.0124519</td>
+<td align="right">2.863029</td>
+<td align="right">3.564475</td>
+<td align="right">0.9876253</td>
+<td align="right">17.514503</td>
+<td align="right">35.32090</td>
+<td align="right">0.2273822</td>
+<td align="right">0.1356378</td>
+</tr>
+<tr class="even">
+<td align="left">DOCK5</td>
+<td align="right">-0.0192641</td>
+<td align="right">0.9809203</td>
+<td align="right">0.6458575</td>
+<td align="right">2.897630</td>
+<td align="right">3.524223</td>
+<td align="right">1.9076222</td>
+<td align="right">18.131119</td>
+<td align="right">33.92741</td>
+<td align="right">0.2134403</td>
+<td align="right">0.1403192</td>
+</tr>
+<tr class="odd">
+<td align="left">NME9</td>
+<td align="right">-0.0063909</td>
+<td align="right">0.9936295</td>
+<td align="right">0.6735085</td>
+<td align="right">2.787033</td>
+<td align="right">3.454151</td>
+<td align="right">1.9611058</td>
+<td align="right">16.232789</td>
+<td align="right">31.63142</td>
+<td align="right">0.2762552</td>
+<td align="right">0.1535456</td>
+</tr>
+<tr class="even">
+<td align="left">PLA2G16</td>
+<td align="right">-0.0026059</td>
+<td align="right">0.9973975</td>
+<td align="right">0.6242234</td>
+<td align="right">2.828890</td>
+<td align="right">3.450507</td>
+<td align="right">1.8667956</td>
+<td align="right">16.926657</td>
+<td align="right">31.51637</td>
+<td align="right">0.2501432</td>
+<td align="right">0.1556705</td>
+</tr>
+<tr class="odd">
+<td align="left">MSL2</td>
+<td align="right">0.0000000</td>
+<td align="right">1.0000000</td>
+<td align="right">0.6517667</td>
+<td align="right">2.536128</td>
+<td align="right">3.187895</td>
+<td align="right">1.9189281</td>
+<td align="right">12.630673</td>
+<td align="right">24.23735</td>
+<td align="right">0.3972018</td>
+<td align="right">0.1818968</td>
+</tr>
+<tr class="even">
+<td align="left">PPM1D</td>
+<td align="right">-0.0007843</td>
+<td align="right">0.9992160</td>
+<td align="right">0.6529174</td>
+<td align="right">2.526200</td>
+<td align="right">3.178333</td>
+<td align="right">1.9211373</td>
+<td align="right">12.505890</td>
+<td align="right">24.00670</td>
+<td align="right">0.4001637</td>
+<td align="right">0.1840926</td>
+</tr>
+<tr class="odd">
+<td align="left">HGF</td>
+<td align="right">0.7342728</td>
+<td align="right">2.0839660</td>
+<td align="right">-0.0052543</td>
+<td align="right">2.447064</td>
+<td align="right">3.176082</td>
+<td align="right">0.9947595</td>
+<td align="right">11.554370</td>
+<td align="right">23.95273</td>
+<td align="right">0.4257441</td>
+<td align="right">0.1862491</td>
+</tr>
+<tr class="even">
+<td align="left">SLC38A3</td>
+<td align="right">-0.0049565</td>
+<td align="right">0.9950557</td>
+<td align="right">0.6136223</td>
+<td align="right">2.510331</td>
+<td align="right">3.118997</td>
+<td align="right">1.8471101</td>
+<td align="right">12.309005</td>
+<td align="right">22.62367</td>
+<td align="right">0.4074689</td>
+<td align="right">0.1905775</td>
+</tr>
+<tr class="odd">
+<td align="left">ARHGAP44</td>
+<td align="right">0.7308175</td>
+<td align="right">2.0767777</td>
+<td align="right">-0.0119305</td>
+<td align="right">2.362564</td>
+<td align="right">3.081451</td>
+<td align="right">0.9881404</td>
+<td align="right">10.618144</td>
+<td align="right">21.79000</td>
+<td align="right">0.4447959</td>
+<td align="right">0.1971148</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="fdr-0.3-new-genes-3" class="section level3">
+<h3><span class="header-section-number">3.7.3</span> FDR 0.3 new genes</h3>
+<pre class="r"><code>knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;= 0.3 &amp; TADA_table_filtered$FDR_all &lt; 0.3,])</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">genename</th>
+<th align="right">logBF_splicing</th>
+<th align="right">BF_splicing</th>
+<th align="right">logBF_noncoding</th>
+<th align="right">logBF_coding</th>
+<th align="right">logBF_all</th>
+<th align="right">BF_noncoding</th>
+<th align="right">BF_coding</th>
+<th align="right">BF_all</th>
+<th align="right">FDR_coding</th>
+<th align="right">FDR_all</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">JUP</td>
+<td align="right">-0.0064879</td>
+<td align="right">0.9935331</td>
+<td align="right">2.7059171</td>
+<td align="right">2.131726</td>
+<td align="right">4.831155</td>
+<td align="right">14.9680372</td>
+<td align="right">8.429401</td>
+<td align="right">125.35565</td>
+<td align="right">0.4713748</td>
+<td align="right">0.0387097</td>
+</tr>
+<tr class="even">
+<td align="left">APBB1</td>
+<td align="right">-0.0052030</td>
+<td align="right">0.9948105</td>
+<td align="right">1.9762766</td>
+<td align="right">2.325413</td>
+<td align="right">4.296487</td>
+<td align="right">7.2158255</td>
+<td align="right">10.230909</td>
+<td align="right">73.44134</td>
+<td align="right">0.4502329</td>
+<td align="right">0.0602304</td>
+</tr>
+<tr class="odd">
+<td align="left">MSL2</td>
+<td align="right">0.0000000</td>
+<td align="right">1.0000000</td>
+<td align="right">0.6517667</td>
+<td align="right">2.536128</td>
+<td align="right">3.187895</td>
+<td align="right">1.9189281</td>
+<td align="right">12.630673</td>
+<td align="right">24.23735</td>
+<td align="right">0.3972018</td>
+<td align="right">0.1818968</td>
+</tr>
+<tr class="even">
+<td align="left">PPM1D</td>
+<td align="right">-0.0007843</td>
+<td align="right">0.9992160</td>
+<td align="right">0.6529174</td>
+<td align="right">2.526200</td>
+<td align="right">3.178333</td>
+<td align="right">1.9211373</td>
+<td align="right">12.505890</td>
+<td align="right">24.00670</td>
+<td align="right">0.4001637</td>
+<td align="right">0.1840926</td>
+</tr>
+<tr class="odd">
+<td align="left">HGF</td>
+<td align="right">0.7342728</td>
+<td align="right">2.0839660</td>
+<td align="right">-0.0052543</td>
+<td align="right">2.447064</td>
+<td align="right">3.176082</td>
+<td align="right">0.9947595</td>
+<td align="right">11.554370</td>
+<td align="right">23.95273</td>
+<td align="right">0.4257441</td>
+<td align="right">0.1862491</td>
+</tr>
+<tr class="even">
+<td align="left">SLC38A3</td>
+<td align="right">-0.0049565</td>
+<td align="right">0.9950557</td>
+<td align="right">0.6136223</td>
+<td align="right">2.510331</td>
+<td align="right">3.118997</td>
+<td align="right">1.8471101</td>
+<td align="right">12.309005</td>
+<td align="right">22.62367</td>
+<td align="right">0.4074689</td>
+<td align="right">0.1905775</td>
+</tr>
+<tr class="odd">
+<td align="left">ARHGAP44</td>
+<td align="right">0.7308175</td>
+<td align="right">2.0767777</td>
+<td align="right">-0.0119305</td>
+<td align="right">2.362564</td>
+<td align="right">3.081451</td>
+<td align="right">0.9881404</td>
+<td align="right">10.618144</td>
+<td align="right">21.79000</td>
+<td align="right">0.4447959</td>
+<td align="right">0.1971148</td>
+</tr>
+<tr class="even">
+<td align="left">LRRC4</td>
+<td align="right">0.0000000</td>
+<td align="right">1.0000000</td>
+<td align="right">0.6376929</td>
+<td align="right">2.344952</td>
+<td align="right">2.982645</td>
+<td align="right">1.8921106</td>
+<td align="right">10.432776</td>
+<td align="right">19.73997</td>
+<td align="right">0.4477285</td>
+<td align="right">0.2100236</td>
+</tr>
+<tr class="odd">
+<td align="left">PLXNB1</td>
+<td align="right">-0.0173372</td>
+<td align="right">0.9828122</td>
+<td align="right">0.6374991</td>
+<td align="right">2.352516</td>
+<td align="right">2.972678</td>
+<td align="right">1.8917440</td>
+<td align="right">10.511988</td>
+<td align="right">19.54419</td>
+<td align="right">0.4468929</td>
+<td align="right">0.2121592</td>
+</tr>
+<tr class="even">
+<td align="left">DLL1</td>
+<td align="right">-0.0056156</td>
+<td align="right">0.9944002</td>
+<td align="right">0.5865129</td>
+<td align="right">2.233998</td>
+<td align="right">2.814895</td>
+<td align="right">1.7977086</td>
+<td align="right">9.337119</td>
+<td align="right">16.69142</td>
+<td align="right">0.4626166</td>
+<td align="right">0.2555491</td>
+</tr>
+<tr class="odd">
+<td align="left">CBX4</td>
+<td align="right">-0.0031636</td>
+<td align="right">0.9968414</td>
+<td align="right">0.5577009</td>
+<td align="right">2.237874</td>
+<td align="right">2.792411</td>
+<td align="right">1.7466522</td>
+<td align="right">9.373381</td>
+<td align="right">16.32032</td>
+<td align="right">0.4613862</td>
+<td align="right">0.2718822</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.1-3" class="section level3">
+<h3><span class="header-section-number">3.7.4</span> Gene set enrichment analysis FDR 0.1</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.1 &amp; TADA_table_filtered$FDR_all &lt; 0.1, ]$genename, TADA_table_filtered$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">10.1405209</td>
+<td align="right">7.0020912</td>
+<td align="right">4.2012547</td>
+<td align="right">3.6811785</td>
+<td align="right">2.0293333</td>
+<td align="right">17.1712821</td>
+<td align="right">3.2788876</td>
+<td align="right">2.6467473</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0009574</td>
+<td align="right">0.1361314</td>
+<td align="right">0.0134776</td>
+<td align="right">0.0200369</td>
+<td align="right">0.4162834</td>
+<td align="right">0.0571169</td>
+<td align="right">0.2750423</td>
+<td align="right">0.1583552</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.2-3" class="section level3">
+<h3><span class="header-section-number">3.7.5</span> Gene set enrichment analysis FDR 0.2</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.2 &amp; TADA_table_filtered$FDR_all &lt; 0.2, ]$genename, TADA_table_filtered$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">2.7655966</td>
+<td align="right">1.9096612</td>
+<td align="right">1.9096612</td>
+<td align="right">1.3386104</td>
+<td align="right">1.1069091</td>
+<td align="right">4.6830769</td>
+<td align="right">1.7884841</td>
+<td align="right">1.4436803</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0865684</td>
+<td align="right">0.4153207</td>
+<td align="right">0.0962483</td>
+<td align="right">0.3477521</td>
+<td align="right">0.5607783</td>
+<td align="right">0.1940227</td>
+<td align="right">0.3097213</td>
+<td align="right">0.2918485</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.3-3" class="section level3">
+<h3><span class="header-section-number">3.7.6</span> Gene set enrichment analysis FDR 0.3</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.3 &amp; TADA_table_filtered$FDR_all &lt; 0.3, ]$genename, TADA_table_filtered$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">3.6874621</td>
+<td align="right">3.8193225</td>
+<td align="right">2.2915935</td>
+<td align="right">2.007916</td>
+<td align="right">2.213818</td>
+<td align="right">4.6830769</td>
+<td align="right">0.8942421</td>
+<td align="right">1.8046004</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0176365</td>
+<td align="right">0.0936462</td>
+<td align="right">0.0271893</td>
+<td align="right">0.050280</td>
+<td align="right">0.091440</td>
+<td align="right">0.1940227</td>
+<td align="right">0.6926141</td>
+<td align="right">0.1175986</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.1-all-genes-background-1" class="section level3">
+<h3><span class="header-section-number">3.7.7</span> Gene set enrichment analysis FDR 0.1, all genes background</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.1 &amp; TADA_table_filtered$FDR_all &lt; 0.1, ]$genename, combined_BF_table$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">10.8140209</td>
+<td align="right">7.6433251</td>
+<td align="right">4.486779</td>
+<td align="right">4.059374</td>
+<td align="right">2.0187108</td>
+<td align="right">18.6277445</td>
+<td align="right">3.5901135</td>
+<td align="right">2.8592218</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0007895</td>
+<td align="right">0.1252167</td>
+<td align="right">0.011065</td>
+<td align="right">0.014942</td>
+<td align="right">0.4180905</td>
+<td align="right">0.0527312</td>
+<td align="right">0.2534934</td>
+<td align="right">0.1377285</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.2-all-genes-background-1" class="section level3">
+<h3><span class="header-section-number">3.7.8</span> Gene set enrichment analysis FDR 0.2, all genes background</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.2 &amp; TADA_table_filtered$FDR_all &lt; 0.2, ]$genename, combined_BF_table$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">2.9492784</td>
+<td align="right">2.084543</td>
+<td align="right">2.0394449</td>
+<td align="right">1.4761359</td>
+<td align="right">1.1011150</td>
+<td align="right">5.0802940</td>
+<td align="right">1.9582437</td>
+<td align="right">1.5595755</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0741495</td>
+<td align="right">0.387760</td>
+<td align="right">0.0757617</td>
+<td align="right">0.2766396</td>
+<td align="right">0.5638718</td>
+<td align="right">0.1801839</td>
+<td align="right">0.2721838</td>
+<td align="right">0.2414526</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.3-all-genes-background-1" class="section level3">
+<h3><span class="header-section-number">3.7.9</span> Gene set enrichment analysis FDR 0.3, all genes background</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.3 &amp; TADA_table_filtered$FDR_all &lt; 0.3, ]$genename, combined_BF_table$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">3.9323712</td>
+<td align="right">4.1690864</td>
+<td align="right">2.4473339</td>
+<td align="right">2.2142038</td>
+<td align="right">2.2022300</td>
+<td align="right">5.0802940</td>
+<td align="right">0.9791219</td>
+<td align="right">1.9494694</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0141417</td>
+<td align="right">0.0804903</td>
+<td align="right">0.0198254</td>
+<td align="right">0.0319938</td>
+<td align="right">0.0928929</td>
+<td align="right">0.1801839</td>
+<td align="right">0.6577434</td>
+<td align="right">0.0893558</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
