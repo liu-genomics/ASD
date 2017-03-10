@@ -1,24 +1,0 @@
-
-
-processing file: 170202_base_level_mutation_info_with_phylop_in_compact_format_all_TADA_genes.Rmd
-  |                                                                         |                                                                 |   0%  |                                                                         |.........                                                        |  14%
-  ordinary text without R code
-
-  |                                                                         |...................                                              |  29%
-label: unnamed-chunk-1
-  |                                                                         |............................                                     |  43%
-  ordinary text without R code
-
-  |                                                                         |.....................................                            |  57%
-label: unnamed-chunk-2 (with options) 
-List of 2
- $ cache      : logi TRUE
- $ cache.extra: symbol r
-
-processing chromosomes
-Quitting from lines 26-63 (170202_base_level_mutation_info_with_phylop_in_compact_format_all_TADA_genes.Rmd) 
-Error in fread(paste(prefix, "_temp_base_level_coverage.bed", sep = ""),  : 
-  File '1486080890_temp_base_level_coverage.bed' does not exist. Include one or more spaces to consider the input a system command.
-Calls: <Anonymous> ... adjust_mutation_rate_window_to_base_compact_more_feature -> fread
-
-Execution halted

@@ -1,55 +1,0 @@
-
-
-processing file: 170202_base_level_mutation_info_with_phylop_in_compact_format_top6pct_TADA_genes.Rmd
-  |                                                                         |                                                                 |   0%  |                                                                         |.........                                                        |  14%
-  ordinary text without R code
-
-  |                                                                         |...................                                              |  29%
-label: unnamed-chunk-1
-  |                                                                         |............................                                     |  43%
-  ordinary text without R code
-
-  |                                                                         |.....................................                            |  57%
-label: unnamed-chunk-2 (with options) 
-List of 2
- $ cache      : logi TRUE
- $ cache.extra: symbol r
-
-processing chromosomes
-processing chromosomes
-processing chromosomes
-processing chromosomes
-processing chromosomes
-processing chromosomes
-processing chromosomes
-processing chromosomes
-processing chromosomes
-processing chromosomes
-processing chromosomes
-processing chromosomes
-processing chromosomes
-processing chromosomes
-processing chromosomes
-processing chromosomes
-processing chromosomes
-processing chromosomes
-processing chromosomes
-processing chromosomes
-  |                                                                         |..............................................                   |  71%
-  ordinary text without R code
-
-  |                                                                         |........................................................         |  86%
-label: unnamed-chunk-3 (with options) 
-List of 2
- $ dependson  : symbol adjusted_base_level_rr
- $ cache.extra: symbol estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data
-
-  |                                                                         |.................................................................| 100%
-  ordinary text without R code
-
-
-output file: 170202_base_level_mutation_info_with_phylop_in_compact_format_top6pct_TADA_genes.knit.md
-
-/usr/bin/pandoc +RTS -K512m -RTS 170202_base_level_mutation_info_with_phylop_in_compact_format_top6pct_TADA_genes.utf8.md --to html --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash-implicit_figures --output 170202_base_level_mutation_info_with_phylop_in_compact_format_top6pct_TADA_genes.html --smart --email-obfuscation none --self-contained --standalone --section-divs --template /home/yuwen/R/x86_64-pc-linux-gnu-library/3.0/rmarkdown/rmd/h/default.html --variable 'theme:bootstrap' --include-in-header /tmp/RtmpyVfeh5/rmarkdown-str3f4c2e94edb3.html --mathjax --variable 'mathjax-url:https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --no-highlight --variable highlightjs=/home/yuwen/R/x86_64-pc-linux-gnu-library/3.0/rmarkdown/rmd/h/highlight --variable navigationjs=/home/yuwen/R/x86_64-pc-linux-gnu-library/3.0/rmarkdown/rmd/h/navigation-1.0 
-
-Output created: 170202_base_level_mutation_info_with_phylop_in_compact_format_top6pct_TADA_genes.html
