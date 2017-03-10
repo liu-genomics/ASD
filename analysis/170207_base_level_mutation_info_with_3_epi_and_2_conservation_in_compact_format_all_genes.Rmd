@@ -27,7 +27,7 @@ source("../lib/170122_base_level_simulation_functions.R")
 ***
 
 
-# **Estimate relative risk from top 0.5% TADA genes, afeter adjusting for mutation rates**
+# **Estimate relative risk from top 6% TADA genes, afeter adjusting for mutation rates**
 
 ```{r, cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_v2}
 new_control = new.env()
@@ -477,4 +477,27 @@ knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.2 
 ### Gene set enrichment analysis FDR 0.3, all genes background
 ```{r}
 knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.3 & TADA_table_filtered$FDR_all < 0.3, ]$genename, combined_BF_table$genename))
+```
+
+### Gene set enrichment analysis FDR 0.3, all genes background, remove SIRPB1 which doesn't have splicing mutations or H3k27ac mutations
+```{r}
+knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.3 & TADA_table_filtered$FDR_all < 0.3 & TADA_table_filtered$genename != "SIRPB2", ]$genename, combined_BF_table$genename))
+```
+
+## check the Bayes factors of two genes identified as novel in the previous manuscript but not in the current analysis
+```{r}
+TADA_table_filtered[genename == "DLL1"]
+TADA_table_filtered[genename == "DPYSL2"]
+# The reason DPYSL2 wasn't found this time is because of the different enhancer partition stratagy that I used. There is one mutation that in the H3k27ac regions just out side of regions within 10kb of TSS. With the old criteria, I would call this mutation as a relevant H3k27ac mutation, but not with the new criteria. 
+
+#adjusted_base_level_rr$base_info[["DLL1"]]
+#adjusted_base_level_rr$base_info[["DPYSL2"]]
+```
+
+### Reasons for two genes being missing in the new analysis
+```
+DLL1 is missing because the 50bp window containing a non-coding H3K27ac mutation as incorrectly assigned to another nearby gene, althought the distance between this 50bp window to DLL1 is still the shortest.
+I will have a corrected gene assignment file to deal with situation
+
+DPYLS2 is missing because the enhancer partition stratagy has changed. The previous mutation is in a brain H3k27ac region that overlaps with TSS +- 10kb boundaries. It would be counted as one regulatory mutation in the first version of manuscript. However, the exact location of the mutations is beyond the boundary, so it wouldn't be counted in the new base-level model. Thus DPYSL2 was not detected this time. 
 ```

@@ -128,3 +128,8 @@ synaptomeDB_postsynaptics = read.delim("../other_annotation/gene_list/synaptomeD
 synaptomeDB_presynaptics_activezone = read.delim("../other_annotation/gene_list/synaptomeDB_presynaptics_active_zone.genelist", header = FALSE, sep = "\t", stringsAsFactors = FALSE )
 synaptomeDB_vesicles = read.delim("../other_annotation/gene_list/synaptomeDB_vesicles.genelist", header = FALSE, sep = "\t", stringsAsFactors = FALSE )
 GO_synaptic_transmission = read.delim("../other_annotation/gene_list/GO_0007268_synaptic_transmission.genelist",header = FALSE, sep = "\t", stringsAsFactors = FALSE )
+
+
+### Top 6 pct TADA genes used in relative risk estimation in the base-level model
+TADA_top6_pct = read.delim("../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94_top6_pct_genes.txt", header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+TADA_top6_pct = TADA_top6_pct[,1]

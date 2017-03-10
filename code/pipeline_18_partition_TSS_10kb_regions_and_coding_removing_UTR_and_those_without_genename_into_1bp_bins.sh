@@ -60,6 +60,12 @@ nohup cat /media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_yanyu_10k
 
 rm /media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.1bp_window.bed.split*mutrate
 
+# only keep two relevant columns
+awk {'print $1"\t"$4'} /media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.1bp_window.bed.mutrate > \
+/media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.1bp_window.bed.mutrate.temp
+
+mv /media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.1bp_window.bed.mutrate.temp \
+/media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.1bp_window.bed.mutrate
 
 # get phastcons conservation socres for intervals
 
@@ -67,6 +73,13 @@ nohup sh -c 'for i in /media/yuwen/Elements/ASD_temp_storage/Whole_genome.promot
 
 nohup cat /media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.1bp_window.bed.split*.phastcons100way \
 > /media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.1bp_window.bed.phastcons100way &
+
+# only keeps two relevant columns
+awk {'print $1"\t"$4'} /media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.1bp_window.bed.phastcons100way > \
+/media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.1bp_window.bed.phastcons100way.temp
+
+mv /media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.1bp_window.bed.phastcons100way.temp \
+/media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.1bp_window.bed.phastcons100way
 
 rm /media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.1bp_window.bed.split*phastcons100way
 
@@ -98,9 +111,10 @@ nohup bedtools intersect -a /media/yuwen/Elements/ASD_temp_storage/refseq_id_exo
 | awk {'print $4"\t"$8'} | sort | uniq > /media/yuwen/Elements/ASD_temp_storage/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb_3UTR_5UTR_removing_na_gene.bed.1bp_window.bed_genename.bed & 
 
 # add up different parts of genename assignment together
-nohup cat /media/yuwen/Elements/ASD_temp_storage/Whole_genome.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed.1bp_window.bed_genename.bed \
-/media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_1kb_genename.bed.1bp_window.bed_genename.bed \
+nohup cat /media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_1kb_genename.bed.1bp_window.bed_genename.bed \
+/media/yuwen/Elements/ASD_temp_storage/Whole_genome.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed.1bp_window.bed_genename.bed \
 /media/yuwen/Elements/ASD_temp_storage/refseq_id_exons_genomic_coordiantes_subtract_promoter_1kb_3UTR_5UTR_removing_na_gene.bed.1bp_window.bed_genename.bed > \
  /media/yuwen/Elements/ASD_temp_storage/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.1bp_window.bed_genename.bed
 
 
+### only save two columns for for .phastcons100way file and 

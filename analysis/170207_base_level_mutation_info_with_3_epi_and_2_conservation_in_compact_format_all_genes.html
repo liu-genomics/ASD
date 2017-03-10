@@ -320,8 +320,8 @@ source(&quot;../lib/170122_base_level_simulation_functions.R&quot;)</code></pre>
 <li>100way phylop and gerp annotation is added, brain h3k27ac, fetal DHS and adult DHS.</li>
 </ol>
 <hr />
-<div id="estimate-relative-risk-from-top-0.5-tada-genes-afeter-adjusting-for-mutation-rates" class="section level1">
-<h1><span class="header-section-number">1</span> <strong>Estimate relative risk from top 0.5% TADA genes, afeter adjusting for mutation rates</strong></h1>
+<div id="estimate-relative-risk-from-top-6-tada-genes-afeter-adjusting-for-mutation-rates" class="section level1">
+<h1><span class="header-section-number">1</span> <strong>Estimate relative risk from top 6% TADA genes, afeter adjusting for mutation rates</strong></h1>
 <pre class="r"><code>new_control = new.env()
 load(&quot;../data/debug_region_list_073116_using_258_control_data_matrix.Rdata&quot;, new_control)
 
@@ -3561,6 +3561,73 @@ knitr::kable(performance_table(TADA_table_filtered))</code></pre>
 </tr>
 </tbody>
 </table>
+</div>
+<div id="gene-set-enrichment-analysis-fdr-0.3-all-genes-background-remove-sirpb1-which-doesnt-have-splicing-mutations-or-h3k27ac-mutations" class="section level3">
+<h3><span class="header-section-number">3.5.11</span> Gene set enrichment analysis FDR 0.3, all genes background, remove SIRPB1 which doesn’t have splicing mutations or H3k27ac mutations</h3>
+<pre class="r"><code>knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding &gt;=0.3 &amp; TADA_table_filtered$FDR_all &lt; 0.3 &amp; TADA_table_filtered$genename != &quot;SIRPB2&quot;, ]$genename, combined_BF_table$genename))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">HI</th>
+<th align="right">FMRP</th>
+<th align="right">RVIS top 25%</th>
+<th align="right">Brainspan top 25%</th>
+<th align="right">Brain GO</th>
+<th align="right">presynaptic</th>
+<th align="right">postsynaptic</th>
+<th align="right">ExAC top 25%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fold of enrichment</td>
+<td align="right">3.2442063</td>
+<td align="right">4.5859951</td>
+<td align="right">2.2433894</td>
+<td align="right">2.4356242</td>
+<td align="right">1.8168397</td>
+<td align="right">5.5883234</td>
+<td align="right">1.0770340</td>
+<td align="right">1.7155331</td>
+</tr>
+<tr class="even">
+<td>pvalue</td>
+<td align="right">0.0577837</td>
+<td align="right">0.0677619</td>
+<td align="right">0.0503361</td>
+<td align="right">0.0183144</td>
+<td align="right">0.2204359</td>
+<td align="right">0.1652382</td>
+<td align="right">0.6226925</td>
+<td align="right">0.1861447</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="check-the-bayes-factors-of-two-genes-identified-as-novel-in-the-previous-manuscript-but-not-in-the-current-analysis" class="section level2">
+<h2><span class="header-section-number">3.6</span> check the Bayes factors of two genes identified as novel in the previous manuscript but not in the current analysis</h2>
+<pre class="r"><code>TADA_table_filtered[genename == &quot;DLL1&quot;]</code></pre>
+<pre><code>##    genename logBF_splicing BF_splicing logBF_noncoding logBF_coding
+## 1:     DLL1   -0.005615582   0.9944002     -0.06339095     2.233998
+##    logBF_all BF_noncoding BF_coding   BF_all FDR_coding   FDR_all
+## 1:  2.164991    0.9385765  9.337119 8.714525  0.4626166 0.4629715</code></pre>
+<pre class="r"><code>TADA_table_filtered[genename == &quot;DPYSL2&quot;]</code></pre>
+<pre><code>##    genename logBF_splicing BF_splicing logBF_noncoding logBF_coding
+## 1:   DPYSL2   -0.005779591   0.9942371      -0.1137618     2.562573
+##    logBF_all BF_noncoding BF_coding   BF_all FDR_coding  FDR_all
+## 1:  2.443032    0.8924705  12.96915 11.50788  0.3817878 0.419183</code></pre>
+<pre class="r"><code># The reason DPYSL2 wasn&#39;t found this time is because of the different enhancer partition stratagy that I used. There is one mutation that in the H3k27ac regions just out side of regions within 10kb of TSS. With the old criteria, I would call this mutation as a relevant H3k27ac mutation, but not with the new criteria. 
+
+#adjusted_base_level_rr$base_info[[&quot;DLL1&quot;]]
+#adjusted_base_level_rr$base_info[[&quot;DPYSL2&quot;]]</code></pre>
+<div id="reasons-for-two-genes-being-missing-in-the-new-analysis" class="section level3">
+<h3><span class="header-section-number">3.6.1</span> Reasons for two genes being missing in the new analysis</h3>
+<pre><code>DLL1 is missing because the 50bp window containing a non-coding H3K27ac mutation as incorrectly assigned to another nearby gene, althought the distance between this 50bp window to DLL1 is still the shortest.
+I will have a corrected gene assignment file to deal with situation
+
+DPYLS2 is missing because the enhancer partition stratagy has changed. The previous mutation is in a brain H3k27ac region that overlaps with TSS +- 10kb boundaries. It would be counted as one regulatory mutation in the first version of manuscript. However, the exact location of the mutations is beyond the boundary, so it wouldn&#39;t be counted in the new base-level model. Thus DPYSL2 was not detected this time. </code></pre>
 </div>
 </div>
 </div>

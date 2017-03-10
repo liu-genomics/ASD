@@ -44,3 +44,28 @@ sh ../lib/160920_partition_enhancers_for_yanyu_pipeline.sh \
 sh ../lib/160920_partition_enhancers_for_yanyu_pipeline.sh \
 ../other_annotation/epigenomic_annotation/Psychencode_yale_ASD_CBC_H3K27ac_union.bed  \
 10000 ../other_annotation/refseq/ ../other_annotation/epigenomic_annotation/ Yale_ASD_CBC_H3K27ac 20000
+
+#Differentillay regulated fetal brain H3K27ac sites from Sun et al., 2016
+sh ../lib/160920_partition_enhancers_for_yanyu_pipeline.sh \
+../other_annotation/epigenomic_annotation/ASD_K27ac_CB_down_Sun_et_al_Cell_2016.bed  \
+10000 ../other_annotation/refseq/ ../other_annotation/epigenomic_annotation/ ASD_K27ac_CB_down_Sun_et_al_Cell_2016 20000
+
+sh ../lib/160920_partition_enhancers_for_yanyu_pipeline.sh \
+../other_annotation/epigenomic_annotation/ASD_K27ac_CB_up_Sun_et_al_Cell_2016.bed  \
+10000 ../other_annotation/refseq/ ../other_annotation/epigenomic_annotation/ ASD_K27ac_CB_up_Sun_et_al_Cell_2016 20000
+
+sh ../lib/160920_partition_enhancers_for_yanyu_pipeline.sh \
+../other_annotation/epigenomic_annotation/ASD_K27ac_PFC_down_Sun_et_al_Cell_2016.bed  \
+10000 ../other_annotation/refseq/ ../other_annotation/epigenomic_annotation/ ASD_K27ac_PFC_down_Sun_et_al_Cell_2016 20000
+
+sh ../lib/160920_partition_enhancers_for_yanyu_pipeline.sh \
+../other_annotation/epigenomic_annotation/ASD_K27ac_PFC_up_Sun_et_al_Cell_2016.bed  \
+10000 ../other_annotation/refseq/ ../other_annotation/epigenomic_annotation/ ASD_K27ac_PFC_up_Sun_et_al_Cell_2016 20000
+
+sh ../lib/160920_partition_enhancers_for_yanyu_pipeline.sh \
+../other_annotation/epigenomic_annotation/ASD_K27ac_TC_down_Sun_et_al_Cell_2016.bed  \
+10000 ../other_annotation/refseq/ ../other_annotation/epigenomic_annotation/ ASD_K27ac_TC_down_Sun_et_al_Cell_2016 20000
+
+sh ../lib/160920_partition_enhancers_for_yanyu_pipeline.sh \
+../other_annotation/epigenomic_annotation/ASD_K27ac_TC_up_Sun_et_al_Cell_2016.bed  \
+10000 ../other_annotation/refseq/ ../other_annotation/epigenomic_annotation/ ASD_K27ac_TC_up_Sun_et_al_Cell_2016 20000

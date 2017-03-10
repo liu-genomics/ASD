@@ -65,3 +65,11 @@ sh ../lib/160920_partition_promoters_and_utrs.sh ../other_annotation/epigenomic_
 # Psychencode_yale_ASD_DFC_H3K27ac_union.bed promoter, 5-utr and 3-utr
 sh ../lib/160920_partition_promoters_and_utrs.sh ../other_annotation/epigenomic_annotation/Psychencode_yale_ASD_CBC_H3K27ac_union.bed ../other_annotation/refseq/ ../other_annotation/epigenomic_annotation/ Yale_ASD_CBC_H3K27ac
 
+#Differentillay regulated fetal brain H3K27ac sites from Sun et al., 2016
+
+sh ../lib/160920_partition_promoters_and_utrs.sh ../other_annotation/epigenomic_annotation/ASD_K27ac_CB_down_Sun_et_al_Cell_2016.bed ../other_annotation/refseq/ ../other_annotation/epigenomic_annotation/ ASD_K27ac_CB_down_Sun_et_al_Cell_2016
+sh ../lib/160920_partition_promoters_and_utrs.sh ../other_annotation/epigenomic_annotation/ASD_K27ac_CB_up_Sun_et_al_Cell_2016.bed ../other_annotation/refseq/ ../other_annotation/epigenomic_annotation/ ASD_K27ac_CB_up_Sun_et_al_Cell_2016
+sh ../lib/160920_partition_promoters_and_utrs.sh ../other_annotation/epigenomic_annotation/ASD_K27ac_PFC_down_Sun_et_al_Cell_2016.bed ../other_annotation/refseq/ ../other_annotation/epigenomic_annotation/ ASD_K27ac_PFC_down_Sun_et_al_Cell_2016
+sh ../lib/160920_partition_promoters_and_utrs.sh ../other_annotation/epigenomic_annotation/ASD_K27ac_PFC_up_Sun_et_al_Cell_2016.bed ../other_annotation/refseq/ ../other_annotation/epigenomic_annotation/ ASD_K27ac_PFC_up_Sun_et_al_Cell_2016
+sh ../lib/160920_partition_promoters_and_utrs.sh ../other_annotation/epigenomic_annotation/ASD_K27ac_TC_down_Sun_et_al_Cell_2016.bed ../other_annotation/refseq/ ../other_annotation/epigenomic_annotation/ ASD_K27ac_TC_down_Sun_et_al_Cell_2016
+sh ../lib/160920_partition_promoters_and_utrs.sh ../other_annotation/epigenomic_annotation/ASD_K27ac_TC_up_Sun_et_al_Cell_2016.bed ../other_annotation/refseq/ ../other_annotation/epigenomic_annotation/ ASD_K27ac_TC_up_Sun_et_al_Cell_2016

@@ -1,0 +1,336 @@
+
+
+processing file: 170307_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_all_genes_corrected_gene_assignment.Rmd
+  |                                                                         |                                                                 |   0%  |                                                                         |.                                                                |   1%
+  ordinary text without R code
+
+  |                                                                         |..                                                               |   2%
+label: unnamed-chunk-1
+  |                                                                         |..                                                               |   3%
+  ordinary text without R code
+
+  |                                                                         |...                                                              |   5%
+label: unnamed-chunk-2 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+  |                                                                         |....                                                             |   6%
+  ordinary text without R code
+
+  |                                                                         |.....                                                            |   7%
+label: unnamed-chunk-3 (with options) 
+List of 3
+ $ cache      : logi TRUE
+ $ dependson  : symbol adjusted_base_level_rr
+ $ cache.extra: symbol estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data
+
+  |                                                                         |.....                                                            |   8%
+  ordinary text without R code
+
+  |                                                                         |......                                                           |   9%
+label: unnamed-chunk-4 (with options) 
+List of 3
+ $ cache      : logi TRUE
+ $ dependson  : symbol adjusted_base_level_rr
+ $ cache.extra: symbol estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_model_selection
+
+  |                                                                         |.......                                                          |  10%
+  ordinary text without R code
+
+  |                                                                         |........                                                         |  12%
+label: unnamed-chunk-5 (with options) 
+List of 2
+ $ cache    : logi TRUE
+ $ dependson: symbol model_estimate_1
+
+  |                                                                         |........                                                         |  13%
+  ordinary text without R code
+
+  |                                                                         |.........                                                        |  14%
+label: unnamed-chunk-6 (with options) 
+List of 3
+ $ cache      : logi TRUE
+ $ dependson  : symbol adjusted_base_level_rr
+ $ cache.extra: symbol estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_model_selection
+
+  |                                                                         |..........                                                       |  15%
+  ordinary text without R code
+
+  |                                                                         |...........                                                      |  16%
+label: unnamed-chunk-7 (with options) 
+List of 2
+ $ cache    : logi TRUE
+ $ dependson: symbol model_estimate_1
+
+  |                                                                         |...........                                                      |  17%
+  ordinary text without R code
+
+  |                                                                         |............                                                     |  19%
+label: unnamed-chunk-8 (with options) 
+List of 3
+ $ cache      : logi TRUE
+ $ dependson  : symbol adjusted_base_level_rr
+ $ cache.extra: symbol estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_model_selection
+
+  |                                                                         |.............                                                    |  20%
+  ordinary text without R code
+
+  |                                                                         |..............                                                   |  21%
+label: unnamed-chunk-9 (with options) 
+List of 2
+ $ cache    : logi TRUE
+ $ dependson: symbol model_estimate_1
+
+  |                                                                         |..............                                                   |  22%
+  ordinary text without R code
+
+  |                                                                         |...............                                                  |  23%
+label: unnamed-chunk-10 (with options) 
+List of 3
+ $ cache      : logi TRUE
+ $ dependson  : symbol adjusted_base_level_rr
+ $ cache.extra: symbol estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_model_selection
+
+  |                                                                         |................                                                 |  24%
+  ordinary text without R code
+
+  |                                                                         |.................                                                |  26%
+label: unnamed-chunk-11 (with options) 
+List of 2
+ $ cache    : logi TRUE
+ $ dependson: symbol model_estimate_1
+
+  |                                                                         |.................                                                |  27%
+  ordinary text without R code
+
+  |                                                                         |..................                                               |  28%
+label: unnamed-chunk-12 (with options) 
+List of 3
+ $ cache      : logi TRUE
+ $ dependson  : symbol adjusted_base_level_rr
+ $ cache.extra: symbol estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_model_selection
+
+  |                                                                         |...................                                              |  29%
+  ordinary text without R code
+
+  |                                                                         |....................                                             |  30%
+label: unnamed-chunk-13 (with options) 
+List of 2
+ $ cache    : logi TRUE
+ $ dependson: symbol model_estimate_1
+
+  |                                                                         |....................                                             |  31%
+  ordinary text without R code
+
+  |                                                                         |.....................                                            |  33%
+label: unnamed-chunk-14
+  |                                                                         |......................                                           |  34%
+  ordinary text without R code
+
+  |                                                                         |.......................                                          |  35%
+label: unnamed-chunk-15
+  |                                                                         |.......................                                          |  36%
+  ordinary text without R code
+
+  |                                                                         |........................                                         |  37%
+label: unnamed-chunk-16
+  |                                                                         |.........................                                        |  38%
+  ordinary text without R code
+
+  |                                                                         |..........................                                       |  40%
+label: unnamed-chunk-17
+  |                                                                         |..........................                                       |  41%
+  ordinary text without R code
+
+  |                                                                         |...........................                                      |  42%
+label: unnamed-chunk-18
+  |                                                                         |............................                                     |  43%
+  ordinary text without R code
+
+  |                                                                         |.............................                                    |  44%
+label: unnamed-chunk-19
+  |                                                                         |.............................                                    |  45%
+  ordinary text without R code
+
+  |                                                                         |..............................                                   |  47%
+label: unnamed-chunk-20
+  |                                                                         |...............................                                  |  48%
+  ordinary text without R code
+
+  |                                                                         |................................                                 |  49%
+label: unnamed-chunk-21 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol generate_BF_for_splicing_mutations
+
+rm: cannot remove ‘1489080730annovar_input_temp.bed’: No such file or directory
+  |                                                                         |................................                                 |  50%
+  ordinary text without R code
+
+  |                                                                         |.................................                                |  51%
+label: unnamed-chunk-22
+  |                                                                         |..................................                               |  52%
+  ordinary text without R code
+
+  |                                                                         |...................................                              |  53%
+label: unnamed-chunk-23
+  |                                                                         |....................................                             |  55%
+  ordinary text without R code
+
+  |                                                                         |....................................                             |  56%
+label: unnamed-chunk-24
+  |                                                                         |.....................................                            |  57%
+  ordinary text without R code
+
+  |                                                                         |......................................                           |  58%
+label: unnamed-chunk-25
+  |                                                                         |.......................................                          |  59%
+  ordinary text without R code
+
+  |                                                                         |.......................................                          |  60%
+label: unnamed-chunk-26
+  |                                                                         |........................................                         |  62%
+  ordinary text without R code
+
+  |                                                                         |.........................................                        |  63%
+label: unnamed-chunk-27
+  |                                                                         |..........................................                       |  64%
+  ordinary text without R code
+
+  |                                                                         |..........................................                       |  65%
+label: unnamed-chunk-28
+  |                                                                         |...........................................                      |  66%
+  ordinary text without R code
+
+  |                                                                         |............................................                     |  67%
+label: unnamed-chunk-29
+  |                                                                         |.............................................                    |  69%
+  ordinary text without R code
+
+  |                                                                         |.............................................                    |  70%
+label: unnamed-chunk-30
+  |                                                                         |..............................................                   |  71%
+  ordinary text without R code
+
+  |                                                                         |...............................................                  |  72%
+label: unnamed-chunk-31
+  |                                                                         |................................................                 |  73%
+  ordinary text without R code
+
+  |                                                                         |................................................                 |  74%
+label: unnamed-chunk-32
+  |                                                                         |.................................................                |  76%
+  ordinary text without R code
+
+  |                                                                         |..................................................               |  77%
+label: unnamed-chunk-33
+  |                                                                         |...................................................              |  78%
+  ordinary text without R code
+
+  |                                                                         |...................................................              |  79%
+label: unnamed-chunk-34
+  |                                                                         |....................................................             |  80%
+  ordinary text without R code
+
+  |                                                                         |.....................................................            |  81%
+label: unnamed-chunk-35
+  |                                                                         |......................................................           |  83%
+  ordinary text without R code
+
+  |                                                                         |......................................................           |  84%
+label: unnamed-chunk-36
+  |                                                                         |.......................................................          |  85%
+  ordinary text without R code
+
+  |                                                                         |........................................................         |  86%
+label: unnamed-chunk-37
+  |                                                                         |.........................................................        |  87%
+  ordinary text without R code
+
+  |                                                                         |.........................................................        |  88%
+label: unnamed-chunk-38
+  |                                                                         |..........................................................       |  90%
+  ordinary text without R code
+
+  |                                                                         |...........................................................      |  91%
+label: unnamed-chunk-39
+  |                                                                         |............................................................     |  92%
+  ordinary text without R code
+
+  |                                                                         |............................................................     |  93%
+label: unnamed-chunk-40
+  |                                                                         |.............................................................    |  94%
+  ordinary text without R code
+
+  |                                                                         |..............................................................   |  95%
+label: unnamed-chunk-41
+  |                                                                         |...............................................................  |  97%
+  ordinary text without R code
+
+  |                                                                         |...............................................................  |  98%
+label: unnamed-chunk-42
+  |                                                                         |................................................................ |  99%
+  ordinary text without R code
+
+  |                                                                         |.................................................................| 100%
+label: unnamed-chunk-43
+
+output file: 170307_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_all_genes_corrected_gene_assignment.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS 170307_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_all_genes_corrected_gene_assignment.utf8.md --to html --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash --output 170307_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_all_genes_corrected_gene_assignment.html --smart --email-obfuscation none --self-contained --standalone --section-divs --table-of-contents --toc-depth 3 --variable toc_float=1 --variable toc_selectors=h1,h2,h3 --variable toc_collapsed=1 --variable toc_smooth_scroll=1 --variable toc_print=1 --template /home/yuwen/R/x86_64-unknown-linux-gnu-library/3.2/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --number-sections --include-before-body /tmp/RtmprRUHW0/rmarkdown-strd621f40c58.html --variable navbar=1 --variable body_padding=51 --variable header_padding=56 --variable 'theme:united' --include-in-header /tmp/RtmprRUHW0/rmarkdown-strd621655d86d.html --mathjax --variable 'mathjax-url:https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' 
+
+Output created: 170307_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_all_genes_corrected_gene_assignment.html
