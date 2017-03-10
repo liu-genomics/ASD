@@ -15,5 +15,5 @@ output:
     toc: true
     toc_float: true
     depth: 3
-    theme: yeti
+    theme: united
     highlight: pygments
