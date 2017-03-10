@@ -1,0 +1,34 @@
+---
+title: "Untitled"
+author: "Yuwen"
+date: "November 20, 2016"
+output: html_document
+---
+
+Study the effect of promoter, coding, and cg content on mutation rate.
+For promoters and coding windows, remove those that have "n/a" as gene names, for coding also remove utrs
+ALso have Noonan Roadmap brain union as a categorical variable
+```{r}
+load("../analysis/161119_mutation_rate_calibration_with_Noonan_brain_roadmap_union_1bp_overlap.Rdata")
+```
+
+
+# 258 control
+```{r}
+control_model_258_summary
+```
+
+# manuscript cases
+```{r}
+ASD_model_manuscript_summary
+```
+
+# manusript control
+```{r}
+control_model_693_summary
+```
+
+# scherer cases, partly overlapped with manuscript cases
+```{r}
+ASD_model_Scherer_summary
+```

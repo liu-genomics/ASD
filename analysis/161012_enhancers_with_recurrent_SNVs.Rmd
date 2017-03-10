@@ -1,0 +1,41 @@
+---
+title: "Burden"
+output: html_document
+fontsize: 2pt
+---
+
+Do simulations to assess the excess of enhancers with two or more ASD mutations.
+The enhancers are defined from each set of epigenomic mark, e.g., DHS, H3K27ac etc.
+Enhancers that are overlapped with any coding sequences were filtered out. 
+
+
+```{r}
+getwd()
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+### read in coding tada data
+
+```{r,echo=FALSE}
+getwd()
+# need to set this direcoty to full direcoty of ASD/analysis
+coding_tada = read.delim("../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+coding_tada_denovo = data.frame(coding_tada$RefSeqName, coding_tada$TadaName, coding_tada$mut.rate, coding_tada$dn.LoF, coding_tada$dn.mis3, coding_tada$BF.SNV.dn, coding_tada$BF.combined, coding_tada$qvalue.combined)
+colnames(coding_tada_denovo) = c("RefSeqName", "TadaName", "mut.rate", "dn.LoF", "dn.mis3", "BF.SNV.dn", "BF.combined", "qvalue.combined")
+
+#read in workspace that has unique mutation information
+mutation = new.env()
+load("../data/0703_region_list_080216_data_matrixtransformed_for_old_code.Rdata", envir = mutation)
+write.table(mutation$mutation[,1:4],"0703_data_for_analysis.bed",col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+# load releant functions
+source("../lib/161012_recurrent_enhancer_analysis.R")
+
+```
+
+```{r}
+set.seed(100)
+
+sim_recurrent("0703_data_for_analysis.bed", "../other_annotation/epigenomic_annotation/bed_files_for_recurrent_analysis/", "encode_DHS_union.bed", 10000)
+sim_recurrent("0703_data_for_analysis.bed", "../other_annotation/epigenomic_annotation/bed_files_for_recurrent_analysis/", "Noonan_union.bed", 10000)
+
+```
+

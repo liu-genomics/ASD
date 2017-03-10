@@ -1,0 +1,68 @@
+---
+output:
+  html_document:
+    toc: true
+---
+
+<h1 style="color:grey;font-family:arial; position:relative; top:15px;text-align:center;" >ASD project<img src="website_materials/research_website_logo.png"  style="float:right;width:200px;height:150px;"></h1>
+<br>
+
+***
+### 1. Adjust mutation rate using GLM: 50bp window
+<br>
+
+* Study the effect of promoter, coding, and cg content on mutation rate.For promoters and coding windows, remove those that have "n/a" as gene names, for coding also remove utrs, all types of coding mutations were used for cases  [[More...]](./161120_mutation_rate_calibration_removing_utr_and_na_genes.html) .
+
+* Study the effect of promoter, coding, and cg content and Noonan+Rodamap brain H3K27ac on mutation rate.For promoters and coding windows, remove those that have "n/a" as gene names, for coding also remove utrs, all types of coding mutations were used for cases  [[More...]](./161120_mutation_rate_calibration_removing_utr_and_na_genes_with_epigenomic_mark.html).
+
+* Study the effect of promoter, coding, and cg content and Noonan+Rodamap brain H3K27ac on mutation rate.For promoters and coding windows, remove those that have "n/a" as gene names, for coding also remove utrs, only synonymouse mutations were used for training the model for cases  [[More...]](./161120_mutation_rate_calibration_removing_utr_and_na_genes_with_epigenomic_mark_remove_nonsyn_for_cases.html).
+
+* 10-fold loglikelihood-ratio comparing trinucleotide model and our adjusted model (features include promoter, coding, cg content and Noonan+Brain H3K27ac, using synonymous mutations for training cases)  [[More...]](./161205_mutation_rate_10fold_likelihood_with_Noonan_brain_roadmap_union_1bp_overlap_using_synony_only_for_ASD_coding.html).
+
+### 2. Compare number of observed  mutations of different types with expected based on adjusted mutation rate
+* Compare all types of mutations. Use only 1 epi data for mutation rate adjustment, use all coding mutations for training in cases  [[More...]](./161121_compare_observed_mutation_number_with_calibrated_mutation_rate_for_all_genes_all_categories.html).
+
+* Compare only coding mutations. Use only 1 epi data for mutation rate adjustment, only use synonymous mutations for coding mutations in cases for training  [[More...]](./161201_compare_observed_coding_mutation_number_with_calibrated_mutation_rate_for_Noonan_Roadmap_brain_syn_trained_for_cases.html).
+
+### 3. Effect size estimation from simulation data: 50bp-window
+* Use all TADA genes, didn't work out, as the computation demand is so intensive.
+
+* Use only top 6% TADA genes, simulate dataset and do optimization multiple times and compare the distribution of paramter estimates with true values  [[More...]](./161214_161214_simulate_mutation_and_estimate_effect_top6_pct_with_Noonan_brain_roadmap_union_1bp_overlap_using_synony_only_for_ASD_coding.html).
+
+
+### 4. Effect size estimation from real data: 50bp-window
+* ASD_manuscript data, 1 epigenome data sets first adjust mutation rate, then esitamte relative risks using all TADA genes, relative risk of promoter and enhancer estimated separately  [[More...]](./161211_estimate_effect_with_Noonan_brain_roadmap_union_1bp_overlap_using_synony_only_for_ASD_coding.html).
+
+* ASD_manuscript data, 3 epigenome data sets and 1 phastcons100way, first adjust mutation rate (Not including nonsynonymous mutations), then esitamte relative risks using only top6% TADA genes or all genes, estimate the relative risk of active promoters and enhancers jointly  [[More...]](./161229_fitting_model_50bp_more_epi_features_and_phastcons_features.html).
+
+* ASD_manuscript data, 4 epigenome data sets (separate out Noonan brain H3K27ac and Roadmap brain H3K27ac, when estimating relative risks)and 1 phastcons100way, first adjust mutation rate, then esitamte relative risks using only top6% TADA genes, estimate the relative risk of active promoters and enhancers jointly. Notice that when adjusting mutation rates, didn't use epigenomic features and base-level annotation features (e.g., conservation scores)  [[More...]](./170110_fitting_model_50bp_more_epi_features_separate_Noonan_and_Roadmap_and_phastcons_features_not_using_epi_features_for_mutation_rates_temp.html).
+
+* ASD manuscript data, 1 epignome dataset (Noonan_brain_Roadmap_union), 1 phastcons conservation score, and 1 for splicing mutations. Didn't exclude splicing mutations that are also epigenome mutations for now. Adjust for mutation rates using promoter, coding and cg contents. Use the Top 6% TADA genes for estimating relative risks. Relative risk estimtion for splicing mutations is done at the gene level not at the window level. Splicing mutation rates scaled relative to the adjusted synonymous mutation rates  [[More...]](./170111_estimate_RR_of_splicing_mutations_along_with_other_epigenomic_and_annotation_features.html).
+
+* ASD_manuscript data, 3 epigenome data sets and 1 phastcons100way, first adjust mutation rate (including both synonymous mutations and nonsynoymous mutations), then esitamte relative risks using only top6% TADA genes or all genes, estimate the relative risk of active promoters and enhancers jointly. Splicing mutations were not incoporated in relative risk estimation here  [[More...]](./170115_fitting_model_50bp_more_epi_features_and_phastcons_features_not_using_epi_features_for_mutation_rates_all_coding_mutations_no_splicing_estimate.html).
+
+* ASD_manuscript data, 3 epigenome data sets and 1 phastcons100way, first adjust mutation rate (including both synonymous mutations and nonsynoymous mutations), then esitamte relative risks using all all genes, estimate the relative risk of active promoters and enhancers jointly. Splicing mutations were not incoporated in relative risk estimation here (running time 30h)  [[More...]](./170117_fitting_model_50bp_rr_using_all_genes_more_epi_features_and_phastcons_features_not_using_epi_features_for_mutation_rates_all_coding_mutations_no_splicing_estimate.html).
+
+* ASD_manuscript data, 1 epigenome data sets and 1 phastcons100way, first adjust mutation rate (including both synonymous mutations and nonsynoymous mutations), then esitamte relative risks using all all genes, estimate the relative risk of active promoters and enhancers jointly. Splicing mutations were not incoporated in relative risk estimation here (running time 30h)  [[More...]](./170117_fitting_model_50bp_rr_using_all_genes_more_epi_features_and_phastcons_features_not_using_epi_features_for_mutation_rates_all_coding_mutations_no_splicing_estimate.html).
+
+### 5. Adjust mutation rate using optim(): 1bp base level. 
+* With categorization: test method using simulated dataset. 1e6 bases, 5 binary features and 2 continous features  [[More...]](./170105_base_level_simulation_and_mutation_rate_adjustion_parameter_estimation_with_categorization.html).
+
+### 6. Window-level Bayes Factor for each gene and novel gene identification.
+* Used mutation rates ajusted by promoter, within 10kb non-coding regions, coding regions and CG contents (All coding mutations included in model training). Relative risks were estimated using Top 6% TADA genes when estimating relative risks of Noonan+Roadmap Brain H3K27ac, ENCODE brain DHS, Roadmap brain DHS and phastcons100way conservation scores. Only Noonan+Roadmap H3K27ac have a significant effect and thus is used in calculating Bayese factor for each gene. The splicing mutations (I haven't excluded splicing mutations that overlap with other functional mutations here, but the overlap should be small) were added at the gene level in the form of splicing Bayes factor  [[More...]](./170115_generate_logBF_and_new_TADA_genes_all_splicing_mutations.html).
+
+* Used mutation rates ajusted by promoter, within 10kb non-coding regions, coding regions and CG contents (All coding mutations included in model training). Relative risks of Noonan+Roadmap H3K27ac mutations and splicing mutations were based on the first version of the manuscript  [[More...]](./170115_generate_logBF_and_new_TADA_genes_all_splicing_mutations_using_1.9_rr_for_noncoding.html).
+
+### 7. Model at the base level
+* General workflow of base-level modeling  [[More...]](./170131_base_level_model_workflow.html).
+
+* Compare the cost of time between using categorization and non-categorization optimization. Two binary features were included for this analysis. The catagorization approach works as follows: 1, Going through the dataset once to first partition by genename, then by feature pattern. 2. pre-computed all parts of the optimization function that don't need relative risk parameters. 3. optimization. Step 2 is very important to accelerate speed  [[More...]](./170125_base_level_two_feature_mixture_poisson_rr_estimate.html).
+
+* Adjust for mutation rate using features including promoter, coding, within-10kb noncoding, and cg contents for each 50-bp window. Apply the adjusting factor to each single base. Then use top6% TADA genes to estimate relative risk for Noonan+Roadmap brain H3k27ac mutations by a mixture Poisson model. Categorization optimization was applied    [[More...]](./170127_base_level_RR_estimate_with_only_1_epi_feature_and_top_6pct_TADA_genes.html).
+
+* Show the performance of [adjust_mutation_rate_window_to_base]+[estimate_effect_size_for_simulation_data_mixture_with_categorization_v2] is consistent with [adjust_mutation_rate_window_to_base_RCC]+[estimate_effect_size_for_simulation_data_mixture_with_categorization_for_big_data]. Demonstrate the optimization function for big data works well  [[More...]](./170131_base_level_RR_estimate_toy_model_using_optimization_with_categorization_for_big_data.html).
+
+* Use multiple features to train model and finally use only brain H3K27ac feature (rr estimate from top 6% genes)(see ./170207_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_top6pct_TADA_genes.html), and splicing mutations (rr estimated from our previous manuscript). Then calculated logBF for each gene and called risk genes at different FDR cutoffs  [[More...]](./170207_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_all_genes.html).
+
+***
+**Last updated:** `r Sys.time()`

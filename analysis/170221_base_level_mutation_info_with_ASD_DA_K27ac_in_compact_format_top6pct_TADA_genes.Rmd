@@ -1,0 +1,149 @@
+
+
+```{r}
+library(data.table)
+library(parallel)
+source("../lib/170122_base_level_simulation_functions.R")
+
+```
+
+***
+**NOTE**
+
+1. First adjust for mutation rate for each 50bp window, then apply the the adjusting factor for each base so we could get the base-level adjusted mutation rate. When adjusting for mutation rates, only consider features including promoter, coding, within-10kb non-coding, and 50bp cg contents.
+2. Only consider the relative risk from active promoters and enhancers (union), marked by Noonan and Roadmap brain H3k27ac. 
+3. Only use bases from top 6% TADA genes for now.
+4. The model itself could be easily adapted to cases where more epigenomic features or functional annotations are included. 
+5. The output will be R object which store base-level information in a compact mode
+6. Use differentially regulated H3K27ac peaks identfied in Sun et al., Cell 2016 as features
+
+***
+
+
+##### estimate relative risk from top 0.5% TADA genes, afeter adjusting for mutation rates
+
+```{r, cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_v2}
+new_control = new.env()
+load("../data/debug_region_list_073116_using_258_control_data_matrix.Rdata", new_control)
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV",c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" ,c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
+
+preprocessing_time <- system.time(adjusted_base_level_rr <- adjust_mutation_rate_window_to_base_compact_more_feature_v2(mut_file = paste(prefix,"temp.bed",sep = ""),
+window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed",
+cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed.fasta.cg",
+mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed.mutrate",
+sample_size = 314,
+epigenomic_marks = c("../other_annotation/epigenomic_annotation/ASD_K27ac_PFC_up_Sun_et_al_Cell_2016.bed","../other_annotation/epigenomic_annotation/ASD_K27ac_PFC_down_Sun_et_al_Cell_2016.bed","../other_annotation/epigenomic_annotation/ASD_K27ac_TC_up_Sun_et_al_Cell_2016.bed", "../other_annotation/epigenomic_annotation/ASD_K27ac_TC_down_Sun_et_al_Cell_2016.bed","../other_annotation/epigenomic_annotation/ASD_K27ac_CB_up_Sun_et_al_Cell_2016.bed","../other_annotation/epigenomic_annotation/ASD_K27ac_CB_down_Sun_et_al_Cell_2016.bed"),
+sequence_annotation = "no", 
+sequence_annotation_cutoff = list(phylop_100way=2, gerp =2 ), 
+sequence_annotation_ref = list(phylop_100way = "../other_annotation/conservation_annotation/hg19.100way.phyloP100way.bw", gerp = "../other_annotation/conservation_annotation/hg19_gerp_score.bw"),
+overlap = 0.5,
+rm_nonsyn = FALSE,
+annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
+annovar_input = "no.txt",
+gene_assign_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename.bed",
+gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
+report_proportion = 0.06,
+mutrate_ref_file = "/media/yuwen/Elements/mutation_rate_raw/MarkDaly/Daly_mutrate.bw",
+node_n = 6,
+feature_start = 5,
+feature_end = 9,
+feature_number = 5, 
+chunk_partition_num =1))
+
+rm(new_control)
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+
+```
+
+
+##### now will run models with different features
+
+```{r, cache = TRUE, dependson= adjusted_base_level_rr, cache.extra=estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_model_selection}
+# model with only Brain H3K27ac data
+model_estimate_1 <- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_model_selection(data = adjusted_base_level_rr$base_info, features = c(1), gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt", sample_size = 314)
+
+fisher_info<-solve(-model_estimate_1$mle$hessian)
+prop_sigma<-sqrt(diag(fisher_info))
+upper<-model_estimate_1$mle$par+1.96*prop_sigma
+lower<-model_estimate_1$mle$par-1.96*prop_sigma
+a = data.frame(relative_risk = model_estimate_1$mle$par, lower_bound = lower, upper_bournd = upper)
+#rownames(a) = c("PFC_up", "PFC_down", "TC_up", "TC_down", "CB_up", "CB_down")
+rownames(a) = c("PFC_up")
+knitr::kable(a)
+
+model_estimate_1$mle
+
+model_estimate_2 <- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_model_selection(data = adjusted_base_level_rr$base_info, features = c(2), gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt", sample_size = 314)
+
+fisher_info<-solve(-model_estimate_2$mle$hessian)
+prop_sigma<-sqrt(diag(fisher_info))
+upper<-model_estimate_2$mle$par+1.96*prop_sigma
+lower<-model_estimate_2$mle$par-1.96*prop_sigma
+a = data.frame(relative_risk = model_estimate_2$mle$par, lower_bound = lower, upper_bournd = upper)
+#rownames(a) = c("PFC_up", "PFC_down", "TC_up", "TC_down", "CB_up", "CB_down")
+rownames(a) = c("PFC_down")
+knitr::kable(a)
+
+model_estimate_2$mle
+
+model_estimate_3 <- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_model_selection(data = adjusted_base_level_rr$base_info, features = c(3), gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt", sample_size = 314)
+
+fisher_info<-solve(-model_estimate_3$mle$hessian)
+prop_sigma<-sqrt(diag(fisher_info))
+upper<-model_estimate_3$mle$par+1.96*prop_sigma
+lower<-model_estimate_3$mle$par-1.96*prop_sigma
+a = data.frame(relative_risk = model_estimate_3$mle$par, lower_bound = lower, upper_bournd = upper)
+#rownames(a) = c("PFC_up", "PFC_down", "TC_up", "TC_down", "CB_up", "CB_down")
+rownames(a) = c("TC_up")
+knitr::kable(a)
+
+model_estimate_3$mle
+
+model_estimate_4 <- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_model_selection(data = adjusted_base_level_rr$base_info, features = c(4), gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt", sample_size = 314)
+
+fisher_info<-solve(-model_estimate_4$mle$hessian)
+prop_sigma<-sqrt(diag(fisher_info))
+upper<-model_estimate_4$mle$par+1.96*prop_sigma
+lower<-model_estimate_4$mle$par-1.96*prop_sigma
+a = data.frame(relative_risk = model_estimate_4$mle$par, lower_bound = lower, upper_bournd = upper)
+#rownames(a) = c("PFC_up", "PFC_down", "TC_up", "TC_down", "CB_up", "CB_down")
+rownames(a) = c("TC_down")
+knitr::kable(a)
+
+model_estimate_4$mle
+
+
+model_estimate_5 <- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_model_selection(data = adjusted_base_level_rr$base_info, features = c(5), gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt", sample_size = 314)
+
+fisher_info<-solve(-model_estimate_5$mle$hessian)
+prop_sigma<-sqrt(diag(fisher_info))
+upper<-model_estimate_5$mle$par+1.96*prop_sigma
+lower<-model_estimate_5$mle$par-1.96*prop_sigma
+a = data.frame(relative_risk = model_estimate_5$mle$par, lower_bound = lower, upper_bournd = upper)
+#rownames(a) = c("PFC_up", "PFC_down", "TC_up", "TC_down", "CB_up", "CB_down")
+rownames(a) = c("CB_up")
+knitr::kable(a)
+
+model_estimate_5$mle
+
+# model_estimate_6 <- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_model_selection(data = adjusted_base_level_rr$base_info, features = c(6), gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt", sample_size = 314)
+# 
+# fisher_info<-solve(-model_estimate_6$mle$hessian)
+# prop_sigma<-sqrt(diag(fisher_info))
+# upper<-model_estimate_6$mle$par+1.96*prop_sigma
+# lower<-model_estimate_6$mle$par-1.96*prop_sigma
+# a = data.frame(relative_risk = model_estimate_6$mle$par, lower_bound = lower, upper_bournd = upper)
+# #rownames(a) = c("PFC_up", "PFC_down", "TC_up", "TC_down", "CB_up", "CB_down")
+# rownames(a) = c("CB_down")
+# knitr::kable(a)
+
+
+
+```

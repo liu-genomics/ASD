@@ -1,0 +1,34 @@
+```{r}
+set.seed(100)
+source("../lib/170102_test_glm_functions.R")
+```
+
+##### base-level simulation and optimization of mutation rate adjustion parameters using optim() without categorization
+```
+Assume 5 binary variables (e.g., epigenomic annotations) and 2 continous variables (e.g., conservation scores) affect the observed mutation pattern.
+Assume baselevel mutation rate is 1 for every base. Five bins are used for each categorized continuous variable
+
+```
+
+##### simulate 1e6 bases
+```{r,cache=TRUE,cache.extra=sim_table}
+data <- sim_table(0.5e4)
+dim(data)
+```
+
+```{r,cache=TRUE, cache.extra =  adjust_muatation_rate_optimization_test, dependson=data}
+c = 1
+estimate <- adjust_muatation_rate_optimization_test(data)
+```
+
+```{r,echo=FALSE}
+fisher_info<-solve(-estimate$mle$hessian)
+prop_sigma<-sqrt(diag(fisher_info))
+upper<-estimate$mle$par+1.96*prop_sigma
+lower<-estimate$mle$par-1.96*prop_sigma
+temp <- data.frame(true_value = c(2,0.5,0.7,1.4,0,0.2/5,0.5/5), estimate = estimate$mle$par, lower_bound = lower, upper_bound = upper)
+knitr::kable(temp)
+estimate$running_time
+estimate$mle
+```
+

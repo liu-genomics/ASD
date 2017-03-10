@@ -1,0 +1,17 @@
+
+##### only use Noonan and epigenome brain h3k27ac, estimate promoter and enhancer relative risks separately
+
+
+##### top 6% TADA genes for fitting the 50bp-window model: estimate relative risk
+
+```{r,echo=FALSE}
+load("161211_estimate_effect_with_Noonan_brain_roadmap_union_1bp_overlap_using_synony_only_for_ASD_coding.Rdata")
+fisher_info<-solve(-ASD_model_manuscript$hessian)
+prop_sigma<-sqrt(diag(fisher_info))
+upper<-ASD_model_manuscript$par+1.96*prop_sigma
+lower<-ASD_model_manuscript$par-1.96*prop_sigma
+a = data.frame(relative_risk = ASD_model_manuscript$par, lower_bound = lower, upper_bournd = upper)
+rownames(a) = c("Noonan+Roadmap Brain H3K27ac + promoter","Noonan+Roadmap Brain H3K27ac + enhancer" )
+knitr::kable(a)
+```
+

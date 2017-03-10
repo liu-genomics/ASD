@@ -1,0 +1,78 @@
+---
+title: "Untitled"
+author: "Yuwen"
+date: "January 24, 2017"
+output: html_document
+---
+
+```{r}
+set.seed(100)
+source("../lib/170122_base_level_simulation_functions.R")
+```
+
+
+##### generate a dataset with 1e5 bases, effect size 3
+```{r, cache=TRUE, cache.extra = adjust_muatation_rate_optimization_test_simple_categorization, cache.extra = adjust_muatation_rate_optimization_test_simple_glm, cache.extra = sim_table_simple}
+data <- sim_table_simple(2e5,base_mutrate = 1e-4, effect = 3)
+cate <- adjust_muatation_rate_optimization_test_simple_categorization(data)
+dim(data)
+```
+
+```{r}
+cate
+```
+
+##### generate a dataset with 1e5 bases, effect size 1, using Version V3 function
+
+```{r, cache=TRUE, cache.extra = adjust_muatation_rate_optimization_test_simple_categorization_v3, cache.extra = adjust_muatation_rate_optimization_test_simple_glm, cache.extra = sim_table_simple, dependson = data}
+cate <- adjust_muatation_rate_optimization_test_simple_categorization_v3(data)
+dim(data)
+```
+
+```{r}
+cate
+```
+
+##### generate a dataset with 1e5 bases, effect size 1, using optimization but without categorization
+
+```{r, cache=TRUE, cache.extra = adjust_muatation_rate_optimization_test_simple_without_categorization, dependson=data}
+cate <- adjust_muatation_rate_optimization_test_simple_without_categorization(data)
+dim(data)
+```
+
+```{r}
+cate
+```
+
+##### generate a dataset with 1e5 bases, effect size 3
+```{r, cache=TRUE, cache.extra = adjust_muatation_rate_optimization_test_simple_categorization, cache.extra = adjust_muatation_rate_optimization_test_simple_glm, cache.extra = sim_table_simple}
+data <- sim_table_simple(0.5e5,base_mutrate = 1e-4, effect = 3)
+cate <- adjust_muatation_rate_optimization_test_simple_categorization(data)
+dim(data)
+```
+
+```{r}
+cate
+```
+
+##### generate a dataset with 1e5 bases, effect size 1, using Version V3 function
+
+```{r, cache=TRUE, cache.extra = adjust_muatation_rate_optimization_test_simple_categorization_v3, cache.extra = adjust_muatation_rate_optimization_test_simple_glm, cache.extra = sim_table_simple, dependson = data}
+cate <- adjust_muatation_rate_optimization_test_simple_categorization_v3(data)
+dim(data)
+```
+
+```{r}
+cate
+```
+
+##### generate a dataset with 1e5 bases, effect size 1, using optimization but without categorization
+
+```{r, cache=TRUE, cache.extra = adjust_muatation_rate_optimization_test_simple_without_categorization, dependson=data}
+cate <- adjust_muatation_rate_optimization_test_simple_without_categorization(data)
+dim(data)
+```
+
+```{r}
+cate
+```
