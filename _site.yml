@@ -3,13 +3,13 @@ navbar:
   title: Collaboration J Project
   left:
     - text: "Home"
-      href: ../index.html
+      href: index.html
     - text: "About"
-      href: about.html
+      href: ./analysis/about.html
     - text: "Meeting"
-      href: meeting.html
+      href: ./analysis/meeting/meeting.html
     - text: "Note"
-      href: Note.html
+      href: ./analysis/Note.html
 output:
   html_document:
     toc: true
