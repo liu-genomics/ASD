@@ -64,7 +64,7 @@ FRMP_intersect_brain_GO_intersect_top75_pct_exp = intersect(FMRP_gene[,1],inters
 DAWN_old = read.delim("../other_annotation/gene_list/DAWN_old_q0.05_genelist.txt", header = FALSE, sep = "\t",stringsAsFactors = FALSE)
 DAWN_new = read.delim("../other_annotation/gene_list/DAWN_new_q0.05_genelist.txt", header = FALSE, sep = "\t",stringsAsFactors = FALSE)
 
-ExAC_gene = as.data.frame(readRDS("/media/yuwen/F/ASD/integrating_all_data/signature_gene_list/ConstraintMat.RDS"))
+ExAC_gene = as.data.frame(readRDS("../other_annotation/ConstraintMat.RDS"))
 perc.rank <- function(x) trunc(rank(-x))/length(x)
 ExAC_gene = data.frame(ExAC_gene, z_mis_pct = perc.rank(ExAC_gene$mis_z), z_lof_pct = perc.rank(ExAC_gene$lof_z))
 
@@ -120,7 +120,7 @@ nonconstraint_union = setdiff(c(Petrovski_RVIS_bottom_10pct_gene[,1],Huang_Hpi_s
 #### gene pct for genes that are in the TADA table
 gene_with_exp_mean = read.delim("../other_annotation/brainspan/expression_pct_for_TADA_genes.txt", header = TRUE, sep = "\t",stringsAsFactors = FALSE)
 
-Petrovski_haploinsufficiency_genelist = read.delim("/media/yuwen/F/ASD/integrating_all_data/signature_gene_list/Petrovski_plosgen_haploinsufficiency_including_all_without_ncscore_genelist.txt",
+Petrovski_haploinsufficiency_genelist = read.delim("../other_annotation/Petrovski_plosgen_haploinsufficiency_including_all_without_ncscore_genelist.txt",
                                                    header = FALSE, sep = "\t", stringsAsFactors = FALSE)
 
 synaptomeDB_presynaptics = read.delim("../other_annotation/gene_list/synaptomeDB_presynaptics.genelist", header = FALSE, sep = "\t", stringsAsFactors = FALSE )
