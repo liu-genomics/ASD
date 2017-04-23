@@ -476,6 +476,199 @@ predict_sum_mutation_rate_per_gene <- function(mut_file, window_file, cg_file, m
 }
 
 
+# function to run glm regression for window based mutation count, and then get adjusted mutation rate and mutation count for active promoters and enhancers per gene
+# The difference of this version compared to [predict_sum_mutation_rate_per_gene_v2] is that it doesn't use epigenomic annotations to do mutation adjustion.
+predict_sum_mutation_rate_per_gene_v2 <- function(mut_file, window_file, cg_file, mutrate_file, sample_size, epigenomic_marks = "no", overlap = 0.5, gene_assign_file,rm_nonsyn = FALSE, annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/", annovar_input = "no.txt"){
+  # [mut_file] is the mutation location file from one dataset. e.g.,../analysis/160229_data_for_analysis.bed, chr \t start \t end \t index,  1-based start and end
+  # [window_file] is the file with genome partitioned into windows. e.g., ../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons.50bp_window.bed
+  # [cg_file] is the file that has CG-content calculated, matching [window_file]. e.g., ../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons.50bp_window.bed.cg
+  # [mutrate_file] is the file that has mutrate data. e.g., "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons.50bp_window.bed.mutrate"
+  # [sample_size] is the number of individuals
+  # [epitenomic_marks] if it is "no", then glm won't use if a mutation is in h3k27ac as a categorical variable, if it is a epigenomic annotation name.
+  # for example, "../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed". It is fine to directly use original epigenomics bed files
+  # instead of the partitioned files. Because the window_file already has annotations for each window in terms of whetehr they are promoter or coding. 
+  # [overlap] the fraction of overlap (the paramter f in bedtools intersect), default is 0.5, For the ease of TADA modeling, it is better to assign it to be 1E-9(1bp)
+  # [gene_assign_file] is the file that assigns each window to a gene. for example ../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename.bed
+  # [rm_nonsyn] TRUE or FALSE. Indicating whether nonysnonymous mutations should be removed when fitting the model. Use TRUE when fitting model using ASD mutations. 
+  # [annovar_folder] is where the annovar program is, e.g., . e.g., /media/yuwen/Elements/ANNOVAR/annovar/
+  # [annovar_input] is a input file generated from mutations that will be annotated by annovar. The format is chr \t start \t end \t ref_allele \t alt_allele \t index 1-based for starts and ends
+  prefix=system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+  mut = read.delim(mut_file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+  if(rm_nonsyn){
+    # command to transform the start base to 0-based in order to use bedtools to do overlap
+    command = paste("awk {'print $1\"\t\"$2-1\"\t\"$3\"\t\"$4\"\t\"$5\"\t\"$6\"\t\"$7'} ", annovar_input, " > ", paste(prefix, "_annovar_for_bedtools.bed",sep = ""),sep = "")
+    system(command)
+    command = paste("grep coding ", window_file, " > ", paste(prefix, "_coding_window_temp.bed", sep = ""), sep = "")
+    system(command)
+    command = paste("bedtools intersect -a ",paste(prefix, "_annovar_for_bedtools.bed",sep = ""), " -b ", paste(prefix, "_coding_window_temp.bed", sep = ""), " -wa | sort | uniq | awk {'print $1\"\t\"$2+1\"\t\"$3\"\t\"$4\"\t\"$5\"\t\"$6\"\t\"$7'} > ",paste(prefix, "_for_annovar_temp_in_coding.txt",sep = ""), sep = "")
+    system(command)
+    command = paste("perl ", annovar_folder, "annotate_variation.pl -geneanno -buildver hg19 ", paste(prefix, "_for_annovar_temp_in_coding.txt",sep = ""), " ", annovar_folder, "humandb/", sep = "")
+    system(command)
+    coding_anno = read.delim(paste(paste(prefix, "_for_annovar_temp_in_coding.txt",sep = ""),".exonic_variant_function", sep = ""), header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+    removed_id = coding_anno[coding_anno[,2] != "synonymous SNV",10]
+    # now remove non-synonymous mutations (every coding mutations that are not synonymous mutations)
+    mut = mut[!is.element(mut[,4], removed_id),]
+  }
+  mut[,2] = mut[,2] - 1  # change 1-based start to 0-based start. 
+  write.table(mut, paste(prefix,"_temp.bed", sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+  command = paste("bedtools coverage -a ", paste(prefix,"_temp.bed", sep = ""), " -b ", window_file, " > ", paste(prefix,"_temp_coverage.bed", sep = ""), sep = "")
+  system(command)
+  coverage = read.delim(paste(prefix,"_temp_coverage.bed", sep = ""), header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+  coverage = coverage[,1:5]
+  colnames(coverage) = c("chr","start","end","site_index","mut_count")
+  coverage$window_size = coverage$end - coverage$start # some regions don't have full length of, say, 50bp
+  window = read.delim(window_file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+  cg = read.delim(cg_file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+  colnames(cg) = c("site_index", "cg")
+  coverage = merge(coverage, cg, by.x = "site_index", by.y ="site_index")
+  coverage$coding = as.numeric(mapply(function(x,y) grepl(y,x),coverage$site_index, MoreArgs = list(y="coding")))
+  coverage$promoter = as.numeric(mapply(function(x,y) grepl(y,x),coverage$site_index, MoreArgs = list(y="promoter")))
+  coverage$nf = as.numeric(mapply(function(x,y) grepl(y,x),coverage$site_index, MoreArgs = list(y="nf")))
+  mutrate = read.delim(mutrate_file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+  mutrate = data.frame(site_index = mutrate[,1], mutrate = mutrate[,4])
+  coverage = merge(coverage, mutrate, by.x = "site_index", by.y = "site_index")
+  coverage = coverage[coverage$mutrate !=0,]
+  if(epigenomic_marks == "no"){
+    out.offset <- glm(mut_count ~ coding+promoter+cg+offset(log(2*mutrate*sample_size)), family = poisson, data = coverage)
+  }
+  else{
+    command = paste("bedtools intersect -f ", overlap, " -a ", window_file , " -b ", epigenomic_marks, " -wa > ", paste(prefix,"_temp_overlap_epi.bed", sep = ""),sep = "")
+    system(command)
+    window_in_epi = read.delim(paste(prefix,"_temp_overlap_epi.bed", sep = ""), header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+    window_in_epi = data.frame(site_index = window_in_epi[,4], epi = 1)
+    coverage = merge(coverage, window_in_epi, by.x = "site_index", by.y = "site_index", all.x = TRUE)
+    coverage[is.na(coverage$epi),]$epi = 0
+    gene_assign = read.delim(gene_assign_file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+    colnames(gene_assign) = c("site_index", "genename")
+    out.offset <- glm(mut_count ~ coding+promoter+cg+offset(log(2*mutrate*sample_size)), family = poisson, data = coverage)
+    coverage = data.frame(coverage, adjusted_mutrate = out.offset$fitted.values)
+    mutrate_temp = merge(coverage[,c("site_index","mut_count","epi","coding", "promoter","nf","adjusted_mutrate")], gene_assign, by.x = "site_index", by.y = "site_index")
+    temp = by(mutrate_temp[mutrate_temp$promoter ==1 & mutrate_temp$coding == 0  & mutrate_temp$nf ==0 & mutrate_temp$epi ==1 ,]$adjusted_mutrate, 
+              mutrate_temp[mutrate_temp$promoter ==1 & mutrate_temp$coding == 0  & mutrate_temp$nf ==0 & mutrate_temp$epi ==1 ,]$genename, sum)
+    active_promoter = data.frame(genename = names(temp),adjusted_mutrate_sum = as.vector(temp))
+    temp = by(mutrate_temp[mutrate_temp$promoter ==1 & mutrate_temp$coding == 0  & mutrate_temp$nf ==0 & mutrate_temp$epi ==1 ,]$mut_count, 
+              mutrate_temp[mutrate_temp$promoter ==1 & mutrate_temp$coding == 0  & mutrate_temp$nf ==0 & mutrate_temp$epi ==1 ,]$genename, sum)
+    active_promoter = data.frame(active_promoter, mut_count_sum = as.vector(temp))
+    temp = by(mutrate_temp[mutrate_temp$promoter ==0 & mutrate_temp$coding == 0  & mutrate_temp$nf ==1 & mutrate_temp$epi ==1 ,]$adjusted_mutrate, 
+              mutrate_temp[mutrate_temp$promoter ==0 & mutrate_temp$coding == 0  & mutrate_temp$nf ==1 & mutrate_temp$epi ==1 ,]$genename, sum)
+    active_enhancer = data.frame(genename = names(temp),adjusted_mutrate_sum = as.vector(temp))
+    temp = by(mutrate_temp[mutrate_temp$promoter ==0 & mutrate_temp$coding == 0  & mutrate_temp$nf ==1 & mutrate_temp$epi ==1 ,]$mut_count, 
+              mutrate_temp[mutrate_temp$promoter ==0 & mutrate_temp$coding == 0  & mutrate_temp$nf ==1 & mutrate_temp$epi ==1 ,]$genename, sum)
+    active_enhancer = data.frame(active_enhancer, mut_count_sum = as.vector(temp))
+    temp = by(mutrate_temp[mutrate_temp$promoter ==0 & mutrate_temp$coding == 1  & mutrate_temp$nf ==0,]$adjusted_mutrate, 
+              mutrate_temp[mutrate_temp$promoter ==0 & mutrate_temp$coding == 1  & mutrate_temp$nf ==0,]$genename, sum)
+    coding_part = data.frame(genename = names(temp),adjusted_mutrate_sum = as.vector(temp))
+    temp = by(mutrate_temp[mutrate_temp$promoter ==0 & mutrate_temp$coding == 1  & mutrate_temp$nf ==0,]$mut_count, 
+              mutrate_temp[mutrate_temp$promoter ==0 & mutrate_temp$coding == 1  & mutrate_temp$nf ==0,]$genename, sum)
+    coding_part = data.frame(coding_part, mut_count_sum = as.vector(temp))
+    rm(temp)
+  }
+  system(paste("rm ", prefix, "_temp*", sep = ""))
+  list(promoter = active_promoter, enhancer = active_enhancer, coding = coding_part)
+}
+
+
+# function to run glm regression for window based mutation count, and then get adjusted mutation rate and mutation count for active promoters and enhancers per gene
+# The difference of this version compared to [predict_sum_mutation_rate_per_gene_v1] is that it doesn't use epigenomic annotations to do mutation adjustion.
+# The difference of this version compared to [predict_sum_mutation_rate_per_gene_v2] is that it also include spidex introns when adjusting mutation rates.
+
+predict_sum_mutation_rate_per_gene_v3 <- function(mut_file, window_file, cg_file, mutrate_file, sample_size, epigenomic_marks = "no", overlap = 0.5, gene_assign_file,rm_nonsyn = FALSE, annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/", annovar_input = "no.txt"){
+  # [mut_file] is the mutation location file from one dataset. e.g.,../analysis/160229_data_for_analysis.bed, chr \t start \t end \t index,  1-based start and end
+  # [window_file] is the file with genome partitioned into windows. e.g., ../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons.50bp_window.bed
+  # [cg_file] is the file that has CG-content calculated, matching [window_file]. e.g., ../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons.50bp_window.bed.cg
+  # [mutrate_file] is the file that has mutrate data. e.g., "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons.50bp_window.bed.mutrate"
+  # [sample_size] is the number of individuals
+  # [epitenomic_marks] if it is "no", then glm won't use if a mutation is in h3k27ac as a categorical variable, if it is a epigenomic annotation name.
+  # for example, "../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed". It is fine to directly use original epigenomics bed files
+  # instead of the partitioned files. Because the window_file already has annotations for each window in terms of whetehr they are promoter or coding. 
+  # [overlap] the fraction of overlap (the paramter f in bedtools intersect), default is 0.5, For the ease of TADA modeling, it is better to assign it to be 1E-9(1bp)
+  # [gene_assign_file] is the file that assigns each window to a gene. for example ../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename.bed
+  # [rm_nonsyn] TRUE or FALSE. Indicating whether nonysnonymous mutations should be removed when fitting the model. Use TRUE when fitting model using ASD mutations. 
+  # [annovar_folder] is where the annovar program is, e.g., . e.g., /media/yuwen/Elements/ANNOVAR/annovar/
+  # [annovar_input] is a input file generated from mutations that will be annotated by annovar. The format is chr \t start \t end \t ref_allele \t alt_allele \t index 1-based for starts and ends
+  prefix <- system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+  
+  
+  
+  mut <- fread(mut_file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+  if(rm_nonsyn){
+    # command to transform the start base to 0-based in order to use bedtools to do overlap
+    command <- paste("awk {'print $1\"\t\"$2-1\"\t\"$3\"\t\"$4\"\t\"$5\"\t\"$6\"\t\"$7'} ", annovar_input, " > ", paste(prefix, "_annovar_for_bedtools.bed",sep = ""),sep = "")
+    system(command)
+    command <- paste("grep coding ", window_file, " > ", paste(prefix, "_coding_window_temp.bed", sep = ""), sep = "")
+    system(command)
+    command <- paste("bedtools intersect -a ",paste(prefix, "_annovar_for_bedtools.bed",sep = ""), " -b ", paste(prefix, "_coding_window_temp.bed", sep = ""), " -wa | sort | uniq | awk {'print $1\"\t\"$2+1\"\t\"$3\"\t\"$4\"\t\"$5\"\t\"$6\"\t\"$7'} > ",paste(prefix, "_for_annovar_temp_in_coding.txt",sep = ""), sep = "")
+    system(command)
+    command <- paste("perl ", annovar_folder, "annotate_variation.pl -geneanno -buildver hg19 ", paste(prefix, "_for_annovar_temp_in_coding.txt",sep = ""), " ", annovar_folder, "humandb/", sep = "")
+    system(command)
+    coding_anno <- fread(paste(paste(prefix, "_for_annovar_temp_in_coding.txt",sep = ""),".exonic_variant_function", sep = ""), header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+    removed_id <- coding_anno[coding_anno[,2] != "synonymous SNV",10]
+    # now remove non-synonymous mutations (every coding mutations that are not synonymous mutations)
+    mut <- mut[!is.element(mut[,4], removed_id),]
+  }
+  mut[,2] <- mut[,2] - 1  # change 1-based start to 0-based start. 
+  fwrite(mut, paste(prefix,"_temp.bed", sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+  command <- paste("bedtools coverage -a ", paste(prefix,"_temp.bed", sep = ""), " -b ", window_file, " > ", paste(prefix,"_temp_coverage.bed", sep = ""), sep = "")
+  system(command)
+  coverage <- fread(paste(prefix,"_temp_coverage.bed", sep = ""), header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+  coverage <- coverage[,1:5]
+  colnames(coverage) <- c("chr","start","end","site_index","mut_count")
+  coverage$window_size <- coverage$end - coverage$start # some regions don't have full length of, say, 50bp
+  window <- fread(window_file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+  cg <- fread(cg_file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+  colnames(cg) <- c("site_index", "cg")
+  coverage <- coverage[cg, on="site_index"]
+  
+  binerize_adjust_feature <- function(x) {return(list(coding = as.numeric(grepl("coding",x)),
+                                                      promoter = as.numeric(grepl("promoter",x)),
+                                                      nf = as.numeric(grepl("nf",x)),
+                                                      spidex_intron = as.numeric(grepl("spdx_intron",x))))
+  }
+  
+  coverage[,c("coding","promoter","nf","spdx_intron") := binerize_adjust_feature(site_index), with = FALSE]
+  
+  mutrate <- fread(mutrate_file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+  mutrate<-mutrate[,c("V1","V4"),with = FALSE]
+  colnames(mutrate) <- c("site_index", "mutrate")
+  coverage <-coverage[mutrate, on = "site_index"]
+  coverage <- coverage[mutrate !=0]
+  #fit mutation rate model using a fixed set of features not including histone modification marks. 
+  out.offset <- glm(mut_count ~ coding+promoter+spdx_intron+cg+offset(log(2*mutrate*sample_size)), family = poisson, data = coverage)
+  command = paste("bedtools intersect -f ", overlap, " -a ", window_file , " -b ", epigenomic_marks, " -wa > ", paste(prefix,"_temp_overlap_epi.bed", sep = ""),sep = "")
+  system(command)
+  window_in_epi = read.delim(paste(prefix,"_temp_overlap_epi.bed", sep = ""), header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+  window_in_epi = data.frame(site_index = window_in_epi[,4], epi = 1)
+  coverage = merge(coverage, window_in_epi, by.x = "site_index", by.y = "site_index", all.x = TRUE)
+  coverage[is.na(coverage$epi),]$epi = 0
+  gene_assign = read.delim(gene_assign_file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+  colnames(gene_assign) = c("site_index", "genename")
+  out.offset <- glm(mut_count ~ coding+promoter+cg+offset(log(2*mutrate*sample_size)), family = poisson, data = coverage)
+  coverage = data.frame(coverage, adjusted_mutrate = out.offset$fitted.values)
+  mutrate_temp = merge(coverage[,c("site_index","mut_count","epi","coding", "promoter","nf","adjusted_mutrate")], gene_assign, by.x = "site_index", by.y = "site_index")
+  temp = by(mutrate_temp[mutrate_temp$promoter ==1 & mutrate_temp$coding == 0  & mutrate_temp$nf ==0 & mutrate_temp$epi ==1 ,]$adjusted_mutrate, 
+            mutrate_temp[mutrate_temp$promoter ==1 & mutrate_temp$coding == 0  & mutrate_temp$nf ==0 & mutrate_temp$epi ==1 ,]$genename, sum)
+  active_promoter = data.frame(genename = names(temp),adjusted_mutrate_sum = as.vector(temp))
+  temp = by(mutrate_temp[mutrate_temp$promoter ==1 & mutrate_temp$coding == 0  & mutrate_temp$nf ==0 & mutrate_temp$epi ==1 ,]$mut_count, 
+            mutrate_temp[mutrate_temp$promoter ==1 & mutrate_temp$coding == 0  & mutrate_temp$nf ==0 & mutrate_temp$epi ==1 ,]$genename, sum)
+  active_promoter = data.frame(active_promoter, mut_count_sum = as.vector(temp))
+  temp = by(mutrate_temp[mutrate_temp$promoter ==0 & mutrate_temp$coding == 0  & mutrate_temp$nf ==1 & mutrate_temp$epi ==1 ,]$adjusted_mutrate, 
+            mutrate_temp[mutrate_temp$promoter ==0 & mutrate_temp$coding == 0  & mutrate_temp$nf ==1 & mutrate_temp$epi ==1 ,]$genename, sum)
+  active_enhancer = data.frame(genename = names(temp),adjusted_mutrate_sum = as.vector(temp))
+  temp = by(mutrate_temp[mutrate_temp$promoter ==0 & mutrate_temp$coding == 0  & mutrate_temp$nf ==1 & mutrate_temp$epi ==1 ,]$mut_count, 
+            mutrate_temp[mutrate_temp$promoter ==0 & mutrate_temp$coding == 0  & mutrate_temp$nf ==1 & mutrate_temp$epi ==1 ,]$genename, sum)
+  active_enhancer = data.frame(active_enhancer, mut_count_sum = as.vector(temp))
+  temp = by(mutrate_temp[mutrate_temp$promoter ==0 & mutrate_temp$coding == 1  & mutrate_temp$nf ==0,]$adjusted_mutrate, 
+            mutrate_temp[mutrate_temp$promoter ==0 & mutrate_temp$coding == 1  & mutrate_temp$nf ==0,]$genename, sum)
+  coding_part = data.frame(genename = names(temp),adjusted_mutrate_sum = as.vector(temp))
+  temp = by(mutrate_temp[mutrate_temp$promoter ==0 & mutrate_temp$coding == 1  & mutrate_temp$nf ==0,]$mut_count, 
+            mutrate_temp[mutrate_temp$promoter ==0 & mutrate_temp$coding == 1  & mutrate_temp$nf ==0,]$genename, sum)
+  coding_part = data.frame(coding_part, mut_count_sum = as.vector(temp))
+  rm(temp)
+  system(paste("rm ", prefix, "_temp*", sep = ""))
+  list(promoter = active_promoter, enhancer = active_enhancer, coding = coding_part)
+}
+
+
 # function to calculate log-likelihood from estimated effect sizes. 
 get_10fold_log_likelihood <- function(prediction_model,fold_n = 10, sample_size){
   # [prediction_model] is the return value from function{run_glm_for_mutation}

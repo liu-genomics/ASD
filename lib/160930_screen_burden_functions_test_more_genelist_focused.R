@@ -946,6 +946,7 @@ draw_burden_for_selected_features <-function(mut_file_name, input_type = "file",
     Phylop_burden = burden_with_phylop(mut, mutation$phylop, 1.49205, 9.87300)$burden # phylop 5%
     Eigen_burden = eigen_gt_95pct = burden_with_eigen(mut, mutation$mut_eigen, 0.82931625)$burden #eigen top 5%
     CADD_burden = burden_with_CADD(mut, CADD_score_with_index, 13.71,53)$burden #CADD top 5%
+    ASD_top6pct_TADA = burden_with_geneset(mut, TADA_top6_pct)$burden # top6% TADA genes
     output = data.frame(rbind(baseline,
                               ASD_stringent,
                               ASD_relaxed,
@@ -956,7 +957,8 @@ draw_burden_for_selected_features <-function(mut_file_name, input_type = "file",
                               gerp_burden,
                               Phylop_burden, 
                               Eigen_burden,
-                              CADD_burden
+                              CADD_burden,
+                              ASD_top6pct_TADA
     ))
     rownames(output) = c("baseline",
                          "ASD genes",
@@ -968,7 +970,8 @@ draw_burden_for_selected_features <-function(mut_file_name, input_type = "file",
                          "Gerp >=2",
                          "Phylop top5%",
                          "Eigen top5%",
-                         "CADD top5%"
+                         "CADD top5%",
+                         "Top 6% TADA genes"
                          
     )
     colnames(output) = c("ASD", "control", "frequency_ratio_to_background")
