@@ -1,6 +1,6 @@
 output_dir: "."
 navbar:
-  title: Collaboration J Project
+  title: ASD Project
   left:
     - text: "Home"
       href: ../index.html

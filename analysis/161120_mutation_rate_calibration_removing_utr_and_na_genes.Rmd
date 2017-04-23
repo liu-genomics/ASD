@@ -14,20 +14,22 @@ load("../analysis/161119_mutation_rate_calibration_2.Rdata")
 
 # 258 control
 ```{r}
-control_model_258_summary
+knitr::kable(control_model_258_summary)
 ```
 
 # manuscript cases
 ```{r}
-ASD_model_manuscript_summary
+knitr::kable(ASD_model_manuscript_summary)
 ```
 
 # manusript control
 ```{r}
-control_model_693_summary
+knitr::kable(control_model_693_summary)
 ```
 
 # scherer cases, partly overlapped with manuscript cases
+
 ```{r}
-ASD_model_Scherer_summary
+knitr::kable(ASD_model_Scherer_summary, format = "pandoc", padding = 2)
 ```
+

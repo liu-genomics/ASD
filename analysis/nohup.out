@@ -334,3 +334,1024 @@ output file: 170307_base_level_mutation_info_with_3_epi_and_2_conservation_in_co
 /usr/bin/pandoc +RTS -K512m -RTS 170307_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_all_genes_corrected_gene_assignment.utf8.md --to html --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash --output 170307_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_all_genes_corrected_gene_assignment.html --smart --email-obfuscation none --self-contained --standalone --section-divs --table-of-contents --toc-depth 3 --variable toc_float=1 --variable toc_selectors=h1,h2,h3 --variable toc_collapsed=1 --variable toc_smooth_scroll=1 --variable toc_print=1 --template /home/yuwen/R/x86_64-unknown-linux-gnu-library/3.2/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --number-sections --include-before-body /tmp/RtmprRUHW0/rmarkdown-strd621f40c58.html --variable navbar=1 --variable body_padding=51 --variable header_padding=56 --variable 'theme:united' --include-in-header /tmp/RtmprRUHW0/rmarkdown-strd621655d86d.html --mathjax --variable 'mathjax-url:https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' 
 
 Output created: 170307_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_all_genes_corrected_gene_assignment.html
+Fatal error: cannot open file 'rmarkdown::render('170329_base_level_mutation_info_with_3_epi_and_2_conservation_splicing_top1000genes_test_genename_assignment_corrected.Rmd')': No such file or directory
+
+
+processing file: 170329_base_level_mutation_info_with_3_epi_and_2_conservation_splicing_top1000genes_test_genename_assignment_corrected.Rmd
+  |                                                                         |                                                                 |   0%  |                                                                         |.........                                                        |  14%
+  ordinary text without R code
+
+  |                                                                         |...................                                              |  29%
+label: unnamed-chunk-1
+Quitting from lines 4-8 (170329_base_level_mutation_info_with_3_epi_and_2_conservation_splicing_top1000genes_test_genename_assignment_corrected.Rmd) 
+Error in .External2(C_X11, paste("png::", filename, sep = ""), g$width,  : 
+  unable to start device PNG
+Calls: <Anonymous> ... block_exec -> chunk_device -> dev_new -> do.call -> <Anonymous>
+In addition: Warning messages:
+1: In grDevices::png(f) : unable to open connection to X11 display ''
+2: In (function (filename = "Rplot%03d.png", width = 480, height = 480,  :
+  unable to open connection to X11 display ''
+
+Execution halted
+
+
+processing file: 170406_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_all_genes_corrected_gene_assignment.Rmd
+  |                                                                         |                                                                 |   0%  |                                                                         |.                                                                |   1%
+  ordinary text without R code
+
+  |                                                                         |..                                                               |   3%
+label: unnamed-chunk-1
+  |                                                                         |...                                                              |   4%
+  ordinary text without R code
+
+  |                                                                         |....                                                             |   6%
+label: unnamed-chunk-2 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+Quitting from lines 36-81 (170406_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_all_genes_corrected_gene_assignment.Rmd) 
+Error in match(el, set, 0L) : object 'genes_for_report' not found
+Calls: <Anonymous> ... [.data.table -> eval -> eval -> is.element -> match
+
+Execution halted
+
+
+processing file: 170406_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_all_genes_corrected_gene_assignment.Rmd
+  |                                                                         |                                                                 |   0%  |                                                                         |.                                                                |   1%
+  ordinary text without R code
+
+  |                                                                         |..                                                               |   3%
+label: unnamed-chunk-1
+  |                                                                         |...                                                              |   4%
+  ordinary text without R code
+
+  |                                                                         |....                                                             |   6%
+label: unnamed-chunk-2 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+  |                                                                         |.....                                                            |   7%
+  ordinary text without R code
+
+  |                                                                         |......                                                           |   9%
+label: unnamed-chunk-3
+  |                                                                         |.......                                                          |  10%
+  ordinary text without R code
+
+  |                                                                         |........                                                         |  12%
+label: unnamed-chunk-4
+  |                                                                         |.........                                                        |  13%
+  ordinary text without R code
+
+  |                                                                         |..........                                                       |  15%
+label: unnamed-chunk-5
+  |                                                                         |...........                                                      |  16%
+  ordinary text without R code
+
+  |                                                                         |............                                                     |  18%
+label: unnamed-chunk-6
+  |                                                                         |.............                                                    |  19%
+  ordinary text without R code
+
+  |                                                                         |..............                                                   |  21%
+label: unnamed-chunk-7
+  |                                                                         |...............                                                  |  22%
+  ordinary text without R code
+
+  |                                                                         |................                                                 |  24%
+label: unnamed-chunk-8
+  |                                                                         |................                                                 |  25%
+  ordinary text without R code
+
+  |                                                                         |.................                                                |  27%
+label: unnamed-chunk-9
+  |                                                                         |..................                                               |  28%
+  ordinary text without R code
+
+  |                                                                         |...................                                              |  30%
+label: unnamed-chunk-10 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol generate_BF_for_splicing_mutations
+
+rm: cannot remove ‘1491645934annovar_input_temp.bed’: No such file or directory
+  |                                                                         |....................                                             |  31%
+  ordinary text without R code
+
+  |                                                                         |.....................                                            |  33%
+label: unnamed-chunk-11
+  |                                                                         |......................                                           |  34%
+  ordinary text without R code
+
+  |                                                                         |.......................                                          |  36%
+label: unnamed-chunk-12
+  |                                                                         |........................                                         |  37%
+  ordinary text without R code
+
+  |                                                                         |.........................                                        |  39%
+label: unnamed-chunk-13
+  |                                                                         |..........................                                       |  40%
+  ordinary text without R code
+
+  |                                                                         |...........................                                      |  42%
+label: unnamed-chunk-14
+  |                                                                         |............................                                     |  43%
+  ordinary text without R code
+
+  |                                                                         |.............................                                    |  45%
+label: unnamed-chunk-15
+  |                                                                         |..............................                                   |  46%
+  ordinary text without R code
+
+  |                                                                         |...............................                                  |  48%
+label: unnamed-chunk-16
+  |                                                                         |................................                                 |  49%
+  ordinary text without R code
+
+  |                                                                         |.................................                                |  51%
+label: unnamed-chunk-17
+  |                                                                         |..................................                               |  52%
+  ordinary text without R code
+
+  |                                                                         |...................................                              |  54%
+label: unnamed-chunk-18
+  |                                                                         |....................................                             |  55%
+  ordinary text without R code
+
+  |                                                                         |.....................................                            |  57%
+label: unnamed-chunk-19
+  |                                                                         |......................................                           |  58%
+  ordinary text without R code
+
+  |                                                                         |.......................................                          |  60%
+label: unnamed-chunk-20
+  |                                                                         |........................................                         |  61%
+  ordinary text without R code
+
+  |                                                                         |.........................................                        |  63%
+label: unnamed-chunk-21
+  |                                                                         |..........................................                       |  64%
+  ordinary text without R code
+
+  |                                                                         |...........................................                      |  66%
+label: unnamed-chunk-22
+  |                                                                         |............................................                     |  67%
+  ordinary text without R code
+
+  |                                                                         |.............................................                    |  69%
+label: unnamed-chunk-23
+  |                                                                         |..............................................                   |  70%
+  ordinary text without R code
+
+  |                                                                         |...............................................                  |  72%
+label: unnamed-chunk-24
+  |                                                                         |................................................                 |  73%
+  ordinary text without R code
+
+  |                                                                         |.................................................                |  75%
+label: unnamed-chunk-25
+  |                                                                         |.................................................                |  76%
+  ordinary text without R code
+
+  |                                                                         |..................................................               |  78%
+label: unnamed-chunk-26
+  |                                                                         |...................................................              |  79%
+  ordinary text without R code
+
+  |                                                                         |....................................................             |  81%
+label: unnamed-chunk-27
+  |                                                                         |.....................................................            |  82%
+  ordinary text without R code
+
+  |                                                                         |......................................................           |  84%
+label: unnamed-chunk-28
+  |                                                                         |.......................................................          |  85%
+  ordinary text without R code
+
+  |                                                                         |........................................................         |  87%
+label: unnamed-chunk-29
+  |                                                                         |.........................................................        |  88%
+  ordinary text without R code
+
+  |                                                                         |..........................................................       |  90%
+label: unnamed-chunk-30
+  |                                                                         |...........................................................      |  91%
+  ordinary text without R code
+
+  |                                                                         |............................................................     |  93%
+label: unnamed-chunk-31
+  |                                                                         |.............................................................    |  94%
+  ordinary text without R code
+
+  |                                                                         |..............................................................   |  96%
+label: unnamed-chunk-32
+  |                                                                         |...............................................................  |  97%
+  ordinary text without R code
+
+  |                                                                         |................................................................ |  99%
+label: unnamed-chunk-33
+  |                                                                         |.................................................................| 100%
+  ordinary text without R code
+
+
+output file: 170406_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_all_genes_corrected_gene_assignment.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS 170406_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_all_genes_corrected_gene_assignment.utf8.md --to html --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash --output 170406_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_all_genes_corrected_gene_assignment.html --smart --email-obfuscation none --self-contained --standalone --section-divs --table-of-contents --toc-depth 3 --variable toc_float=1 --variable toc_selectors=h1,h2,h3 --variable toc_collapsed=1 --variable toc_smooth_scroll=1 --variable toc_print=1 --template /home/yuwen/R/x86_64-unknown-linux-gnu-library/3.2/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --number-sections --include-before-body /tmp/RtmpbczOfQ/rmarkdown-strfb956c6dc8d.html --variable navbar=1 --variable body_padding=51 --variable header_padding=56 --variable 'theme:united' --include-in-header /tmp/RtmpbczOfQ/rmarkdown-strfb95eee6e65.html --mathjax --variable 'mathjax-url:https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' 
+
+Output created: 170406_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_all_genes_corrected_gene_assignment.html
+
+
+processing file: 170410_read_in_data_for_all_genes_from_categorization_from_each_separate_study_and_call_risk_genes.Rmd
+  |                                                                         |                                                                 |   0%  |                                                                         |...                                                              |   5%
+  ordinary text without R code
+
+  |                                                                         |.......                                                          |  11%
+label: unnamed-chunk-1
+  |                                                                         |..........                                                       |  16%
+  ordinary text without R code
+
+  |                                                                         |..............                                                   |  21%
+label: unnamed-chunk-2
+  |                                                                         |.................                                                |  26%
+  ordinary text without R code
+
+  |                                                                         |.....................                                            |  32%
+label: unnamed-chunk-3 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+  |                                                                         |........................                                         |  37%
+  ordinary text without R code
+
+  |                                                                         |...........................                                      |  42%
+label: unnamed-chunk-4 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+  |                                                                         |...............................                                  |  47%
+  ordinary text without R code
+
+  |                                                                         |..................................                               |  53%
+label: unnamed-chunk-5 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+Quitting from lines 157-203 (170410_read_in_data_for_all_genes_from_categorization_from_each_separate_study_and_call_risk_genes.Rmd) 
+Error in fread(paste(prefix, "_temp_for_mutrate.bed.mutrate.txt", sep = ""),  : 
+  File '1492039698_temp_for_mutrate.bed.mutrate.txt' does not exist. Include one or more spaces to consider the input a system command.
+Calls: <Anonymous> ... adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid -> fread
+
+Execution halted
+Error: unexpected input in ""
+Execution halted
+
+
+processing file: 170410_read_in_data_for_all_genes_from_categorization_from_each_separate_study_and_call_risk_genes.Rmd
+  |                                                                         |                                                                 |   0%  |                                                                         |...                                                              |   5%
+  ordinary text without R code
+
+  |                                                                         |.......                                                          |  11%
+label: unnamed-chunk-1
+Quitting from lines 11-15 (170410_read_in_data_for_all_genes_from_categorization_from_each_separate_study_and_call_risk_genes.Rmd) 
+Error in .External2(C_X11, paste("png::", filename, sep = ""), g$width,  : 
+  unable to start device PNG
+Calls: <Anonymous> ... block_exec -> chunk_device -> dev_new -> do.call -> <Anonymous>
+In addition: Warning messages:
+1: In grDevices::png(f) : unable to open connection to X11 display ''
+2: In (function (filename = "Rplot%03d.png", width = 480, height = 480,  :
+  unable to open connection to X11 display ''
+
+Execution halted
+
+
+processing file: 170410_read_in_data_for_all_genes_from_categorization_from_each_separate_study_and_call_risk_genes.Rmd
+  |                                                                         |                                                                 |   0%  |                                                                         |...                                                              |   5%
+  ordinary text without R code
+
+  |                                                                         |.......                                                          |  11%
+label: unnamed-chunk-1
+  |                                                                         |..........                                                       |  16%
+  ordinary text without R code
+
+  |                                                                         |..............                                                   |  21%
+label: unnamed-chunk-2
+  |                                                                         |.................                                                |  26%
+  ordinary text without R code
+
+  |                                                                         |.....................                                            |  32%
+label: unnamed-chunk-3 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |........................                                         |  37%
+  ordinary text without R code
+
+  |                                                                         |...........................                                      |  42%
+label: unnamed-chunk-4 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |...............................                                  |  47%
+  ordinary text without R code
+
+  |                                                                         |..................................                               |  53%
+label: unnamed-chunk-5 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+  |                                                                         |......................................                           |  58%
+  ordinary text without R code
+
+  |                                                                         |.........................................                        |  63%
+label: unnamed-chunk-6 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+
+
+processing file: 170410_read_in_data_for_all_genes_from_categorization_from_each_separate_study_and_call_risk_genes.Rmd
+  |                                                                         |                                                                 |   0%  |                                                                         |...                                                              |   5%
+  ordinary text without R code
+
+  |                                                                         |.......                                                          |  11%
+label: unnamed-chunk-1
+  |                                                                         |..........                                                       |  16%
+  ordinary text without R code
+
+  |                                                                         |..............                                                   |  21%
+label: unnamed-chunk-2
+  |                                                                         |.................                                                |  26%
+  ordinary text without R code
+
+  |                                                                         |.....................                                            |  32%
+label: unnamed-chunk-3 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |........................                                         |  37%
+  ordinary text without R code
+
+  |                                                                         |...........................                                      |  42%
+label: unnamed-chunk-4 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |...............................                                  |  47%
+  ordinary text without R code
+
+  |                                                                         |..................................                               |  53%
+label: unnamed-chunk-5 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |......................................                           |  58%
+  ordinary text without R code
+
+  |                                                                         |.........................................                        |  63%
+label: unnamed-chunk-6 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+  |                                                                         |............................................                     |  68%
+  ordinary text without R code
+
+  |                                                                         |................................................                 |  74%
+label: unnamed-chunk-7 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+processing chromosomes
+processing chromosomes
+processing chromosomes
+Quitting from lines 261-308 (170410_read_in_data_for_all_genes_from_categorization_from_each_separate_study_and_call_risk_genes.Rmd) 
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... FUN -> recvData -> recvData.SOCKnode -> unserialize
+
+Execution halted
+
+
+processing file: 170410_read_in_data_for_all_genes_from_categorization_from_each_separate_study_and_call_risk_genes.Rmd
+  |                                                                         |                                                                 |   0%  |                                                                         |...                                                              |   5%
+  ordinary text without R code
+
+  |                                                                         |.......                                                          |  11%
+label: unnamed-chunk-1
+  |                                                                         |..........                                                       |  16%
+  ordinary text without R code
+
+  |                                                                         |..............                                                   |  21%
+label: unnamed-chunk-2
+  |                                                                         |.................                                                |  26%
+  ordinary text without R code
+
+  |                                                                         |.....................                                            |  32%
+label: unnamed-chunk-3 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |........................                                         |  37%
+  ordinary text without R code
+
+  |                                                                         |...........................                                      |  42%
+label: unnamed-chunk-4 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |...............................                                  |  47%
+  ordinary text without R code
+
+  |                                                                         |..................................                               |  53%
+label: unnamed-chunk-5 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |......................................                           |  58%
+  ordinary text without R code
+
+  |                                                                         |.........................................                        |  63%
+label: unnamed-chunk-6 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |............................................                     |  68%
+  ordinary text without R code
+
+  |                                                                         |................................................                 |  74%
+label: unnamed-chunk-7 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+  |                                                                         |...................................................              |  79%
+  ordinary text without R code
+
+  |                                                                         |.......................................................          |  84%
+label: unnamed-chunk-8
+  |                                                                         |..........................................................       |  89%
+  ordinary text without R code
+
+  |                                                                         |..............................................................   |  95%
+label: unnamed-chunk-9
+  |                                                                         |.................................................................| 100%
+  ordinary text without R code
+
+
+output file: 170410_read_in_data_for_all_genes_from_categorization_from_each_separate_study_and_call_risk_genes.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS 170410_read_in_data_for_all_genes_from_categorization_from_each_separate_study_and_call_risk_genes.utf8.md --to html --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash --output 170410_read_in_data_for_all_genes_from_categorization_from_each_separate_study_and_call_risk_genes.html --smart --email-obfuscation none --self-contained --standalone --section-divs --table-of-contents --toc-depth 3 --variable toc_float=1 --variable toc_selectors=h1,h2,h3 --variable toc_collapsed=1 --variable toc_smooth_scroll=1 --variable toc_print=1 --template /home/yuwen/R/x86_64-unknown-linux-gnu-library/3.2/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --number-sections --include-before-body /tmp/RtmpGyh9zI/rmarkdown-strdfb194c47f7.html --variable navbar=1 --variable body_padding=51 --variable header_padding=56 --variable 'theme:united' --include-in-header /tmp/RtmpGyh9zI/rmarkdown-strdfb6e172956.html --mathjax --variable 'mathjax-url:https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' 
+
+Output created: 170410_read_in_data_for_all_genes_from_categorization_from_each_separate_study_and_call_risk_genes.html
+
+
+processing file: 170410_read_in_data_for_all_genes_from_categorization_from_each_separate_study_and_call_risk_genes.Rmd
+  |                                                                         |                                                                 |   0%  |                                                                         |...                                                              |   5%
+  ordinary text without R code
+
+  |                                                                         |......                                                           |  10%
+label: unnamed-chunk-1
+  |                                                                         |.........                                                        |  14%
+  ordinary text without R code
+
+  |                                                                         |............                                                     |  19%
+label: unnamed-chunk-2
+  |                                                                         |...............                                                  |  24%
+  ordinary text without R code
+
+  |                                                                         |...................                                              |  29%
+label: unnamed-chunk-3 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |......................                                           |  33%
+  ordinary text without R code
+
+  |                                                                         |.........................                                        |  38%
+label: unnamed-chunk-4 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |............................                                     |  43%
+  ordinary text without R code
+
+  |                                                                         |...............................                                  |  48%
+label: unnamed-chunk-5 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |..................................                               |  52%
+  ordinary text without R code
+
+  |                                                                         |.....................................                            |  57%
+label: unnamed-chunk-6 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |........................................                         |  62%
+  ordinary text without R code
+
+  |                                                                         |...........................................                      |  67%
+label: unnamed-chunk-7 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |..............................................                   |  71%
+  ordinary text without R code
+
+  |                                                                         |..................................................               |  76%
+label: unnamed-chunk-8 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+processing chromosomes
+  |                                                                         |.....................................................            |  81%
+  ordinary text without R code
+
+  |                                                                         |........................................................         |  86%
+label: unnamed-chunk-9
+  |                                                                         |...........................................................      |  90%
+  ordinary text without R code
+
+  |                                                                         |..............................................................   |  95%
+label: unnamed-chunk-10
+  |                                                                         |.................................................................| 100%
+  ordinary text without R code
+
+
+output file: 170410_read_in_data_for_all_genes_from_categorization_from_each_separate_study_and_call_risk_genes.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS 170410_read_in_data_for_all_genes_from_categorization_from_each_separate_study_and_call_risk_genes.utf8.md --to html --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash --output 170410_read_in_data_for_all_genes_from_categorization_from_each_separate_study_and_call_risk_genes.html --smart --email-obfuscation none --self-contained --standalone --section-divs --table-of-contents --toc-depth 3 --variable toc_float=1 --variable toc_selectors=h1,h2,h3 --variable toc_collapsed=1 --variable toc_smooth_scroll=1 --variable toc_print=1 --template /home/yuwen/R/x86_64-unknown-linux-gnu-library/3.2/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --number-sections --include-before-body /tmp/RtmpXqm5UN/rmarkdown-str4a5b7589b5db.html --variable navbar=1 --variable body_padding=51 --variable header_padding=56 --variable 'theme:united' --include-in-header /tmp/RtmpXqm5UN/rmarkdown-str4a5b379b03f9.html --mathjax --variable 'mathjax-url:https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' 
+
+Output created: 170410_read_in_data_for_all_genes_from_categorization_from_each_separate_study_and_call_risk_genes.html
