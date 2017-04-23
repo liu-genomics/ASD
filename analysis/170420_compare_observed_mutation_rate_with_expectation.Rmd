@@ -1,0 +1,538 @@
+---
+output:
+  html_document:
+    toc: true
+    number_sections: true
+    theme: united
+    highlight: textmate
+---
+
+```{r}
+library(data.table)
+library(parallel)
+source("../lib/170122_base_level_simulation_functions.R")
+
+```
+
+***
+**NOTE**
+To address the concern that each study would have different effects from a same genomic feature (e.g., sequencing depth/GC content would have a stronger effect for a study that has shallower sequencing depth.), I will adjust mutation rate in different studies. 
+
+***
+
+
+```{r}
+getwd()
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+source("../lib/170117_gene_list_definition.R")
+source("../lib/161117_glm_for_mutation_count.R")
+```
+
+
+# Read in data from 5 studies
+```{r}
+new_control = new.env()
+load("../data/debug_region_list_073116_data_matrixtransformed_for_old_code.Rdata", new_control) # this Rdata has spedix info
+# add in the 0-based start position
+
+new_control$mutation$start_0 <- as.numeric(as.character(new_control$mutation$start)) - 1
+
+# mutation data in the old format, I loaded this just in order to retrive information about which study each mutation comes from
+old <- new.env()
+load("../data/debug_region_list_073116_data_matrix.Rdata", old)
+
+# Use a merge function to associate mutations with study information
+# I merged by matching the chromosome locations, including chr, start and end. For the case SNV data, I removed all redundant mutations, so merging in this way would ensure a 1-to-1 matching between mutation info and study info
+# There is redundant SNVs and other mutations in old$mutation$mutation, and there are redundant non-SNV mutations in new_control$mutation, but I didn't use non-SNV mutations in this study. So having such type of redundant mutations should be fine.
+
+mut_with_study_label <- merge(new_control$mutation[new_control$mutation$phenotype =="ASD" & new_control$mutation$mut_type == "SNV",], old$mutation$mutation[old$mutation$mutation$phenotype == "ASD" & old$mutation$mutation$mut_type == "SNV",], by.x = c("chr","start_0","end"), by.y = c("chr","start","end"))
+# The index is consistent with new_control$mutation, but not with old$mutation$mutation
+mut_with_study_label <- data.frame(index = mut_with_study_label$index.x, study = mut_with_study_label$study.y)
+
+ASD_study_name <- as.vector(unique(mut_with_study_label$study)[1:5])
+
+```
+
+
+## Ryan K C Yuen et al. Nature Medicine 2015
+
+```{r,cache=TRUE, cache.extra = predict_sum_mutation_rate_per_gene_v3}
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+study_ID <- mut_with_study_label[mut_with_study_label$study == "Ryan K C Yuen et al. Nature Medicine 2015",]$index
+
+# add study_ID , phenotyp_ID and mut_type ID as constraint
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & is.element(new_control$data_matrix$ID, study_ID),c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# SNV_ID for cases or controls. 
+SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)]$ID
+proband_SNV_mut_spidex <- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID) & is.element(new_control$mut_spedix$index, study_ID),] # this will be paseed as an argument to the function below
+
+# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
+
+ASD_model_manuscript_mutrate_1 <- predict_sum_mutation_rate_per_gene_v3(paste(prefix,"temp.bed",sep = ""), 
+                                                                        window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed",
+cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
+mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
+                                         162,
+                                         "../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed",
+                                         1e-9,
+                                         gene_assign_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename_corrected.bed")
+
+#rm(new_control)
+
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+
+```
+
+## Augustine Kong et al. Nature 2012
+
+```{r,cache=TRUE, cache.extra = predict_sum_mutation_rate_per_gene_v3}
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+study_ID <- mut_with_study_label[mut_with_study_label$study == "Augustine Kong et al. Nature 2012",]$index
+
+# add study_ID , phenotyp_ID and mut_type ID as constraint
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & is.element(new_control$data_matrix$ID, study_ID),c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# SNV_ID for cases or controls. 
+SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)]$ID
+proband_SNV_mut_spidex <- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID) & is.element(new_control$mut_spedix$index, study_ID),] # this will be paseed as an argument to the function below
+
+# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
+
+ASD_model_manuscript_mutrate_2 <- predict_sum_mutation_rate_per_gene_v3(paste(prefix,"temp.bed",sep = ""), 
+                                                                        window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed",
+cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
+mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
+                                         78,
+                                         "../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed",
+                                         1e-9,
+                                         gene_assign_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename_corrected.bed")
+
+
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+
+```
+
+
+## Jinyu Wu et al.
+
+```{r,cache=TRUE, cache.extra = predict_sum_mutation_rate_per_gene_v3}
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+study_ID <- mut_with_study_label[mut_with_study_label$study == "Jinyu Wu et al.",]$index
+
+# add study_ID , phenotyp_ID and mut_type ID as constraint
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & is.element(new_control$data_matrix$ID, study_ID),c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# SNV_ID for cases or controls. 
+SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)]$ID
+proband_SNV_mut_spidex <- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID) & is.element(new_control$mut_spedix$index, study_ID),] # this will be paseed as an argument to the function below
+
+# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
+
+ASD_model_manuscript_mutrate_3 <- predict_sum_mutation_rate_per_gene_v3(paste(prefix,"temp.bed",sep = ""), 
+                                                                        window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed",
+cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
+mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
+                                         32,
+                                         "../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed",
+                                         1e-9,
+                                         gene_assign_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename_corrected.bed")
+
+
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+
+```
+
+
+## Jiang YH et al. Am J Hum Genet. 2013
+
+```{r,cache=TRUE, cache.extra = predict_sum_mutation_rate_per_gene_v3}
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+study_ID <- mut_with_study_label[mut_with_study_label$study == "Jiang YH et al. Am J Hum Genet. 2013",]$index
+
+# add study_ID , phenotyp_ID and mut_type ID as constraint
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & is.element(new_control$data_matrix$ID, study_ID),c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# SNV_ID for cases or controls. 
+SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)]$ID
+proband_SNV_mut_spidex <- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID) & is.element(new_control$mut_spedix$index, study_ID),] # this will be paseed as an argument to the function below
+
+# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
+
+ASD_model_manuscript_mutrate_4 <- predict_sum_mutation_rate_per_gene_v3(paste(prefix,"temp.bed",sep = ""), 
+                                                                        window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed",
+cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
+mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
+                                         32,
+                                         "../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed",
+                                         1e-9,
+                                         gene_assign_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename_corrected.bed")
+
+
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+
+```
+
+
+## Michaelson JJ et al. Cell 2012
+
+```{r,cache=TRUE, cache.extra = predict_sum_mutation_rate_per_gene_v3}
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+study_ID <- mut_with_study_label[mut_with_study_label$study == "Michaelson JJ et al. Cell 2012",]$index
+
+# add study_ID , phenotyp_ID and mut_type ID as constraint
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & is.element(new_control$data_matrix$ID, study_ID),c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# SNV_ID for cases or controls. 
+SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)]$ID
+proband_SNV_mut_spidex <- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID) & is.element(new_control$mut_spedix$index, study_ID),] # this will be paseed as an argument to the function below
+
+# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
+
+ASD_model_manuscript_mutrate_5 <- predict_sum_mutation_rate_per_gene_v3(paste(prefix,"temp.bed",sep = ""), 
+                                                                        window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed",
+cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
+mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
+                                         10,
+                                         "../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed",
+                                         1e-9,
+                                         gene_assign_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename_corrected.bed")
+
+rm(new_control)
+rm(old)
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+
+```
+
+
+## obaserved mutation number vs expected mutation number in different genomic categories
+
+### ASD manuscript data 1, active enhancers
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate_1$enhancer$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate_1$enhancer$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### ASD manuscript data 1, active promoters
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate_1$promoter$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate_1$promoter$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### ASD manuscript data 1, coding
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate_1$coding$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate_1$coding$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+
+### ASD manuscript data 2, active enhancers
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate_2$enhancer$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate_2$enhancer$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### ASD manuscript data 2, active promoters
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate_2$promoter$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate_2$promoter$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### ASD manuscript data 2, coding
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate_2$coding$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate_2$coding$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+
+### ASD manuscript data 3, active enhancers
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate_3$enhancer$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate_3$enhancer$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### ASD manuscript data 3, active promoters
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate_3$promoter$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate_3$promoter$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### ASD manuscript data 3, coding
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate_3$coding$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate_3$coding$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+
+### ASD manuscript data 4, active enhancers
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate_4$enhancer$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate_4$enhancer$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### ASD manuscript data 4, active promoters
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate_4$promoter$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate_4$promoter$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### ASD manuscript data 4, coding
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate_4$coding$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate_4$coding$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+
+### ASD manuscript data 5, active enhancers
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate_5$enhancer$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate_5$enhancer$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### ASD manuscript data 5, active promoters
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate_5$promoter$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate_5$promoter$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### ASD manuscript data 5, coding
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate_5$coding$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate_5$coding$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+
+## Obaserved mutation number vs expected mutation number in different coding categories
+
+***
+**NOTE**
+
+  * Notice that in model training, promoter regions have a higher priority than coding regions. 
+
+  * LoF here is stop gain, frameshift insertion and frameshift deletion.
+
+  * Use 1/(1+2.66+0.13) as a scaling factor on top of all coding mutation rates for synonymous mutation rates. Based on 693 control data.
+
+  * Use 2.66/(1+2.66+0.13) as a scaling factor on top of all coding mutation rates for nonsynonymous mutation rates. Based on 693 control data.
+
+  * Use 0.13/(1+2.66+0.13) as a scaling factor on top of all coding mutation rates for LoF mutation mutation rates. Based on 693 control data.
+
+
+***
+
+
+# Read in data from 5 studies
+```{r}
+new_control = new.env()
+load("../data/debug_region_list_073116_data_matrixtransformed_for_old_code.Rdata", new_control) # this Rdata has spedix info
+# add in the 0-based start position
+
+new_control$mutation$start_0 <- as.numeric(as.character(new_control$mutation$start)) - 1
+
+# mutation data in the old format, I loaded this just in order to retrive information about which study each mutation comes from
+old <- new.env()
+load("../data/debug_region_list_073116_data_matrix.Rdata", old)
+
+# Use a merge function to associate mutations with study information
+# I merged by matching the chromosome locations, including chr, start and end. For the case SNV data, I removed all redundant mutations, so merging in this way would ensure a 1-to-1 matching between mutation info and study info
+# There is redundant SNVs and other mutations in old$mutation$mutation, and there are redundant non-SNV mutations in new_control$mutation, but I didn't use non-SNV mutations in this study. So having such type of redundant mutations should be fine.
+new_control$mutation <- data.frame(new_control$mutation, ref = new_control$ref_alt_allele[,1], alt = new_control$ref_alt_allele[,2])
+mut_with_study_label <- merge(new_control$mutation[new_control$mutation$phenotype =="ASD" & new_control$mutation$mut_type == "SNV",], old$mutation$mutation[old$mutation$mutation$phenotype == "ASD" & old$mutation$mutation$mut_type == "SNV",], by.x = c("chr","start_0","end"), by.y = c("chr","start","end"))
+# The index is consistent with new_control$mutation, but not with old$mutation$mutation
+mut_with_study_label <- data.frame(chr = mut_with_study_label$chr, start = mut_with_study_label$start, end = mut_with_study_label$end, index = mut_with_study_label$index.x, mut_type = mut_with_study_label$mut_type.x, study = mut_with_study_label$study.x, phenotype = mut_with_study_label$phenotype.x, study_2 = mut_with_study_label$study.y, ref = mut_with_study_label$ref, alt = mut_with_study_label$alt)
+
+ASD_study_name <- as.vector(unique(mut_with_study_label$study)[1:5])
+
+```
+
+
+## Ryan K C Yuen et al. Nature Medicine 2015
+
+```{r,cache=TRUE, cache.extra = get_coding_mut_number, dependson=ASD_model_manuscript_mutrate_1}
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+mut_with_study_label_temp <- mut_with_study_label[mut_with_study_label$study_2 == "Ryan K C Yuen et al. Nature Medicine 2015",]
+
+
+coding_data_count <- get_coding_mut_number(mut_with_study_label_temp[,1:7], mut_with_study_label_temp[,9:10], "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed", "/media/yuwen/Elements/ANNOVAR/annovar/", "ASD","no")
+
+output_table <- compare_pre_with_obs(ASD_model_manuscript_mutrate_1$coding, coding_data_count$coding_mut_for_gene, geneset = c("stringent_ASD", "relaxed_ASD", "nonASD_genes","constraint_union","all_refseq_genes"), mutation_type = c("synonymous", "nonsynonymous", "LoF"), 
+                                 mutation_scailing = list(synonymous = 1/(1+2.66+0.13), nonsynonymous = 2.66/(1+2.66+0.13), LoF = 0.13/(1+2.66+0.13)))
+
+# transform the geneset names to be consistent with what have been used in the manuscript
+output_table[,1] <- rep(c("Known ASD genes", "Neuropsychiatric genes", "nonASD genes", "Constrained genes", "All genes"), each = 3)
+
+is.numeric(output_table[,5])
+output_table[,3] <- format(as.numeric(output_table[,3]), scientific = FALSE, digits = 1)
+output_table[,5] <- format(as.numeric(output_table[,5]), scientific = TRUE, digits = 3, nsmall = 2)
+output_table[,5]
+knitr::kable(output_table)
+
+```
+
+## Augustine Kong et al. Nature 2012
+
+```{r,cache=TRUE, cache.extra = get_coding_mut_number, dependson=ASD_model_manuscript_mutrate_2}
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+mut_with_study_label_temp <- mut_with_study_label[mut_with_study_label$study_2 == "Augustine Kong et al. Nature 2012",]
+
+
+coding_data_count <- get_coding_mut_number(mut_with_study_label_temp[,1:7], mut_with_study_label_temp[,9:10], "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed", "/media/yuwen/Elements/ANNOVAR/annovar/", "ASD","no")
+
+output_table <- compare_pre_with_obs(ASD_model_manuscript_mutrate_1$coding, coding_data_count$coding_mut_for_gene, geneset = c("stringent_ASD", "relaxed_ASD", "nonASD_genes","constraint_union","all_refseq_genes"), mutation_type = c("synonymous", "nonsynonymous", "LoF"), 
+                                 mutation_scailing = list(synonymous = 1/(1+2.66+0.13), nonsynonymous = 2.66/(1+2.66+0.13), LoF = 0.13/(1+2.66+0.13)))
+
+# transform the geneset names to be consistent with what have been used in the manuscript
+output_table[,1] <- rep(c("Known ASD genes", "Neuropsychiatric genes", "nonASD genes", "Constrained genes", "All genes"), each = 3)
+
+is.numeric(output_table[,5])
+output_table[,3] <- format(as.numeric(output_table[,3]), scientific = FALSE, digits = 1)
+output_table[,5] <- format(as.numeric(output_table[,5]), scientific = TRUE, digits = 3, nsmall = 2)
+output_table[,5]
+knitr::kable(output_table)
+
+```
+
+## Jinyu Wu et al.
+
+```{r,cache=TRUE, cache.extra = get_coding_mut_number, dependson=ASD_model_manuscript_mutrate_3}
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+mut_with_study_label_temp <- mut_with_study_label[mut_with_study_label$study_2 == "Jinyu Wu et al.",]
+
+
+coding_data_count <- get_coding_mut_number(mut_with_study_label_temp[,1:7], mut_with_study_label_temp[,9:10], "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed", "/media/yuwen/Elements/ANNOVAR/annovar/", "ASD","no")
+
+output_table <- compare_pre_with_obs(ASD_model_manuscript_mutrate_1$coding, coding_data_count$coding_mut_for_gene, geneset = c("stringent_ASD", "relaxed_ASD", "nonASD_genes","constraint_union","all_refseq_genes"), mutation_type = c("synonymous", "nonsynonymous", "LoF"), 
+                                 mutation_scailing = list(synonymous = 1/(1+2.66+0.13), nonsynonymous = 2.66/(1+2.66+0.13), LoF = 0.13/(1+2.66+0.13)))
+
+# transform the geneset names to be consistent with what have been used in the manuscript
+output_table[,1] <- rep(c("Known ASD genes", "Neuropsychiatric genes", "nonASD genes", "Constrained genes", "All genes"), each = 3)
+
+is.numeric(output_table[,5])
+output_table[,3] <- format(as.numeric(output_table[,3]), scientific = FALSE, digits = 1)
+output_table[,5] <- format(as.numeric(output_table[,5]), scientific = TRUE, digits = 3, nsmall = 2)
+output_table[,5]
+knitr::kable(output_table)
+
+```
+

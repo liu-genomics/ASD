@@ -1,0 +1,676 @@
+---
+output:
+  html_document:
+    toc: true
+    number_sections: true
+    theme: united
+    highlight: textmate
+---
+
+```{r}
+library(data.table)
+library(parallel)
+source("../lib/170122_base_level_simulation_functions.R")
+
+```
+
+***
+**NOTE**
+To address the concern that each study would have different effects from a same genomic feature (e.g., sequencing depth/GC content would have a stronger effect for a study that has shallower sequencing depth.), I will adjust mutation rate in different studies. 
+
+I will then estimate relative risk of each feature using categorized data from each study.
+
+***
+
+
+# Read in data from 5 studies
+```{r}
+new_control = new.env()
+load("../data/debug_region_list_073116_data_matrixtransformed_for_old_code.Rdata", new_control) # this Rdata has spedix info
+# add in the 0-based start position
+
+new_control$mutation$start_0 <- as.numeric(as.character(new_control$mutation$start)) - 1
+
+# mutation data in the old format, I loaded this just in order to retrive information about which study each mutation comes from
+old <- new.env()
+load("../data/debug_region_list_073116_data_matrix.Rdata", old)
+
+# Use a merge function to associate mutations with study information
+# I merged by matching the chromosome locations, including chr, start and end. For the case SNV data, I removed all redundant mutations, so merging in this way would ensure a 1-to-1 matching between mutation info and study info
+# There is redundant SNVs and other mutations in old$mutation$mutation, and there are redundant non-SNV mutations in new_control$mutation, but I didn't use non-SNV mutations in this study. So having such type of redundant mutations should be fine.
+
+mut_with_study_label <- merge(new_control$mutation[new_control$mutation$phenotype =="ASD" & new_control$mutation$mut_type == "SNV",], old$mutation$mutation[old$mutation$mutation$phenotype == "ASD" & old$mutation$mutation$mut_type == "SNV",], by.x = c("chr","start_0","end"), by.y = c("chr","start","end"))
+# The index is consistent with new_control$mutation, but not with old$mutation$mutation
+mut_with_study_label <- data.frame(index = mut_with_study_label$index.x, study = mut_with_study_label$study.y)
+
+ASD_study_name <- as.vector(unique(mut_with_study_label$study)[1:5])
+
+```
+
+
+## Ryan K C Yuen et al. Nature Medicine 2015
+
+```{r,cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window}
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+study_ID <- mut_with_study_label[mut_with_study_label$study == "Ryan K C Yuen et al. Nature Medicine 2015",]$index
+
+# add study_ID , phenotyp_ID and mut_type ID as constraint
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & is.element(new_control$data_matrix$ID, study_ID),c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# SNV_ID for cases or controls. 
+SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)]$ID
+proband_SNV_mut_spidex <- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID) & is.element(new_control$mut_spedix$index, study_ID),] # this will be paseed as an argument to the function below
+
+# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
+
+adjusted_base_level_rr_1 <- adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid(mut_file = paste(prefix,"temp.bed",sep = ""),
+window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed",
+cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
+mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
+sample_size = 162,
+epigenomic_marks = c("../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed","../other_annotation/epigenomic_annotation/Epigenome_E081_E082_intersection.bed","../other_annotation/epigenomic_annotation/encode_DHS_union.bed"),
+sequence_annotation = c("phylop_100way", "gerp"), 
+sequence_annotation_cutoff = list(phylop_100way=2, gerp =2 ), 
+sequence_annotation_ref = list(phylop_100way = "../other_annotation/conservation_annotation/hg19.100way.phyloP100way.bw", gerp = "../other_annotation/conservation_annotation/hg19_gerp_score.bw"),
+overlap = 0.5,
+rm_nonsyn = FALSE,
+annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
+annovar_input = "no.txt",
+gene_assign_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename_corrected.bed",
+gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
+report_proportion = 1000/18665,
+mutrate_ref_file = "/media/yuwen/Elements/mutation_rate_raw/MarkDaly/Daly_mutrate.bw",
+node_n = 6,
+feature_start = 5,
+feature_end = 9,
+feature_number = 5, 
+chunk_partition_num =1,
+spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
+splicing_cutoff = -1.416,
+proband_SNV_mut_spidex = proband_SNV_mut_spidex)
+
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+
+```
+
+## Augustine Kong et al. Nature 2012
+
+```{r,cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window}
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+study_ID <- mut_with_study_label[mut_with_study_label$study == "Augustine Kong et al. Nature 2012",]$index
+
+# add study_ID , phenotyp_ID and mut_type ID as constraint
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & is.element(new_control$data_matrix$ID, study_ID),c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# SNV_ID for cases or controls. 
+SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)]$ID
+proband_SNV_mut_spidex <- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID) & is.element(new_control$mut_spedix$index, study_ID),] # this will be paseed as an argument to the function below
+
+# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
+
+adjusted_base_level_rr_2 <- adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid(mut_file = paste(prefix,"temp.bed",sep = ""),
+window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed",
+cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
+mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
+sample_size = 78,
+epigenomic_marks = c("../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed","../other_annotation/epigenomic_annotation/Epigenome_E081_E082_intersection.bed","../other_annotation/epigenomic_annotation/encode_DHS_union.bed"),
+sequence_annotation = c("phylop_100way", "gerp"), 
+sequence_annotation_cutoff = list(phylop_100way=2, gerp =2 ), 
+sequence_annotation_ref = list(phylop_100way = "../other_annotation/conservation_annotation/hg19.100way.phyloP100way.bw", gerp = "../other_annotation/conservation_annotation/hg19_gerp_score.bw"),
+overlap = 0.5,
+rm_nonsyn = FALSE,
+annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
+annovar_input = "no.txt",
+gene_assign_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename_corrected.bed",
+gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
+report_proportion = 1000/18665,
+mutrate_ref_file = "/media/yuwen/Elements/mutation_rate_raw/MarkDaly/Daly_mutrate.bw",
+node_n = 6,
+feature_start = 5,
+feature_end = 9,
+feature_number = 5, 
+chunk_partition_num =1,
+spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
+splicing_cutoff = -1.416,
+proband_SNV_mut_spidex = proband_SNV_mut_spidex)
+
+
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+
+```
+
+
+## Jinyu Wu et al.
+
+```{r,cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window}
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+study_ID <- mut_with_study_label[mut_with_study_label$study == "Jinyu Wu et al.",]$index
+
+# add study_ID , phenotyp_ID and mut_type ID as constraint
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & is.element(new_control$data_matrix$ID, study_ID),c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# SNV_ID for cases or controls. 
+SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)]$ID
+proband_SNV_mut_spidex <- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID) & is.element(new_control$mut_spedix$index, study_ID),] # this will be paseed as an argument to the function below
+
+# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
+
+adjusted_base_level_rr_3 <- adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid(mut_file = paste(prefix,"temp.bed",sep = ""),
+window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed",
+cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
+mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
+sample_size = 32,
+epigenomic_marks = c("../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed","../other_annotation/epigenomic_annotation/Epigenome_E081_E082_intersection.bed","../other_annotation/epigenomic_annotation/encode_DHS_union.bed"),
+sequence_annotation = c("phylop_100way", "gerp"), 
+sequence_annotation_cutoff = list(phylop_100way=2, gerp =2 ), 
+sequence_annotation_ref = list(phylop_100way = "../other_annotation/conservation_annotation/hg19.100way.phyloP100way.bw", gerp = "../other_annotation/conservation_annotation/hg19_gerp_score.bw"),
+overlap = 0.5,
+rm_nonsyn = FALSE,
+annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
+annovar_input = "no.txt",
+gene_assign_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename_corrected.bed",
+gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
+report_proportion = 1000/18665,
+mutrate_ref_file = "/media/yuwen/Elements/mutation_rate_raw/MarkDaly/Daly_mutrate.bw",
+node_n = 6,
+feature_start = 5,
+feature_end = 9,
+feature_number = 5, 
+chunk_partition_num =1,
+spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
+splicing_cutoff = -1.416,
+proband_SNV_mut_spidex = proband_SNV_mut_spidex)
+
+
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+
+```
+
+
+## Jiang YH et al. Am J Hum Genet. 2013
+
+```{r,cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window}
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+study_ID <- mut_with_study_label[mut_with_study_label$study == "Jiang YH et al. Am J Hum Genet. 2013",]$index
+
+# add study_ID , phenotyp_ID and mut_type ID as constraint
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & is.element(new_control$data_matrix$ID, study_ID),c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# SNV_ID for cases or controls. 
+SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)]$ID
+proband_SNV_mut_spidex <- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID) & is.element(new_control$mut_spedix$index, study_ID),] # this will be paseed as an argument to the function below
+
+# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
+
+adjusted_base_level_rr_4 <- adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid(mut_file = paste(prefix,"temp.bed",sep = ""),
+window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed",
+cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
+mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
+sample_size = 32,
+epigenomic_marks = c("../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed","../other_annotation/epigenomic_annotation/Epigenome_E081_E082_intersection.bed","../other_annotation/epigenomic_annotation/encode_DHS_union.bed"),
+sequence_annotation = c("phylop_100way", "gerp"), 
+sequence_annotation_cutoff = list(phylop_100way=2, gerp =2 ), 
+sequence_annotation_ref = list(phylop_100way = "../other_annotation/conservation_annotation/hg19.100way.phyloP100way.bw", gerp = "../other_annotation/conservation_annotation/hg19_gerp_score.bw"),
+overlap = 0.5,
+rm_nonsyn = FALSE,
+annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
+annovar_input = "no.txt",
+gene_assign_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename_corrected.bed",
+gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
+report_proportion = 1000/18665,
+mutrate_ref_file = "/media/yuwen/Elements/mutation_rate_raw/MarkDaly/Daly_mutrate.bw",
+node_n = 6,
+feature_start = 5,
+feature_end = 9,
+feature_number = 5, 
+chunk_partition_num =1,
+spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
+splicing_cutoff = -1.416,
+proband_SNV_mut_spidex = proband_SNV_mut_spidex)
+
+
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+
+```
+
+
+## Michaelson JJ et al. Cell 2012
+
+```{r,cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window}
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+study_ID <- mut_with_study_label[mut_with_study_label$study == "Michaelson JJ et al. Cell 2012",]$index
+
+# add study_ID , phenotyp_ID and mut_type ID as constraint
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & is.element(new_control$data_matrix$ID, study_ID),c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# SNV_ID for cases or controls. 
+SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)]$ID
+proband_SNV_mut_spidex <- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID) & is.element(new_control$mut_spedix$index, study_ID),] # this will be paseed as an argument to the function below
+
+# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
+
+adjusted_base_level_rr_5 <- adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid(mut_file = paste(prefix,"temp.bed",sep = ""),
+window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed",
+cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
+mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
+sample_size = 10,
+epigenomic_marks = c("../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed","../other_annotation/epigenomic_annotation/Epigenome_E081_E082_intersection.bed","../other_annotation/epigenomic_annotation/encode_DHS_union.bed"),
+sequence_annotation = c("phylop_100way", "gerp"), 
+sequence_annotation_cutoff = list(phylop_100way=2, gerp =2 ), 
+sequence_annotation_ref = list(phylop_100way = "../other_annotation/conservation_annotation/hg19.100way.phyloP100way.bw", gerp = "../other_annotation/conservation_annotation/hg19_gerp_score.bw"),
+overlap = 0.5,
+rm_nonsyn = FALSE,
+annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
+annovar_input = "no.txt",
+gene_assign_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename_corrected.bed",
+gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
+report_proportion = 1000/18665,
+mutrate_ref_file = "/media/yuwen/Elements/mutation_rate_raw/MarkDaly/Daly_mutrate.bw",
+node_n = 6,
+feature_start = 5,
+feature_end = 9,
+feature_number = 5, 
+chunk_partition_num =1,
+spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
+splicing_cutoff = -1.416,
+proband_SNV_mut_spidex = proband_SNV_mut_spidex)
+
+rm(new_control)
+rm(old)
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+
+```
+
+
+# Estimate relative risk
+
+```{r}
+data_list = list(adjusted_base_level_rr_1$base_info, adjusted_base_level_rr_2$base_info, adjusted_base_level_rr_3$base_info, adjusted_base_level_rr_4$base_info, adjusted_base_level_rr_5$base_info)
+splicing_data_list = list(adjusted_base_level_rr_1$splicing_info, adjusted_base_level_rr_2$splicing_info, adjusted_base_level_rr_3$splicing_info, adjusted_base_level_rr_4$splicing_info, adjusted_base_level_rr_5$splicing_info)
+
+```
+
+## 5 non-coding features and 1 splicing feature
+```{r, cache=TRUE, dependson=data_list, dependson=splicing_data_list, cache.extra=estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_multiple_studies}
+simulation_estimate <- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_multiple_studies(data_list = data_list,
+                                                                                                                      splicing_data_list = splicing_data_list,
+                                                                                                                      non_splicing_features = c(1,2,3,4,5),
+                                                                                                                      gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt")
+
+fisher_info_1<-solve(-simulation_estimate$mle_1$hessian)
+fisher_info_2<-solve(-simulation_estimate$mle_2$hessian)
+
+prop_sigma<-sqrt(c(diag(fisher_info_1),diag(fisher_info_2)))
+rr_estimate <- c(simulation_estimate$mle_1$par, simulation_estimate$mle_2$par)
+
+upper<-rr_estimate+1.96*prop_sigma
+lower<-rr_estimate-1.96*prop_sigma
+
+
+a = data.frame(relative_risk = rr_estimate, lower_bound = lower, upper_bournd = upper)
+rownames(a) = c("Noonan+Roadmap Brain H3K27ac enhancer + promoter","Epigenome_DHS", "ENCODE_DHS", "Phylop>2", "Gerp>2","Splicing")
+knitr::kable(a)
+
+```
+
+## Brain H3K27ac feature and splicing feature
+```{r, cache=TRUE, dependson=data_list, dependson=splicing_data_list, cache.extra=estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_multiple_studies}
+simulation_estimate_2 <- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_multiple_studies(data_list = data_list,
+                                                                                                                      splicing_data_list = splicing_data_list,
+                                                                                                                      non_splicing_features = c(1),
+                                                                                                                      gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt")
+
+fisher_info_1<-solve(-simulation_estimate_2$mle_1$hessian)
+fisher_info_2<-solve(-simulation_estimate_2$mle_2$hessian)
+
+prop_sigma<-sqrt(c(diag(fisher_info_1),diag(fisher_info_2)))
+rr_estimate <- c(simulation_estimate_2$mle_1$par, simulation_estimate_2$mle_2$par)
+
+upper<-rr_estimate+1.96*prop_sigma
+lower<-rr_estimate-1.96*prop_sigma
+
+
+a = data.frame(relative_risk = rr_estimate, lower_bound = lower, upper_bournd = upper)
+rownames(a) = c("Noonan+Roadmap Brain H3K27ac enhancer + promoter","Splicing")
+knitr::kable(a)
+```
+
+
+### test
+```{r}
+length(adjusted_base_level_rr_1$splicing_info)
+length(adjusted_base_level_rr_2$splicing_info)
+length(adjusted_base_level_rr_3$splicing_info)
+length(adjusted_base_level_rr_4$splicing_info)
+length(adjusted_base_level_rr_5$splicing_info)
+
+length(adjusted_base_level_rr_1$base_info)
+length(adjusted_base_level_rr_2$base_info)
+length(adjusted_base_level_rr_3$base_info)
+length(adjusted_base_level_rr_4$base_info)
+length(adjusted_base_level_rr_5$base_info)
+
+```
+
+
+** Use [adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch] to correct for the splicing info incorrectly returned from [adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid]**  
+
+
+
+# Read in data from 5 studies
+```{r}
+new_control = new.env()
+load("../data/debug_region_list_073116_data_matrixtransformed_for_old_code.Rdata", new_control) # this Rdata has spedix info
+# add in the 0-based start position
+
+new_control$mutation$start_0 <- as.numeric(as.character(new_control$mutation$start)) - 1
+
+# mutation data in the old format, I loaded this just in order to retrive information about which study each mutation comes from
+old <- new.env()
+load("../data/debug_region_list_073116_data_matrix.Rdata", old)
+
+# Use a merge function to associate mutations with study information
+# I merged by matching the chromosome locations, including chr, start and end. For the case SNV data, I removed all redundant mutations, so merging in this way would ensure a 1-to-1 matching between mutation info and study info
+# There is redundant SNVs and other mutations in old$mutation$mutation, and there are redundant non-SNV mutations in new_control$mutation, but I didn't use non-SNV mutations in this study. So having such type of redundant mutations should be fine.
+
+mut_with_study_label <- merge(new_control$mutation[new_control$mutation$phenotype =="ASD" & new_control$mutation$mut_type == "SNV",], old$mutation$mutation[old$mutation$mutation$phenotype == "ASD" & old$mutation$mutation$mut_type == "SNV",], by.x = c("chr","start_0","end"), by.y = c("chr","start","end"))
+# The index is consistent with new_control$mutation, but not with old$mutation$mutation
+mut_with_study_label <- data.frame(index = mut_with_study_label$index.x, study = mut_with_study_label$study.y)
+
+ASD_study_name <- as.vector(unique(mut_with_study_label$study)[1:5])
+
+```
+
+
+## Ryan K C Yuen et al. Nature Medicine 2015
+
+```{r,cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch}
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+study_ID <- mut_with_study_label[mut_with_study_label$study == "Ryan K C Yuen et al. Nature Medicine 2015",]$index
+
+# add study_ID , phenotyp_ID and mut_type ID as constraint
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & is.element(new_control$data_matrix$ID, study_ID),c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# SNV_ID for cases or controls. 
+SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)]$ID
+proband_SNV_mut_spidex <- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID) & is.element(new_control$mut_spedix$index, study_ID),] # this will be paseed as an argument to the function below
+
+# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
+
+adjusted_base_level_rr_1 <- adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch(mut_file = paste(prefix,"temp.bed",sep = ""),
+window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed",
+cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
+mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
+sample_size = 162,
+overlap = 0.5,
+rm_nonsyn = FALSE,
+annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
+annovar_input = "no.txt",
+gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
+report_proportion = 1000/18665,
+spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
+splicing_cutoff = -1.416,
+proband_SNV_mut_spidex = proband_SNV_mut_spidex)
+
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+
+```
+
+## Augustine Kong et al. Nature 2012
+
+```{r,cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch}
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+study_ID <- mut_with_study_label[mut_with_study_label$study == "Augustine Kong et al. Nature 2012",]$index
+
+# add study_ID , phenotyp_ID and mut_type ID as constraint
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & is.element(new_control$data_matrix$ID, study_ID),c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# SNV_ID for cases or controls. 
+SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)]$ID
+proband_SNV_mut_spidex <- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID) & is.element(new_control$mut_spedix$index, study_ID),] # this will be paseed as an argument to the function below
+
+# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
+
+adjusted_base_level_rr_2 <- adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch(mut_file = paste(prefix,"temp.bed",sep = ""),
+window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed",
+cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
+mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
+sample_size = 78,
+overlap = 0.5,
+rm_nonsyn = FALSE,
+annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
+annovar_input = "no.txt",
+gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
+report_proportion = 1000/18665,
+spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
+splicing_cutoff = -1.416,
+proband_SNV_mut_spidex = proband_SNV_mut_spidex)
+
+
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+
+```
+
+
+## Jinyu Wu et al.
+
+```{r,cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch}
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+study_ID <- mut_with_study_label[mut_with_study_label$study == "Jinyu Wu et al.",]$index
+
+# add study_ID , phenotyp_ID and mut_type ID as constraint
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & is.element(new_control$data_matrix$ID, study_ID),c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# SNV_ID for cases or controls. 
+SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)]$ID
+proband_SNV_mut_spidex <- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID) & is.element(new_control$mut_spedix$index, study_ID),] # this will be paseed as an argument to the function below
+
+# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
+
+adjusted_base_level_rr_3 <- adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch(mut_file = paste(prefix,"temp.bed",sep = ""),
+window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed",
+cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
+mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
+sample_size = 32,
+overlap = 0.5,
+rm_nonsyn = FALSE,
+annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
+annovar_input = "no.txt",
+gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
+report_proportion = 1000/18665,
+spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
+splicing_cutoff = -1.416,
+proband_SNV_mut_spidex = proband_SNV_mut_spidex)
+
+
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+
+```
+
+
+## Jiang YH et al. Am J Hum Genet. 2013
+
+```{r,cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch}
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+study_ID <- mut_with_study_label[mut_with_study_label$study == "Jiang YH et al. Am J Hum Genet. 2013",]$index
+
+# add study_ID , phenotyp_ID and mut_type ID as constraint
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & is.element(new_control$data_matrix$ID, study_ID),c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# SNV_ID for cases or controls. 
+SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)]$ID
+proband_SNV_mut_spidex <- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID) & is.element(new_control$mut_spedix$index, study_ID),] # this will be paseed as an argument to the function below
+
+# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
+
+adjusted_base_level_rr_4 <- adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch(mut_file = paste(prefix,"temp.bed",sep = ""),
+window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed",
+cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
+mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
+sample_size = 32,
+overlap = 0.5,
+rm_nonsyn = FALSE,
+annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
+annovar_input = "no.txt",
+gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
+report_proportion = 1000/18665,
+spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
+splicing_cutoff = -1.416,
+proband_SNV_mut_spidex = proband_SNV_mut_spidex)
+
+
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+
+```
+
+
+## Michaelson JJ et al. Cell 2012
+
+```{r,cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch}
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+study_ID <- mut_with_study_label[mut_with_study_label$study == "Michaelson JJ et al. Cell 2012",]$index
+
+# add study_ID , phenotyp_ID and mut_type ID as constraint
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & is.element(new_control$data_matrix$ID, study_ID),c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# SNV_ID for cases or controls. 
+SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)]$ID
+proband_SNV_mut_spidex <- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID) & is.element(new_control$mut_spedix$index, study_ID),] # this will be paseed as an argument to the function below
+
+# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
+
+adjusted_base_level_rr_5 <- adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch(mut_file = paste(prefix,"temp.bed",sep = ""),
+window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed",
+cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
+mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
+sample_size = 10,
+overlap = 0.5,
+rm_nonsyn = FALSE,
+annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
+annovar_input = "no.txt",
+gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
+report_proportion = 1000/18665,
+spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
+splicing_cutoff = -1.416,
+proband_SNV_mut_spidex = proband_SNV_mut_spidex)
+
+rm(new_control)
+rm(old)
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+
+```
+
+
+# Estimate relative risk
+
+```{r}
+splicing_data_list = list(adjusted_base_level_rr_1$splicing_info, adjusted_base_level_rr_2$splicing_info, adjusted_base_level_rr_3$splicing_info, adjusted_base_level_rr_4$splicing_info, adjusted_base_level_rr_5$splicing_info)
+
+```
+
+## 5 non-coding features and 1 splicing feature
+```{r, cache=TRUE, dependson=data_list, dependson=splicing_data_list, cache.extra=estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_multiple_studies}
+simulation_estimate <- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_multiple_studies(data_list = data_list,
+                                                                                                                      splicing_data_list = splicing_data_list,
+                                                                                                                      non_splicing_features = c(1,2,3,4,5),
+                                                                                                                      gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt")
+
+fisher_info_1<-solve(-simulation_estimate$mle_1$hessian)
+fisher_info_2<-solve(-simulation_estimate$mle_2$hessian)
+
+prop_sigma<-sqrt(c(diag(fisher_info_1),diag(fisher_info_2)))
+rr_estimate <- c(simulation_estimate$mle_1$par, simulation_estimate$mle_2$par)
+
+upper<-rr_estimate+1.96*prop_sigma
+lower<-rr_estimate-1.96*prop_sigma
+
+
+a = data.frame(relative_risk = rr_estimate, lower_bound = lower, upper_bournd = upper)
+rownames(a) = c("Noonan+Roadmap Brain H3K27ac enhancer + promoter","Epigenome_DHS", "ENCODE_DHS", "Phylop>2", "Gerp>2","Splicing")
+knitr::kable(a)
+
+```
+
+## Brain H3K27ac feature and splicing feature
+```{r, cache=TRUE, dependson=data_list, dependson=splicing_data_list, cache.extra=estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_multiple_studies}
+simulation_estimate_2 <- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_multiple_studies(data_list = data_list,
+                                                                                                                      splicing_data_list = splicing_data_list,
+                                                                                                                      non_splicing_features = c(1),
+                                                                                                                      gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt")
+
+fisher_info_1<-solve(-simulation_estimate_2$mle_1$hessian)
+fisher_info_2<-solve(-simulation_estimate_2$mle_2$hessian)
+
+prop_sigma<-sqrt(c(diag(fisher_info_1),diag(fisher_info_2)))
+rr_estimate <- c(simulation_estimate_2$mle_1$par, simulation_estimate_2$mle_2$par)
+
+upper<-rr_estimate+1.96*prop_sigma
+lower<-rr_estimate-1.96*prop_sigma
+
+
+a = data.frame(relative_risk = rr_estimate, lower_bound = lower, upper_bournd = upper)
+rownames(a) = c("Noonan+Roadmap Brain H3K27ac enhancer + promoter","Splicing")
+knitr::kable(a)
+```
+
+### test
+```{r}
+length(adjusted_base_level_rr_1$splicing_info)
+length(adjusted_base_level_rr_2$splicing_info)
+length(adjusted_base_level_rr_3$splicing_info)
+length(adjusted_base_level_rr_4$splicing_info)
+length(adjusted_base_level_rr_5$splicing_info)
+
+
+```
+

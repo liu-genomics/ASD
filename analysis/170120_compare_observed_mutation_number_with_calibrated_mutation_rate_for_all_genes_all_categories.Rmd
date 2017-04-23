@@ -1,0 +1,91 @@
+---
+title: "Burden"
+output: pdf_document
+fontsize: 2pt
+---
+
+
+Partition enhancers based on distance to TSS based on strict overlap. 
+Basically, her pipeline takes intersections between enhancers and distance ranges, and remove bases of enhancers that are not overlapped. 
+Will not use any epigenomic annotations during mutation rate adjustment.
+
+
+```{r}
+getwd()
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+source("../lib/161117_glm_for_mutation_count.R")
+```
+
+```{r, echo=FALSE, cache=TRUE, cache.extra=predict_sum_mutation_rate_per_gene_v2}
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+new_control = new.env()
+load("../data/debug_region_list_073116_using_258_control_data_matrix.Rdata", new_control)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV",c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+ASD_model_manuscript_mutrate = predict_sum_mutation_rate_per_gene_v2(paste(prefix,"temp.bed",sep = ""), "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed",
+                                         "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed.fasta.cg",
+                                         "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed.mutrate",
+                                         314,
+                                         "../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed",
+                                         1e-9,
+                                         "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename.bed")
+
+rm(new_control)
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+```
+
+
+### load in functions and datastes that make the functions work
+```{r,echo=FALSE}
+coding_tada = read.delim("../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+coding_tada_denovo = data.frame(coding_tada$RefSeqName, coding_tada$TadaName, coding_tada$mut.rate, coding_tada$dn.LoF, coding_tada$dn.mis3, coding_tada$BF.SNV.dn, coding_tada$BF.combined, coding_tada$qvalue.combined)
+colnames(coding_tada_denovo) = c("RefSeqName", "TadaName", "mut.rate", "dn.LoF", "dn.mis3", "BF.SNV.dn", "BF.combined", "qvalue.combined")
+
+#read in workspace that has unique mutation information
+mutation = new.env()
+load("../data/debug_region_list_073116_data_matrixtransformed_for_old_code.Rdata", envir = mutation)
+write.table(mutation$mutation[,1:4],"160229_data_for_analysis.bed",col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+# load releant functions
+source("../lib/160930_screen_burden_functions_test_more_genelist_focused.R")
+```
+
+
+### ASD manuscript data, active enhancers
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate$enhancer$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate$enhancer$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### ASD manuscript data, active promoters
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate$promoter$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate$promoter$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### ASD manuscript data, coding
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate$coding$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate$coding$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+
+

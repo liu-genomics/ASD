@@ -1,0 +1,215 @@
+---
+title: "Burden"
+output: pdf_document
+fontsize: 2pt
+---
+
+
+Partition enhancers based on distance to TSS based on strict overlap. 
+Basically, her pipeline takes intersections between enhancers and distance ranges, and remove bases of enhancers that are not overlapped. 
+Will not use any epigenomic annotations during mutation rate adjustment.
+
+
+```{r}
+getwd()
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+source("../lib/170117_gene_list_definition.R")
+source("../lib/161117_glm_for_mutation_count.R")
+```
+# ASD data
+```{r, echo=FALSE, cache=TRUE, cache.extra=predict_sum_mutation_rate_per_gene_v2}
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+new_control = new.env()
+load("../data/debug_region_list_073116_using_258_control_data_matrix.Rdata", new_control)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV",c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+ASD_model_manuscript_mutrate = predict_sum_mutation_rate_per_gene_v2(paste(prefix,"temp.bed",sep = ""), "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed",
+                                         "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed.fasta.cg",
+                                         "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed.mutrate",
+                                         314,
+                                         "../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed",
+                                         1e-9,
+                                         "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename.bed")
+
+rm(new_control)
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+```
+
+
+## obaserved mutation number vs expected mutation number in different genomic categories
+
+### ASD manuscript data, active enhancers
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate$enhancer$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate$enhancer$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### ASD manuscript data, active promoters
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate$promoter$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate$promoter$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### ASD manuscript data, coding
+```{r,echo=FALSE}
+predicted = sum(ASD_model_manuscript_mutrate$coding$adjusted_mutrate_sum)
+observed = sum(ASD_model_manuscript_mutrate$coding$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+
+## Obaserved mutation number vs expected mutation number in different coding categories
+
+***
+**NOTE**
+
+  * Notice that in model training, promoter regions have a higher priority than coding regions. 
+
+  * LoF here is stop gain, frameshift insertion and frameshift deletion.
+
+  * Use 1/(1+2.66+0.13) as a scaling factor on top of all coding mutation rates for synonymous mutation rates. Based on 693 control data.
+
+  * Use 2.66/(1+2.66+0.13) as a scaling factor on top of all coding mutation rates for nonsynonymous mutation rates. Based on 693 control data.
+
+  * Use 0.13/(1+2.66+0.13) as a scaling factor on top of all coding mutation rates for LoF mutation mutation rates. Based on 693 control data.
+
+
+***
+
+### ASD manuscript data
+```{r}
+mutation = new.env()
+load("../data/debug_region_list_073116_data_matrixtransformed_for_old_code.Rdata", envir = mutation)
+coding_data_count = get_coding_mut_number(mutation$mutation, mutation$ref_alt_allele, "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed", "/media/yuwen/Elements/ANNOVAR/annovar/", "ASD","no")
+output_table <- compare_pre_with_obs(ASD_model_manuscript_mutrate$coding, coding_data_count$coding_mut_for_gene, geneset = c("stringent_ASD", "relaxed_ASD", "nonASD_genes","constraint_union","all_refseq_genes"), mutation_type = c("synonymous", "nonsynonymous", "LoF"), 
+                                 mutation_scailing = list(synonymous = 1/(1+2.66+0.13), nonsynonymous = 2.66/(1+2.66+0.13), LoF = 0.13/(1+2.66+0.13)))
+
+# transform the geneset names to be consistent with what have been used in the manuscript
+output_table[,1] <- rep(c("Known ASD genes", "Neuropsychiatric genes", "nonASD genes", "Constrained genes", "All genes"), each = 3)
+
+is.numeric(output_table[,5])
+output_table[,3] <- format(as.numeric(output_table[,3]), scientific = FALSE, digits = 1)
+output_table[,5] <- format(as.numeric(output_table[,5]), scientific = TRUE, digits = 3, nsmall = 2)
+output_table[,5]
+knitr::kable(output_table)
+
+```
+
+
+
+# control data
+```{r, echo=FALSE, cache=TRUE, cache.extra=predict_sum_mutation_rate_per_gene_v2}
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+new_control = new.env()
+load("../data/../data/debug_region_list_073116_data_matrix.Rdata", new_control)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_sibling" & new_control$data_matrix$Type == "SNV",c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+control_model_manuscript_mutrate = predict_sum_mutation_rate_per_gene_v2(paste(prefix,"temp.bed",sep = ""), "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed",
+                                         "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed.fasta.cg",
+                                         "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed.mutrate",
+                                         693,
+                                         "../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed",
+                                         1e-9,
+                                         "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename.bed")
+
+rm(new_control)
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+```
+
+
+## obaserved mutation number vs expected mutation number in different genomic categories
+
+### control manuscript data, active enhancers
+```{r,echo=FALSE}
+predicted = sum(control_model_manuscript_mutrate$enhancer$adjusted_mutrate_sum)
+observed = sum(control_model_manuscript_mutrate$enhancer$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### ASD manuscript data, active promoters
+```{r,echo=FALSE}
+predicted = sum(control_model_manuscript_mutrate$promoter$adjusted_mutrate_sum)
+observed = sum(control_model_manuscript_mutrate$promoter$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+### control manuscript data, coding
+```{r,echo=FALSE}
+predicted = sum(control_model_manuscript_mutrate$coding$adjusted_mutrate_sum)
+observed = sum(control_model_manuscript_mutrate$coding$mut_count_sum)
+```
+
+```{r}
+predicted
+observed
+ppois(observed-1, predicted,lower.tail = FALSE)
+```
+
+
+## Obaserved mutation number vs expected mutation number in different coding categories
+
+***
+**NOTE**
+
+  * Notice that in model training, promoter regions have a higher priority than coding regions. 
+
+  * LoF here is stop gain, frameshift insertion and frameshift deletion.
+
+  * Use 1/(1+2.66+0.13) as a scaling factor on top of all coding mutation rates for synonymous mutation rates. Based on 693 control data.
+
+  * Use 2.66/(1+2.66+0.13) as a scaling factor on top of all coding mutation rates for nonsynonymous mutation rates. Based on 693 control data.
+
+  * Use 0.13/(1+2.66+0.13) as a scaling factor on top of all coding mutation rates for LoF mutation mutation rates. Based on 693 control data.
+
+
+***
+
+### control manuscript data
+```{r}
+mutation = new.env()
+load("../data/debug_region_list_073116_data_matrixtransformed_for_old_code.Rdata", envir = mutation)
+
+coding_data_count = get_coding_mut_number(mutation$mutation, mutation$ref_alt_allele, "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed", "/media/yuwen/Elements/ANNOVAR/annovar/", "control","no") # change the second last parameter to "control"
+output_table <- compare_pre_with_obs(control_model_manuscript_mutrate$coding, coding_data_count$coding_mut_for_gene, geneset = c("stringent_ASD", "relaxed_ASD", "nonASD_genes","constraint_union","all_refseq_genes"), mutation_type = c("synonymous", "nonsynonymous", "LoF"), 
+                                 mutation_scailing = list(synonymous = 1/(1+2.66+0.13), nonsynonymous = 2.66/(1+2.66+0.13), LoF = 0.13/(1+2.66+0.13)))
+
+# transform the geneset names to be consistent with what have been used in the manuscript
+output_table[,1] <- rep(c("Known ASD genes", "Neuropsychiatric genes", "nonASD genes", "Constrained genes", "All genes"), each = 3)
+
+is.numeric(output_table[,5])
+output_table[,3] <- format(as.numeric(output_table[,3]), scientific = FALSE, digits = 1)
+output_table[,5] <- format(as.numeric(output_table[,5]), scientific = TRUE, digits = 3, nsmall = 2)
+output_table[,5]
+knitr::kable(output_table)
+
+```
+

@@ -1,0 +1,13 @@
+ANNOVAR Version:
+	$Date: 2016-02-01 00:11:04 -0800 (Mon,  1 Feb 2016) $
+ANNOVAR Information:
+	For questions, comments, documentation, bug reports and program update, please visit http://www.openbioinformatics.org/annovar/
+ANNOVAR Command:
+	/media/yuwen/Elements/ANNOVAR/annovar/annotate_variation.pl -geneanno -buildver hg19 1490289743_for_annovar_temp_in_coding.txt /media/yuwen/Elements/ANNOVAR/annovar/humandb/
+ANNOVAR Started:
+	Thu Mar 23 12:22:24 2017
+NOTICE: Output files were written to 1490289743_for_annovar_temp_in_coding.txt.variant_function, 1490289743_for_annovar_temp_in_coding.txt.exonic_variant_function
+NOTICE: Reading gene annotation from /media/yuwen/Elements/ANNOVAR/annovar/humandb/hg19_refGene.txt ... Done with 52068 transcripts (including 11837 without coding sequence annotation) for 26464 unique genes
+NOTICE: Processing next batch with 296 unique variants in 296 input lines
+NOTICE: Reading FASTA sequences from /media/yuwen/Elements/ANNOVAR/annovar/humandb/hg19_refGeneMrna.fa ... Done with 551 sequences
+WARNING: A total of 356 sequences will be ignored due to lack of correct ORF annotation

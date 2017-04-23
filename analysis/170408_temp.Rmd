@@ -1,0 +1,142 @@
+---
+output:
+  html_document:
+    toc: true
+    number_sections: true
+    theme: united
+    highlight: textmate
+---
+
+```{r}
+library(data.table)
+library(parallel)
+source("../lib/170122_base_level_simulation_functions.R")
+source("../lib/170417_temp.R")
+
+```
+
+***
+**NOTE**
+To address the concern that each study would have different effects from a same genomic feature (e.g., sequencing depth/GC content would have a stronger effect for a study that has shallower sequencing depth.), I will adjust mutation rate in different studies. 
+
+I will then estimate relative risk of each feature using categorized data from each study.
+
+***
+
+
+# Read in data from 5 studies
+```{r}
+new_control = new.env()
+load("../data/debug_region_list_073116_data_matrixtransformed_for_old_code.Rdata", new_control) # this Rdata has spedix info
+# add in the 0-based start position
+
+new_control$mutation$start_0 <- as.numeric(as.character(new_control$mutation$start)) - 1
+
+# mutation data in the old format, I loaded this just in order to retrive information about which study each mutation comes from
+old <- new.env()
+load("../data/debug_region_list_073116_data_matrix.Rdata", old)
+
+# Use a merge function to associate mutations with study information
+# I merged by matching the chromosome locations, including chr, start and end. For the case SNV data, I removed all redundant mutations, so merging in this way would ensure a 1-to-1 matching between mutation info and study info
+# There is redundant SNVs and other mutations in old$mutation$mutation, and there are redundant non-SNV mutations in new_control$mutation, but I didn't use non-SNV mutations in this study. So having such type of redundant mutations should be fine.
+
+mut_with_study_label <- merge(new_control$mutation[new_control$mutation$phenotype =="ASD" & new_control$mutation$mut_type == "SNV",], old$mutation$mutation[old$mutation$mutation$phenotype == "ASD" & old$mutation$mutation$mut_type == "SNV",], by.x = c("chr","start_0","end"), by.y = c("chr","start","end"))
+# The index is consistent with new_control$mutation, but not with old$mutation$mutation
+mut_with_study_label <- data.frame(index = mut_with_study_label$index.x, study = mut_with_study_label$study.y)
+
+ASD_study_name <- as.vector(unique(mut_with_study_label$study)[1:5])
+
+```
+
+
+## Ryan K C Yuen et al. Nature Medicine 2015
+
+```{r,cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch}
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+study_ID <- mut_with_study_label[mut_with_study_label$study == "Ryan K C Yuen et al. Nature Medicine 2015",]$index
+
+# add study_ID , phenotyp_ID and mut_type ID as constraint
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & is.element(new_control$data_matrix$ID, study_ID),c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# SNV_ID for cases or controls. 
+SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)]$ID
+proband_SNV_mut_spidex <- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID) & is.element(new_control$mut_spedix$index, study_ID),] # this will be paseed as an argument to the function below
+
+# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
+
+adjusted_base_level_rr_1 <- adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch(mut_file = paste(prefix,"temp.bed",sep = ""),
+window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed",
+cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
+mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
+sample_size = 162,
+overlap = 0.5,
+rm_nonsyn = FALSE,
+annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
+annovar_input = "no.txt",
+gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
+report_proportion = 1000/18665,
+spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
+splicing_cutoff = -1.416,
+proband_SNV_mut_spidex = proband_SNV_mut_spidex)
+
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+
+```
+
+
+```{r}
+dim(proband_SNV_mut_spidex)
+```
+
+## Augustine Kong et al. Nature 2012
+
+```{r,cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch}
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+study_ID <- mut_with_study_label[mut_with_study_label$study == "Augustine Kong et al. Nature 2012",]$index
+
+# add study_ID , phenotyp_ID and mut_type ID as constraint
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & is.element(new_control$data_matrix$ID, study_ID),c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# SNV_ID for cases or controls. 
+SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)]$ID
+proband_SNV_mut_spidex <- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID) & is.element(new_control$mut_spedix$index, study_ID),] # this will be paseed as an argument to the function below
+
+# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
+
+adjusted_base_level_rr_2 <- adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch(mut_file = paste(prefix,"temp.bed",sep = ""),
+window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed",
+cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
+mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
+sample_size = 78,
+overlap = 0.5,
+rm_nonsyn = FALSE,
+annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
+annovar_input = "no.txt",
+gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
+report_proportion = 1000/18665,
+spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
+splicing_cutoff = -1.416,
+proband_SNV_mut_spidex = proband_SNV_mut_spidex)
+
+
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+
+rm(new_control)
+rm(old)
+
+```
+
+```{r}
+length(adjusted_base_level_rr_1$splicing_info)
+length(adjusted_base_level_rr_2$splicing_info)
+```

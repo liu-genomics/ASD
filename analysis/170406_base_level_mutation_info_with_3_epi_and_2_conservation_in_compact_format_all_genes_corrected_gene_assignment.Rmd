@@ -1,0 +1,316 @@
+---
+output:
+  html_document:
+    toc: true
+    number_sections: true
+    theme: united
+    highlight: textmate
+---
+
+```{r}
+library(data.table)
+library(parallel)
+source("../lib/170122_base_level_simulation_functions.R")
+
+```
+
+***
+**NOTE**
+
+1. First adjust for mutation rate for each 50bp window, then apply the the adjusting factor for each base so we could get the base-level adjusted mutation rate. When adjusting for mutation rates, only consider features including promoter, coding, within-10kb non-coding, and 50bp cg contents.
+2. Only consider the relative risk from active promoters and enhancers (union), marked by Noonan and Roadmap brain H3k27ac. 
+3. Only use bases from top 6% TADA genes for now.
+4. The model itself could be easily adapted to cases where more epigenomic features or functional annotations are included. 
+5. The output will be R object which store base-level information in a compact mode
+6. 100way phylop and gerp annotation is added, brain h3k27ac, fetal DHS and adult DHS.
+7. Use corrected gene assignment (See Note.html 170307)
+8. have spidex_intro windows when adjusting mutation rate for other non-splicing regulatory mutations.
+9. Add splicing mutations in the model for relative risk estimation.
+
+***
+
+
+# **Estimate relative risk from top 6% TADA genes, afeter adjusting for mutation rates**
+
+```{r, cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid}
+new_control = new.env()
+load("../data/debug_region_list_073116_data_matrixtransformed_for_old_code.Rdata", new_control) # this Rdata has spedix info
+
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV",c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" ,c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# SNV_ID for cases or controls. 
+SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV",c(1,2,3,7)]$ID
+proband_SNV_mut_spidex <- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID),] # this will be paseed as an argument to the function below
+
+# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
+
+preprocessing_time <- system.time(adjusted_base_level_rr <- adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid(mut_file = paste(prefix,"temp.bed",sep = ""),
+window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed",
+cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
+mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
+sample_size = 314,
+epigenomic_marks = c("../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed","../other_annotation/epigenomic_annotation/Epigenome_E081_E082_intersection.bed","../other_annotation/epigenomic_annotation/encode_DHS_union.bed"),
+sequence_annotation = c("phylop_100way", "gerp"), 
+sequence_annotation_cutoff = list(phylop_100way=2, gerp =2 ), 
+sequence_annotation_ref = list(phylop_100way = "../other_annotation/conservation_annotation/hg19.100way.phyloP100way.bw", gerp = "../other_annotation/conservation_annotation/hg19_gerp_score.bw"),
+overlap = 0.5,
+rm_nonsyn = FALSE,
+annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
+annovar_input = "no.txt",
+gene_assign_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename_corrected.bed",
+gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
+report_proportion = 1,
+mutrate_ref_file = "/media/yuwen/Elements/mutation_rate_raw/MarkDaly/Daly_mutrate.bw",
+node_n = 6,
+feature_start = 5,
+feature_end = 9,
+feature_number = 5, 
+chunk_partition_num =20,
+spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
+splicing_cutoff = -1.416,
+proband_SNV_mut_spidex = proband_SNV_mut_spidex))
+
+rm(new_control)
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+
+```
+
+
+# **Now use estimated relative risks to identify new ASD genes**
+
+```{r}
+source("../lib/TADA_denovo.R")
+source("../lib/170117_gene_validation_functions.R")
+```
+
+## *Sart without using splicing mutations*
+rr is estimated from top 6% TADA genes, using adjusted mutation rates that include 50-bp windows that are introns that have spedix scores.
+```{r}
+TADA_table<-bayes_factor_for_each_gene_base_level_from_collapsed_data(adjusted_base_level_rr$base_info, 
+                                                                      features = c(1), 
+                                                                      rr = 0.6944592,
+                                                                      coding_bayes_table_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_BF_for_de_novo_mutations.txt",
+                                                                      TADA_p0 = 0.94)
+
+```
+
+
+### Number of gained and lost genes after having non-coding mutations
+```{r}
+TADA_table_filtered = TADA_table$gene_BF_table[!is.element(TADA_table$gene_BF_table$genename, TADA_table$genes_with_no_epi),]
+knitr::kable(performance_table(TADA_table_filtered))
+```
+
+### Gene set enrichment analysis FDR 0.1
+```{r}
+knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.1 & TADA_table_filtered$FDR_all < 0.1, ]$genename, TADA_table_filtered$genename))
+```
+
+### Gene set enrichment analysis FDR 0.2
+```{r}
+knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.2 & TADA_table_filtered$FDR_all < 0.2, ]$genename, TADA_table_filtered$genename))
+```
+
+### Gene set enrichment analysis FDR 0.3
+```{r}
+knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.3 & TADA_table_filtered$FDR_all < 0.3, ]$genename, TADA_table_filtered$genename))
+```
+
+### FDR 0.3 new genes
+```{r}
+knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding >= 0.3 & TADA_table_filtered$FDR_all < 0.3,])
+```
+
+
+
+## *cacluate the bayes factor table for splicing mutations* 
+
+* The mutation rate needs to be adjusted after taking into consideration of windows from introns far from TSSs
+* splicing rr is estimated in a model-based way by `estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_v2`
+```{r, cache=TRUE, cache.extra=generate_BF_for_splicing_mutations}
+new_control = new.env()
+load("../data/debug_region_list_073116_data_matrixtransformed_for_old_code.Rdata", new_control)
+
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV",c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+#write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" ,c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+# SNV_ID for cases or controls. 
+SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV",c(1,2,3,7)]$ID
+proband_SNV_mut_spidex <- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID),] # this will be paseed as an argument to the function below
+
+### generate Bayes factor table for splicing mutations
+splicing_BF_table <- generate_BF_for_splicing_mutations(mut_file = paste(prefix,"temp.bed",sep = ""), 
+                                               window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed", 
+                                               cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg", 
+                                               mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate", 
+                                               sample_size = 314,
+                                               rm_nonsyn = FALSE,
+                                               annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/", 
+                                               annovar_input = "no.txt", 
+                                               spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
+                                               splicing_cutoff = -1.416,
+                                               log_splicing_rr = 1.2796444,
+                                               proband_SNV_mut_spidex = proband_SNV_mut_spidex)
+  
+rm(new_control)
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+
+```
+
+
+## *cacluate the bayes factor table for splicing mutations, summing mutation rate from ChrX and ChrY for a gene if it is on both ChrX and ChrY* 
+
+
+```{r}
+### currently the table below has duplicated entries, because there are a few genes that have appeared both on X chromosome and Y chromosome. 
+### Now I sum up the matation rates from both chrx and chrY for such genes. 
+
+head(splicing_BF_table$splicing_BF_table)
+splicing_BF_table_collapsed <- by(splicing_BF_table$splicing_BF_table, splicing_BF_table$splicing_BF_table$genename, function(x) sum(x$logBF_splicing)) 
+#splicing_BF_table_collapsed 
+splicing_BF_table_collapsed <- data.table(genename = names(splicing_BF_table_collapsed), logBF_splicing = as.vector(splicing_BF_table_collapsed), BF_splicing = exp(as.vector(splicing_BF_table_collapsed)))
+
+```
+
+
+## *now combine information from splicing (collapsed version) to other non_coding mutations*
+```{r}
+combined_BF_table <- splicing_BF_table_collapsed[TADA_table$gene_BF_table, on = "genename"]
+combined_BF_table
+
+# get a list of genes that don't have splicing info.
+genes_with_no_info_from_splicing_BF_table <- combined_BF_table[is.na(combined_BF_table$logBF_splicing),]$genename
+
+# change the logBF_splicing of these genes to 0 and BF of these genes to 1
+combined_BF_table[is.na(combined_BF_table$logBF_splicing),][,c("logBF_splicing")] = 0
+combined_BF_table[is.na(combined_BF_table$BF_splicing),][,c("BF_splicing")] = 1
+
+combined_BF_table[is.element(combined_BF_table$genename, genes_with_no_info_from_splicing_BF_table),]
+# add splicing info to BF_all
+combined_BF_table$logBF_all <- combined_BF_table$logBF_splicing + combined_BF_table$logBF_noncoding + combined_BF_table$logBF_coding
+combined_BF_table$BF_all <- exp(combined_BF_table$logBF_all)
+combined_BF_table <- combined_BF_table[order(combined_BF_table$BF_all, decreasing = TRUE),]
+combined_BF_table$FDR_all = Bayesian.FDR(combined_BF_table$BF_all, 0.94)$FDR # here 0.94 was chosen to be consisten with the prior used for getting BF and FDR using other types of mutations. 
+
+head(combined_BF_table)
+```
+
+### Number of gained and lost genes after having non-coding mutations and splicing mutations
+```{r}
+TADA_table_filtered =combined_BF_table[!is.element(combined_BF_table$genename, TADA_table$genes_with_no_epi),]
+knitr::kable(performance_table(TADA_table_filtered))
+```
+
+### FDR 0.1 new genes
+```{r}
+knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding >= 0.1 & TADA_table_filtered$FDR_all < 0.1,])
+```
+
+### FDR 0.2 new genes
+```{r}
+knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding >= 0.2 & TADA_table_filtered$FDR_all < 0.2,])
+```
+
+### FDR 0.3 new genes
+```{r}
+knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding >= 0.3 & TADA_table_filtered$FDR_all < 0.3,])
+```
+
+### Gene set enrichment analysis FDR 0.1
+```{r}
+knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.1 & TADA_table_filtered$FDR_all < 0.1, ]$genename, TADA_table_filtered$genename))
+```
+
+### Gene set enrichment analysis FDR 0.2
+```{r}
+knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.2 & TADA_table_filtered$FDR_all < 0.2, ]$genename, TADA_table_filtered$genename))
+```
+
+### Gene set enrichment analysis FDR 0.3
+```{r}
+knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.3 & TADA_table_filtered$FDR_all < 0.3, ]$genename, TADA_table_filtered$genename))
+```
+
+### Gene set enrichment analysis FDR 0.1, all genes background
+```{r}
+knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.1 & TADA_table_filtered$FDR_all < 0.1, ]$genename, combined_BF_table$genename))
+```
+
+### Gene set enrichment analysis FDR 0.2, all genes background
+```{r}
+knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.2 & TADA_table_filtered$FDR_all < 0.2, ]$genename, combined_BF_table$genename))
+```
+
+### Gene set enrichment analysis FDR 0.3, all genes background
+```{r}
+knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.3 & TADA_table_filtered$FDR_all < 0.3, ]$genename, combined_BF_table$genename))
+```
+
+### Gene set enrichment analysis FDR 0.3, all genes background, remove SIRPB1 which doesn't have splicing mutations or H3k27ac mutations
+```{r}
+knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.3 & TADA_table_filtered$FDR_all < 0.3 & TADA_table_filtered$genename != "SIRPB2", ]$genename, combined_BF_table$genename))
+```
+
+
+## Number of gained and lost genes, remove genes that don't have have splicing mutations or noncoding mutations, and don't have K27ac, splicing RR 2.4
+The qvalue of these genes just change from very little greater than 0.3 to very little bigger than 0.3
+##
+```{r}
+TADA_table_filtered =combined_BF_table[!is.element(combined_BF_table$genename, TADA_table$genes_with_no_epi),]
+TADA_table_filtered = TADA_table_filtered[genename != "SIRPB2" & genename != "NUDT17"]
+knitr::kable(performance_table(TADA_table_filtered))
+```
+
+### FDR 0.1 new genes
+```{r}
+knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding >= 0.1 & TADA_table_filtered$FDR_all < 0.1,])
+```
+
+### FDR 0.2 new genes
+```{r}
+knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding >= 0.2 & TADA_table_filtered$FDR_all < 0.2,])
+```
+
+### FDR 0.3 new genes
+```{r}
+knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding >= 0.3 & TADA_table_filtered$FDR_all < 0.3,])
+```
+
+### Gene set enrichment analysis FDR 0.1
+```{r}
+knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.1 & TADA_table_filtered$FDR_all < 0.1, ]$genename, TADA_table_filtered$genename))
+```
+
+### Gene set enrichment analysis FDR 0.2
+```{r}
+knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.2 & TADA_table_filtered$FDR_all < 0.2, ]$genename, TADA_table_filtered$genename))
+```
+
+### Gene set enrichment analysis FDR 0.3
+```{r}
+knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.3 & TADA_table_filtered$FDR_all < 0.3, ]$genename, TADA_table_filtered$genename))
+```
+
+### Gene set enrichment analysis FDR 0.1, all genes background
+```{r}
+knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.1 & TADA_table_filtered$FDR_all < 0.1, ]$genename, combined_BF_table$genename))
+```
+
+### Gene set enrichment analysis FDR 0.2, all genes background
+```{r}
+knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.2 & TADA_table_filtered$FDR_all < 0.2, ]$genename, combined_BF_table$genename))
+```
+
+### Gene set enrichment analysis FDR 0.3, all genes background
+```{r}
+knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.3 & TADA_table_filtered$FDR_all < 0.3, ]$genename, combined_BF_table$genename))
+```
+

@@ -1,0 +1,145 @@
+
+***
+**NOTE**
+
+  * Notice that in model training, all coding mutations, including synonymous and nonsynonymous mutations were used. 
+
+  * No epigenomic annotations were used in model training.
+
+  
+***
+
+
+```{r}
+library(ggplot2)
+getwd()
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+source("../lib/161117_glm_for_mutation_count.R")
+set.seed(123)
+```
+
+## ASD manuscript data, not using epigenomic annotations when adjusting mutation rates, using all coding mutations
+```{r,echo=FALSE, cache=TRUE, cache.extra=run_glm_for_mutation, cache.extra=get_10fold_log_likelihood}
+new_control = new.env()
+load("../data/debug_region_list_073116_using_258_control_data_matrix.Rdata", new_control)
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV",c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+ASD_model_manuscript = run_glm_for_mutation(paste(prefix,"temp.bed",sep = ""), "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed",
+                                         "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed.fasta.cg",
+                                         "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed.mutrate",
+                                         314,
+                                         "no", # without using epigenomic annotations in mutation rate adjustment. 
+                                         1e-9,
+                                         FALSE, # not removing nonsynonymous mutations in model fitting.
+                                         "/media/yuwen/Elements/ANNOVAR/annovar/",
+                                         "annovar_input_temp.bed")
+
+ASD_model_manuscript_loglikelihood = get_10fold_log_likelihood(ASD_model_manuscript, 10, 314)
+
+# remove unnecessary files and objects
+rm(ASD_model_manuscript)
+rm(new_control)
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+```
+
+
+```{r}
+data = data.frame(log_likelihood = c(ASD_model_manuscript_loglikelihood[,1],ASD_model_manuscript_loglikelihood[,2]), model = c(rep("adjusted_model",nrow(ASD_model_manuscript_loglikelihood)),rep("trinucleotide_model",nrow(ASD_model_manuscript_loglikelihood))))
+p = ggplot(data, aes(factor(model), log_likelihood))
+p+geom_boxplot()+theme_classic()+theme(axis.text.x = element_text(size =10, color = "black"), axis.text.y = element_text(size =10, color = "black"))+xlab("Model")+ylab("Log-likelihood")+ggtitle("ASD manuscript data")
+wilcox.test(ASD_model_manuscript_loglikelihood[,1],ASD_model_manuscript_loglikelihood[,2],paired = TRUE)
+ASD_model_manuscript_loglikelihood
+sum(ASD_model_manuscript_loglikelihood[,1] > ASD_model_manuscript_loglikelihood[,2])
+```
+
+
+```{r,echo=FALSE,fig.width=3, fig.height=3.5}
+data = data.frame(ll_difference = c(ASD_model_manuscript_loglikelihood[,1] - ASD_model_manuscript_loglikelihood[,2]),
+                  dataset = c(rep("Meta-analysis \n of WGS \n (314 cases)", 10)))
+p = ggplot(data, aes(factor(dataset), ll_difference))
+p = p+geom_boxplot()+theme_classic()+theme(axis.text.x = element_text(size =10, color = "black"), axis.text.y = element_text(size =10, color = "black"))+xlab("")+ylab("LLR")+ylim(-2,7.5)
+ggsave("tmp/170322_test.eps")
+#pvalue_list = c("p=0.0019","p=0.0039")
+#for(i in 1:2){
+ # p = p + annotate("text", x = i, y = 15, label = pvalue_list[i], size = 3)
+#}
+
+p
+```
+
+## ASD data,  using epigenomic annotations (Noonan roadmap brain union) when adjusting mutation rates, using all coding mutations
+```{r,echo=FALSE, cache=TRUE, cache.extra=run_glm_for_mutation, cache.extra=get_10fold_log_likelihood}
+new_control = new.env()
+load("../data/debug_region_list_073116_using_258_control_data_matrix.Rdata", new_control)
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV",c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+ASD_model_manuscript = run_glm_for_mutation(paste(prefix,"temp.bed",sep = ""), "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed",
+                                         "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed.fasta.cg",
+                                         "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed.mutrate",
+                                         314,
+                                         "../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed", # without using epigenomic annotations in mutation rate adjustment. 
+                                         1e-9,
+                                         FALSE, # not removing nonsynonymous mutations in model fitting.
+                                         "/media/yuwen/Elements/ANNOVAR/annovar/",
+                                         "annovar_input_temp.bed")
+
+ASD_model_manuscript_loglikelihood_2 = get_10fold_log_likelihood(ASD_model_manuscript, 10, 314)
+
+# remove unnecessary files and objects
+rm(ASD_model_manuscript)
+rm(new_control)
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+```
+
+
+```{r,echo=FALSE}
+data = data.frame(log_likelihood = c(ASD_model_manuscript_loglikelihood_2[,1],ASD_model_manuscript_loglikelihood_2[,2]), model = c(rep("adjusted_model",nrow(ASD_model_manuscript_loglikelihood_2)),rep("trinucleotide_model",nrow(ASD_model_manuscript_loglikelihood_2))))
+p = ggplot(data, aes(factor(model), log_likelihood))
+p+geom_boxplot()+theme_classic()+theme(axis.text.x = element_text(size =10, color = "black"), axis.text.y = element_text(size =10, color = "black"))+xlab("Model")+ylab("Log-likelihood")+ggtitle("ASD manuscript data")
+wilcox.test(ASD_model_manuscript_loglikelihood_2[,1],ASD_model_manuscript_loglikelihood_2[,2],paired = TRUE)
+ASD_model_manuscript_loglikelihood_2
+sum(ASD_model_manuscript_loglikelihood_2[,1] > ASD_model_manuscript_loglikelihood_2[,2])
+```
+
+
+## ASD data,  using epigenomic annotations (Noonan roadmap brain union) when adjusting mutation rates, and using only synonymous mutations
+```{r,echo=FALSE, cache=TRUE, cache.extra=run_glm_for_mutation, cache.extra=get_10fold_log_likelihood}
+new_control = new.env()
+load("../data/debug_region_list_073116_using_258_control_data_matrix.Rdata", new_control)
+prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV",c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" ,c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed", sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
+
+ASD_model_manuscript = run_glm_for_mutation(paste(prefix,"temp.bed",sep = ""), "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed",
+                                         "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed.fasta.cg",
+                                         "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed.mutrate",
+                                         314,
+                                         "../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed", # without using epigenomic annotations in mutation rate adjustment. 
+                                         1e-9,
+                                         TRUE, # not removing nonsynonymous mutations in model fitting.
+                                         "/media/yuwen/Elements/ANNOVAR/annovar/",
+                                         paste(prefix,"annovar_input_temp.bed", sep = ""))
+
+ASD_model_manuscript_loglikelihood_3 = get_10fold_log_likelihood(ASD_model_manuscript, 10, 314)
+
+# remove unnecessary files and objects
+rm(ASD_model_manuscript)
+rm(new_control)
+system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
+system(paste("rm ",prefix, "temp.bed",sep = ""))
+```
+
+
+```{r,echo=FALSE}
+data = data.frame(log_likelihood = c(ASD_model_manuscript_loglikelihood_3[,1],ASD_model_manuscript_loglikelihood_3[,2]), model = c(rep("adjusted_model",nrow(ASD_model_manuscript_loglikelihood_3)),rep("trinucleotide_model",nrow(ASD_model_manuscript_loglikelihood_3))))
+p = ggplot(data, aes(factor(model), log_likelihood))
+p+geom_boxplot()+theme_classic()+theme(axis.text.x = element_text(size =10, color = "black"), axis.text.y = element_text(size =10, color = "black"))+xlab("Model")+ylab("Log-likelihood")+ggtitle("ASD manuscript data")
+wilcox.test(ASD_model_manuscript_loglikelihood_3[,1],ASD_model_manuscript_loglikelihood_3[,2],paired = TRUE)
+ASD_model_manuscript_loglikelihood_3
+sum(ASD_model_manuscript_loglikelihood_3[,1] > ASD_model_manuscript_loglikelihood_3[,2])
+```
+

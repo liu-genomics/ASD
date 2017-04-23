@@ -1,0 +1,7 @@
+\begin{equation}
+Y\sim N\left(\sum_j\beta_j X_j, 1\right)
+\end{equation}
+
+\begin{equation}
+V=\sum_j\beta_j^2\Var(X_j) =\sum_j\beta_j^2 p_j (1-p_j)
+\end{equation}

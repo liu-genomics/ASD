@@ -1,0 +1,568 @@
+---
+title: "Burden"
+output: html_document
+fontsize: 2pt
+---
+
+Use a newly calculated set of motif change scores to define motif SNVs, but only focusing on motifs that more relevant
+Here motifs are defined as relevant if they are 1) in top 50% brain expressed genes, and 2) are enriched in at least one gain-enriched brain module
+
+Geneset analysis is reduced to a few genes that will be included in the paper. Enhancers sets were also reduced
+use one tail Fisher exact test to estimate upper bound and lower bound of odd ratio
+
+**Use strictly-defined 10kb Noonan and Roadmap H3K27ac enhancers**
+
+### read in coding tada data
+
+```{r,echo=FALSE}
+coding_tada = read.delim("../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+coding_tada_denovo = data.frame(coding_tada$RefSeqName, coding_tada$TadaName, coding_tada$mut.rate, coding_tada$dn.LoF, coding_tada$dn.mis3, coding_tada$BF.SNV.dn, coding_tada$BF.combined, coding_tada$qvalue.combined)
+colnames(coding_tada_denovo) = c("RefSeqName", "TadaName", "mut.rate", "dn.LoF", "dn.mis3", "BF.SNV.dn", "BF.combined", "qvalue.combined")
+
+```
+
+```{r,cache=TRUE,echo=FALSE}
+# load relavant mutation data
+source("../files_from_previous_analysis/160229_screen_burden_modified.R")
+```
+
+```{r,echo=FALSE,echo=FALSE}
+#use functions that use 2014_jaspar_dummy that have qvalue smaller than 0.1
+source("../lib/160930_screen_burden_functions_test_more_genelist_focused.R") #doesn't have the full functions yet, because the annotation hasn't been updated fully
+table_colname = c("ASD","control","frquency_ratio","burden","odds_ratio","pvalue","lowerbound","upperbound")
+
+```
+
+
+### try assign all SNVs that don't overlap a motif with a motif score change 0, 10% cutoff for absolute change (after transforming all NAs to 0)
+
+```{r,echo=FALSE, cache=TRUE}
+new_motif = new.env()
+load("../files_from_previous_analysis/Noonan_brain_motif_top50pct_expressed_motif.Rdata", envir = new_motif)
+temp = as.numeric(rownames(new_motif$info[!is.na(new_motif$info$delta) & abs(new_motif$info$delta) >= 1.7212464,]))
+
+mutation$jaspar_2014_motif_q0.1_dummy = rep(0,length(mutation$mutation[,1]))
+# motif SNVs defined in this way only contains SNVs that have been filtered after initial rounds of QC.
+mutation$jaspar_2014_motif_q0.1_dummy[is.element(mutation$mutation$index, temp)] = 1
+getwd()
+
+```
+
+```{r,echo=FALSE}
+system("mkdir -p manuscript_figures/")
+options(warn=-1)
+```
+
+### coding burden, omit this part
+```{r,fig.width= 4,fig.height=4, echo=FALSE, eval=FALSE}
+library(ggplot2)
+library(pBrackets)
+library(grid)
+coding_burden = read.delim("./160630_burden_paper_figures/160630_coding_burden.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+coding_burden$group = factor(coding_burden$group, levels = coding_burden$group)
+lower_bound = c()
+upper_bound = c()
+p_value = c()
+for(i in 1:length(coding_burden[,1])){
+  upper_bound[i] = fisher.test(matrix(c(coding_burden[1,]$Control, coding_burden[i,]$Control, coding_burden[1,]$ASD, coding_burden[i,]$ASD),2,2))$conf.int[2]
+  lower_bound[i] = fisher.test(matrix(c(coding_burden[1,]$Control, coding_burden[i,]$Control, coding_burden[1,]$ASD, coding_burden[i,]$ASD),2,2))$conf.int[1]
+  p_value[i] = fisher.test(matrix(c(coding_burden[1,]$Control, coding_burden[i,]$Control, coding_burden[1,]$ASD, coding_burden[i,]$ASD),2,2), alternative = "greater")$p.value
+}
+
+p = ggplot(aes(x = group, y = Burden, width = 0.7), data = coding_burden)+geom_bar(stat = "identity", fill = "darkgrey", color = "black")
+p = p+theme_classic()+theme(axis.text.x = element_text(size =8, color = "black", angle = 45,hjust = 1, vjust = 1), axis.text.y = element_text(size =8, color = "black"),axis.ticks.x=element_blank(),axis.line.x = element_blank())+xlab("")+ylab("Burden")+scale_y_continuous(expand = c(0, 0), limits = c(0,5))
+p = p+geom_hline(yintercept = 1, linetype = "dashed", color = "red")
+#add confidence intervals
+limits <- aes(ymax = upper_bound, ymin=lower_bound)
+p <- p + geom_errorbar(limits,width=0.25)
+#add other features of the plot including pvalue
+
+p = p + geom_segment(aes(x = 2, xend = 7, y = 0.2+max(upper_bound), yend =0.2+max(upper_bound)))
+p = p + geom_segment(aes(x = 2, xend =2, y =0.2+max(upper_bound), yend = 0.1+max(upper_bound)))
+p = p + geom_segment(aes(x = 7, xend =7, y =0.2+max(upper_bound), yend = 0.1+max(upper_bound)))
+p = p + annotate("text", x = 4.5, y = 0.4+max(upper_bound), label = "Nonsynonymous mutations", size = 3 )
+p = p + annotate("text", x = 5, y = 0.22+upper_bound[5], label = "p==9.2~X~10^{-3}", size = 2.5, parse = TRUE)
+
+p
+ggsave("./160721_paper_figures/coding_burden.jpeg",width = 4, height = 4)
+ggsave("./160721_paper_figures/coding_burden.eps",width = 4, height = 4)
+getwd()
+```
+
+
+### promoter 
+The synonymous mutations number here is a little bit different from what I recently got, likely due to different gene structures that I have used previously.
+Previously I used ANNOVAR directly against all mutations to find synonoymous ones.
+Currently, I first extract all coding regions, and remove the ones that overlap with other genomic features, then find synonymous mutations that have a refseq genename. 
+```{r,echo=FALSE, eval=FALSE}
+file = "./union_for_promter_utr5_covered_by_k27ac_for_each_gene_enhancer_pair_overlap_mutation.txt"
+knitr::kable(draw_burden_for_selected_features(file, ref = "synon_ratio", syn_A = 72, syn_C = 139),digit = c(rep(2,5),5), col.names = table_colname)
+active_promoter = draw_burden_for_selected_features(file, ref = "synon_ratio", syn_A = 72, syn_C = 139)
+```
+The synonymous mutations number here is a little bit different from what I recently got, likely be due different gene structures that I have used previously.
+### inactive promoter 
+```{r,echo=FALSE, eval=FALSE}
+file = "./union_for_promter_utr5_not_covered_by_k27ac_for_each_gene_enhancer_pair_overlap_mutation.txt"
+knitr::kable(draw_burden_for_selected_features(file, ref = "synon_ratio", syn_A = 72, syn_C = 139),digit = c(rep(2,5),5), col.names = table_colname)
+inactive_promoter = draw_burden_for_selected_features(file, ref = "synon_ratio", syn_A = 72, syn_C = 139)
+```
+
+### noonan brain + roadmap enhancers
+Need to modify this part, `../files_from_previous_analysis/union_for_promter_utr5_covered_by_k27ac_for_each_gene_enhancer_pair_overlap_mutation.txt` has regulatory mutations that overlap with k27ac (Noonan brain + roadmap H3k27ac) covered promoters, but better not directly used, because two different pipelines have been used in partitioning genome into different regions, though I think for k27ac covered promoters, results should be consistent. But one major difference is that for the newer analysis, I didn't include 5'UTRs. 
+
+```{r,echo=FALSE}
+source("../lib/160930_screen_burden_functions_test_more_genelist_focused.R")
+prefix <- system("date +%s", intern = TRUE)
+mut_promoter <- read.delim("../files_from_previous_analysis/union_for_promter_utr5_covered_by_k27ac_for_each_gene_enhancer_pair_overlap_mutation.txt", header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+colnames(mut_promoter) <- c("index", "genename")
+mut_promoter <- merge(mut_promoter, mutation$mutation, by = "index")
+write.table(mut_promoter[,c("chr","start","end","index","genename")], paste(prefix, "_temp_mut_promoter.bed",sep = ""), col.names = FALSE, sep = "\t", row.names = FALSE, quote = FALSE)
+# overlap with the promoter part of Noonan_brain_roadmap_union (No 5'UTR here)
+command <- paste("bedtools intersect -a ", paste(prefix, "_temp_mut_promoter.bed",sep = ""), " -b ../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.promoter_1kb_genename.bed -wa | awk {'print $4\"\t\"$5'} > ", paste(prefix, "_temp_mut_promoter_overlap_epigenomics.bed", sep = ""), sep = "")
+system(command)
+
+# overlap with the within-10kb part of Noonan_brain_roadmap_union (No 5'UTR here, and more strict way to define distance)
+mut_enhancer <- read.delim("../files_from_previous_analysis/enhancers.bed.10000.bp_within_TSS_overlap_mutation.txt", header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+colnames(mut_enhancer) <- c("index", "genename")
+mut_enhancer <- merge(mut_enhancer, mutation$mutation, by = "index")
+write.table(mut_enhancer[,c("chr","start","end","index","genename")], paste(prefix, "_temp_mut_enhancer.bed",sep = ""), col.names = FALSE, sep = "\t", row.names = FALSE, quote = FALSE)
+command <- paste("bedtools intersect -a ", paste(prefix, "_temp_mut_enhancer.bed",sep = ""), " -b ../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed -wa | awk {'print $4\"\t\"$5'} > ", paste(prefix, "_temp_mut_enhancer_overlap_epigenomics.bed", sep = ""), sep = "")
+system(command)
+
+# combine mutations from enhancers and promoters under the new criterion
+command <- paste("cat ", paste(prefix, "_temp_mut_promoter_overlap_epigenomics.bed", sep = ""), " ", paste(prefix, "_temp_mut_enhancer_overlap_epigenomics.bed", sep = ""), " > ", paste(prefix, "_temp_mut_enhancer_and_promoter_overlap_epigenomics.bed", sep = ""), sep = "")
+system(command)
+
+file = paste(prefix, "_temp_mut_enhancer_and_promoter_overlap_epigenomics.bed", sep = "")
+
+knitr::kable(draw_burden_for_selected_features(file),digit = c(rep(2,5),5), col.names = table_colname)
+#write mutation files that I need to send to Iuliana
+enhancer = draw_burden_for_selected_features(file)
+```
+
+```{r,fig.width= 4,fig.height=4, echo=FALSE}
+#plot promoter and enhancer SNVs in a same graph
+#temp = rbind(inactive_promoter[1,],active_promoter[1,],0,enhancer[c("baseline","Motif","Gerp >=2", "Phylop top5%","Eigen top5%","CADD top5%"),])
+temp = rbind(enhancer[c("baseline","Motif","Gerp >=2", "Phylop top5%","Eigen top5%","CADD top5%"),])
+
+temp = data.frame(temp, category = c("All","Motif","Gerp >=2","Phylop top 5%","Eigen top 5%", "CADD top 5%"))
+temp$category = factor(temp$category, levels = temp$category)
+#change the burden of the spacer column to 0
+#temp[3,]$burden_to_baseline = NA
+#temp[3,]$upperbound = NA
+#temp[3,]$lowerbound = NA
+#change the lower bound and upper bound of regulatory SNV burden to 0
+#temp[temp$category == "All",]$upperbound = 0
+#temp[temp$category == "All",]$lowerbound = 0
+
+
+lower_bound = c()
+upper_bound = c()
+p_value = c()
+
+
+p = ggplot(aes(x = category, y = burden_to_baseline, width = 0.7), data = temp)+geom_bar(stat = "identity", fill = "darkgrey", color = "black")
+p = p+theme_classic()+theme(axis.text.x = element_text(size =8, color = "black", angle = 45,hjust = 1, vjust = 1), axis.text.y = element_text(size =8, color = "black"),axis.ticks.x=element_blank(),axis.line.x = element_blank())+xlab("")+ylab("Burden")+scale_y_continuous(expand = c(0, 0),limits = c(0,4))
+p = p+geom_hline(yintercept = 1, linetype = "dashed", color = "red")
+#add confidence intervals
+# change the upperbound and lowerbound of all to 0.
+temp[c("baseline"),]$upperbound <- 0
+temp[c("baseline"),]$lowerbound <- 0
+limits <- aes(ymax = temp$upperbound, ymin=temp$lowerbound)
+p <- p + geom_errorbar(limits,width=0.25)
+#add other features of the plot including pvalue
+
+# p = p + geom_segment(aes(x = 1, xend = 2, y = 0.4+max(temp$upperbound,na.rm = TRUE), yend =0.4+max(temp$upperbound,na.rm = TRUE)))
+# p = p + geom_segment(aes(x = 2, xend =2, y =0.4+max(temp$upperbound,na.rm = TRUE), yend = 0.35+max(temp$upperbound,na.rm = TRUE)))
+# p = p + geom_segment(aes(x = 1, xend =1, y =0.4+max(temp$upperbound,na.rm = TRUE), yend = 0.35+max(temp$upperbound,na.rm = TRUE)))
+# 
+# p = p + geom_segment(aes(x = 4, xend = 9, y = 0.4+max(temp$upperbound,na.rm = TRUE), yend =0.4+max(temp$upperbound,na.rm = TRUE)))
+# p = p + geom_segment(aes(x = 4, xend =4, y =0.4+max(temp$upperbound,na.rm = TRUE), yend = 0.35+max(temp$upperbound,na.rm = TRUE)))
+# p = p + geom_segment(aes(x = 9, xend =9, y =0.4+max(temp$upperbound,na.rm = TRUE), yend = 0.35+max(temp$upperbound,na.rm = TRUE)))
+# 
+# p = p + annotate("text", x = 1.6, y = 0.6+max(temp$upperbound,na.rm = TRUE), label = "Promoter SNVs", size = 3 )
+# p = p + annotate("text", x = 6.5, y = 0.6+max(temp$upperbound,na.rm = TRUE), label = "Enhancer SNVs", size = 3 )
+# 
+# p = p + annotate("text", x = 5, y = 0.16+temp[5,]$upperbound, label = "p==1.9~X~10^{-3}", size = 2.5, parse = TRUE )
+
+p
+ggsave("tmp/170323_burden_motif_and_other_annotations.eps", width = 4, height = 4)
+ggsave("tmp/170323_burden_motif_and_other_annotations.pdf", width = 4, height = 4)
+
+```
+
+
+### noonan brain +roadmap covered enhancers (10,000bp)+ promoters or 5' utrs
+```{r,fig.width=4, fig.height=4,echo=FALSE}
+
+temp = enhancer[c("ASD genes","Neuropsychiatric genes","Top 6% TADA genes","nonASD genes","Intolerant genes","Tolerant genes"),]
+
+#add a spacer between constrained genesets and other genesets
+# temp = rbind(temp[1:3,],NA,temp[4:5,])
+# temp$category = c(rownames(temp)[1:3]," ",rownames(temp)[5:6])
+# temp[4,]$burden_to_baseline = NA
+# temp[4,]$lowerbound = NA
+# temp[4,]$upperbound = NA
+# temp$category = factor(temp$category, levels = temp$category)
+# temp = data.frame(temp, group = rep("Within 10kb",length(temp[,1])))
+
+temp = rbind(temp[1:4,],NA,temp[5:6,])
+temp$category = c(rownames(temp)[1:4]," ",rownames(temp)[6:7])
+temp[5,]$burden_to_baseline = NA
+temp[5,]$lowerbound = NA
+temp[5,]$upperbound = NA
+temp$category = factor(temp$category, levels = temp$category)
+temp = data.frame(temp, group = rep("Within 10kb",length(temp[,1])))
+
+
+# look at mutations that are in enhancers within 50kb of TSS
+#a = read.delim("./noonan_plus_roadmap_brain_covered_promoter_utr5_10000_enhancers_overlap_mutation.txt", header = FALSE ,sep = "\t", stringsAsFactors = FALSE)
+
+# combine regions 10kb-20kb and 20kb-50kb
+command <- paste("cat ../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.yanyu_pipeline_enhancers.10000_to_20000.bp_within_TSS.bed ../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.yanyu_pipeline_enhancers.20000_to_50000.bp_within_TSS.bed > ", paste(prefix, "_temp_epigenomics_10kb_to_50kb.bed", sep = ""),sep = "")
+system(command)
+
+# Start from mutations overlapped with brain K27ac within 50000bp (less stringent way defined previously), find mutations that are in brain K27ac regions that fall between 10kb-50kb from TSSs.  
+mut_enhancer_2 <- read.delim("../files_from_previous_analysis/enhancers.bed.50000.bp_within_TSS_overlap_mutation.txt", header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+colnames(mut_enhancer_2) <- c("index", "genename")
+mut_enhancer_2 <- merge(mut_enhancer_2, mutation$mutation, by = "index")
+write.table(mut_enhancer_2[,c("chr","start","end","index","genename")], paste(prefix, "_temp_mut_enhancer_2.bed",sep = ""), col.names = FALSE, sep = "\t", row.names = FALSE, quote = FALSE)
+command <- paste("bedtools intersect -a ", paste(prefix, "_temp_mut_enhancer_2.bed",sep = ""), " -b ", paste(prefix, "_temp_epigenomics_10kb_to_50kb.bed", sep = ""), " -wa | awk {'print $4\"\t\"$5'} > ", paste(prefix, "_temp_mut_enhancer_2_overlap_epigenomics.bed", sep = ""), sep = "")
+system(command)
+
+
+temp2 = draw_burden_for_selected_features(paste(prefix, "_temp_mut_enhancer_2_overlap_epigenomics.bed", sep = ""))[c("ASD genes","Neuropsychiatric genes","Top 6% TADA genes","nonASD genes","Intolerant genes","Tolerant genes"),]
+
+temp2
+#add a spacer between constrained genesets and other genesets
+# temp2 = rbind(temp2[1:3,],NA,temp2[4:5,])
+# temp2$category = c(rownames(temp2)[1:3]," ",rownames(temp2)[5:6])
+# temp2[4,]$burden_to_baseline = NA
+# temp2[4,]$lowerbound = NA
+# temp2[4,]$upperbound = NA
+# temp2$category = factor(temp2$category, levels = temp2$category)
+# 
+# temp2 = data.frame(temp2, group = rep("10kb~50kb",length(temp2[,1])))
+
+temp2 = rbind(temp2[1:4,],NA,temp2[5:6,])
+temp2$category = c(rownames(temp2)[1:4]," ",rownames(temp2)[6:7])
+temp2[5,]$burden_to_baseline = NA
+temp2[5,]$lowerbound = NA
+temp2[5,]$upperbound = NA
+temp2$category = factor(temp2$category, levels = temp2$category)
+temp2 = data.frame(temp2, group = rep("10kb~50kb",length(temp[,1])))
+
+#combie <10kb and 10kb~100kb to a same table
+temp = rbind(temp,temp2)
+
+p = ggplot(aes(x = category, y = burden_to_baseline, width = 0.7, fill = group), data = temp)+geom_bar(stat = "identity", position = "dodge", color = "black", )
+p = p+theme_classic()+theme(legend.position = "top", axis.text.x = element_text(size =8, color = "black", angle = 45,hjust = 1, vjust = 1), axis.text.y = element_text(size =8, color = "black"),axis.ticks.x=element_blank(),axis.line.x = element_blank())+xlab("")+ylab("Burden")+scale_y_continuous(expand = c(0, 0),limits = c(0,5))
+p = p+geom_hline(yintercept = 1, linetype = "dashed", color = "red")
+#add confidence intervals
+limits <- aes(ymax = temp$upperbound, ymin=temp$lowerbound)
+dodge <- position_dodge(width=0.7)
+p <- p + geom_errorbar(limits,position = dodge,width=0.25)
+
+#add other features of the plot including pvalue
+
+#p = p + geom_segment(aes(x = 1, xend = 3, y = 0.3+max(temp$upperbound,na.rm = TRUE), yend =0.3+max(temp$upperbound,na.rm = TRUE)))
+#p = p + geom_segment(aes(x = 3, xend =3, y =0.3+max(temp$upperbound,na.rm = TRUE), yend = 0.25+max(temp$upperbound,na.rm = TRUE)))
+#p = p + geom_segment(aes(x = 1, xend =1, y =0.3+max(temp$upperbound,na.rm = TRUE), yend = 0.25+max(temp$upperbound,na.rm = TRUE)))
+
+#p = p + geom_segment(aes(x = 5, xend = 6, y = 0.3+max(temp$upperbound,na.rm = TRUE), yend =0.3+max(temp$upperbound,na.rm = TRUE)))
+#p = p + geom_segment(aes(x = 5, xend =5, y =0.3+max(temp$upperbound,na.rm = TRUE), yend = 0.25+max(temp$upperbound,na.rm = TRUE)))
+#p = p + geom_segment(aes(x = 6, xend =6, y =0.3+max(temp$upperbound,na.rm = TRUE), yend = 0.25+max(temp$upperbound,na.rm = TRUE)))
+
+#p = p + annotate("text", x = 2, y = 0.6+max(temp$upperbound,na.rm = TRUE), label = "ASD genesets", size = 3.5 )
+#p = p + annotate("text", x = 5.5, y = 0.6+max(temp$upperbound,na.rm = TRUE), label = "Constrained genesets", size = 3.5 )
+
+#p = p + annotate("text", x = 2, y = 0.22+temp[2,]$upperbound, label = "p==3.2~X~10^{-2}", size = 2.5, parse = TRUE)
+#p = p + annotate("text", x = 1, y = 0.22+temp[1,]$upperbound, label = "p==6.9~X~10^{-2}", size = 2.5, parse = TRUE)
+
+p
+ggsave("./tmp/170322_burden_by_geneset.pdf",width = 4, height = 4)
+ggsave("./tmp/170322_burden_by_geneset.eps",width = 4, height = 4)
+
+
+```
+
+
+
+### Noonan brain specific 
+```{r,echo=FALSE, eval=FALSE}
+file = "./mutation_overlap_Noonan_brain_specific_distance_to_TSS/enhancers.bed.1000000.bp_within_TSS_overlap_mutation.txt"
+knitr::kable(draw_burden_for_selected_features(file),digit = c(rep(2,5),5), col.names = table_colname)
+brain_specific = draw_burden_for_selected_features(file)
+brain_specific = rbind(brain_specific[2:4,],NA,brain_specific[5:6,])
+brain_specific$category = c(rownames(brain_specific[1:3,])," ", rownames(brain_specific[5:6,]))
+brain_specific$group = rep("Brain specific",length(brain_specific[,1]))
+```
+
+### Noonan three other tissues
+```{r,echo=FALSE, eval=FALSE}
+file = "./mutation_overlap_Noonan_nonbrain_distance_to_TSS/enhancers.bed.1000000.bp_within_TSS_overlap_mutation.txt"
+knitr::kable(draw_burden_for_selected_features(file),digit = c(rep(2,5),5), col.names = table_colname)
+other_specific = draw_burden_for_selected_features(file)
+other_specific = rbind(other_specific[2:4,],NA,other_specific[5:6,])
+other_specific$category = c(rownames(other_specific[1:3,])," ", rownames(other_specific[5:6,]))
+other_specific$group = rep("nonBrain specific",length(other_specific[,1]))
+
+```
+
+```{r,echo=FALSE, fig.width=5, fig.height=5,eval=FALSE}
+temp = rbind(brain_specific,other_specific)
+temp[temp$category == " ",]$burden_to_baseline = NA
+temp[temp$category == " ",]$upperbound = NA
+temp[temp$category == " ",]$lowerbound = NA
+temp$category = factor(temp$category, levels = temp$category)
+
+p = ggplot(aes(x = category, y = burden_to_baseline, width = 0.7,fill = group), data = temp)+geom_bar(position = "dodge",stat = "identity",color = "black")
+p = p+theme_classic()+theme(axis.text.x = element_text(size =8, color = "black", angle = 45,hjust = 1, vjust = 1), axis.text.y = element_text(size =8, color = "black"),legend.position = "top", axis.ticks.x=element_blank(),axis.line.x = element_blank())+xlab("")+ylab("Burden")+scale_y_continuous(expand = c(0, 0),limits = c(0,2.5))
+p = p+geom_hline(yintercept = 1, linetype = "dashed", color = "red")
+#add confidence intervals
+#limits <- aes(ymax = temp$upperbound, ymin=temp$lowerbound)
+#dodge <- position_dodge(width=0.7)
+#p <- p + geom_errorbar(limits,position = dodge,width=0.25)
+#add other features of the plot including pvalue
+
+#p = p + geom_segment(aes(x = 1, xend = 3, y = 0.3+max(temp$upperbound,na.rm = TRUE), yend =0.3+max(temp$upperbound,na.rm = TRUE)))
+#p = p + geom_segment(aes(x = 3, xend =3, y =0.3+max(temp$upperbound,na.rm = TRUE), yend = 0.25+max(temp$upperbound,na.rm = TRUE)))
+#p = p + geom_segment(aes(x = 1, xend =1, y =0.3+max(temp$upperbound,na.rm = TRUE), yend = 0.25+max(temp$upperbound,na.rm = TRUE)))
+
+#p = p + geom_segment(aes(x = 5, xend = 6, y = 0.3+max(temp$upperbound,na.rm = TRUE), yend =0.3+max(temp$upperbound,na.rm = TRUE)))
+#p = p + geom_segment(aes(x = 5, xend =5, y =0.3+max(temp$upperbound,na.rm = TRUE), yend = 0.25+max(temp$upperbound,na.rm = TRUE)))
+#p = p + geom_segment(aes(x = 6, xend =6, y =0.3+max(temp$upperbound,na.rm = TRUE), yend = 0.25+max(temp$upperbound,na.rm = TRUE)))
+
+#p = p + geom_segment(aes(x = 0.65, xend = 3.35, y = 0.3+max(temp$burden_to_baseline,na.rm = TRUE), yend =0.3+max(temp$burden_to_baseline,na.rm = TRUE)))
+#p = p + geom_segment(aes(x = 3.35, xend =3.35, y =0.3+max(temp$burden_to_baseline,na.rm = TRUE), yend = 0.25+max(temp$burden_to_baseline,na.rm = TRUE)))
+#p = p + geom_segment(aes(x = 0.65, xend =0.65, y =0.3+max(temp$burden_to_baseline,na.rm = TRUE), yend = 0.25+max(temp$burden_to_baseline,na.rm = TRUE)))
+
+#p = p + geom_segment(aes(x = 4.65, xend = 6.35, y = 0.3+max(temp$burden_to_baseline,na.rm = TRUE), yend =0.3+max(temp$burden_to_baseline,na.rm = TRUE)))
+#p = p + geom_segment(aes(x = 4.65, xend = 4.65, y =0.3+max(temp$burden_to_baseline,na.rm = TRUE), yend = 0.25+max(temp$burden_to_baseline,na.rm = TRUE)))
+#p = p + geom_segment(aes(x = 6.35, xend =6.35, y =0.3+max(temp$burden_to_baseline,na.rm = TRUE), yend = 0.25+max(temp$burden_to_baseline,na.rm = TRUE)))
+
+
+#p = p + annotate("text", x = 2, y = 0.6+max(temp$burden_to_baseline,na.rm = TRUE), label = "ASD genesets", size = 3.5 )
+#p = p + annotate("text", x = 5.5, y = 0.6+max(temp$burden_to_baseline,na.rm = TRUE), label = "Constrained genesets", size = 3.5 )
+
+
+p
+ggsave("./160721_paper_figures/tissue_specficity_burden.jpeg",width = 4, height = 4)
+ggsave("./160721_paper_figures/tissue_specificty_burden.eps",width = 4, height = 4)
+
+```
+
+
+*Also need to update because the model-based approach start with coding windows that have a refseq genename, tand the promoter regions and utr regions have also been subtracted from the coding windows* So I need to filter out coding mutations that haven't fallen into these windows. 
+the numbers of synonymous mutations from cases and controls after the filter step are derived from [[here]]( 170320_compare_observed_mutation_number_with_calibrated_mutation_rate_for_all_genes_all_categories.html)
+
+
+### splicing mutations
+### read in spidex data ###
+```{r,echo=FALSE}
+SPIDEX = read.delim("../files_from_previous_analysis/SPIDEX_yanyul.out", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+#a = read.delim("./union_for_promter_utr5_covered_by_k27ac_for_each_gene_enhancer_pair_overlap_mutation.txt", header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+#b = read.delim("./mutation_overlap_enhancers_distance_to_TSS/enhancers.bed.10000.bp_within_TSS_overlap_mutation.txt", header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+
+# remove mutations that have been considered in h3k27ac regions
+#SPIDEX = SPIDEX[!is.element(SPIDEX$index,a[,1]) & !is.element(SPIDEX$index,b[,1]),]
+
+# I need to consider only splicing mutations that are in the windows that I have in order to incorporate the splicing mutations to adjust for base-level mutation rate and to incorporate splicing BFs later on. 
+# need to use this window file to do filtering "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed"
+
+effective_mutation <- mutation$mutation[is.element(mutation$mutation$index, c(mutation$ASD_effective_SNV_ID, mutation$control_effective_SNV_ID)),]
+write.table(effective_mutation[,c("chr","start","end","index")],  paste(prefix, "_temp_effective_mutation.bed", sep = ""), col.names = FALSE, row.names = FALSE, quote = FALSE, sep = "\t")
+
+#filter out mutations that are not in the window file
+command <- paste("bedtools intersect -a ", paste(prefix, "_temp_effective_mutation.bed", sep = ""), " -b ../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed -wa > ", paste(prefix, "_temp_effective_mutation_in_spidex_region.bed", sep = ""), sep = "")
+system(command)
+
+effective_mutation_in_spidex <- read.delim(paste(prefix, "_temp_effective_mutation_in_spidex_region.bed", sep = ""), sep = "\t", stringsAsFactors = FALSE, header = FALSE)
+
+# only retain mutations that are in SPIDEX region
+SPIDEX <- SPIDEX[is.element(SPIDEX$index, effective_mutation_in_spidex[,4]),]
+
+
+```
+
+
+### lower than 10%, from all possible spidex mutations, < -1.416, from [../files_from_previous_analysis/spidex_public_noncommercial_v1_0.tab.dpsi_zscore.sorted]
+```{r,echo=FALSE}
+knitr::kable(show_burden_for_SPIDEX(-100,-1.416,syn_ASD = 64, syn_control = 126))
+
+
+splicing_burden = show_burden_for_SPIDEX(-100,-1.416,syn_ASD = 64, syn_control = 126)
+
+splicing_burden$lowerbound = NA
+splicing_burden$upperbound = NA
+splicing_burden$fisher.1.tail.p = NA
+syn_C = 126 
+syn_A = 64
+for(i in 1:length(splicing_burden[,1])){
+  splicing_burden[i,]$upperbound = fisher.test(matrix(c(syn_C, splicing_burden[i,]$control, syn_A, splicing_burden[i,]$ASD),2,2))$conf.int[2]
+  splicing_burden[i,]$lowerbound = fisher.test(matrix(c(syn_C, splicing_burden[i,]$control, syn_A, splicing_burden[i,]$ASD),2,2))$conf.int[1]
+  splicing_burden[i,]$fisher.1.tail.p = fisher.test(matrix(c(syn_C, splicing_burden[i,]$control, syn_A, splicing_burden[i,]$ASD),2,2),alternative = "greater")$p.value
+}
+
+splicing_burden = rbind(splicing_burden[c(3:4,17),],NA,splicing_burden[c(5,16),],NA,splicing_burden[c(7,6),])
+splicing_burden$group = rep("Splicing mutations",length(splicing_burden[,1]))
+splicing_burden$category = c(rownames(splicing_burden[1:3,])," ",rownames(splicing_burden[5:6,]),"  ",rownames(splicing_burden[8:9,]))
+
+
+```
+
+### middle 10% control, -0.172 ~ 0.082, from [../files_from_previous_analysis/spidex_public_noncommercial_v1_0.tab.dpsi_zscore.sorted]
+```{r,echo=FALSE}
+### mutations with splicing score in the middle as negative control sets
+knitr::kable(show_burden_for_SPIDEX(-0.172, 0.082, syn_ASD = 64, syn_control = 126))
+
+splicing_control_burden = show_burden_for_SPIDEX(-0.172, 0.082, syn_ASD = 64, syn_control = 126)
+
+splicing_control_burden$lowerbound = NA
+splicing_control_burden$upperbound = NA
+splicing_control_burden$fisher.1.tail.p = NA
+syn_C = 64
+syn_A = 126
+for(i in 1:length(splicing_control_burden[,1])){
+  splicing_control_burden[i,]$upperbound = fisher.test(matrix(c(syn_C, splicing_control_burden[i,]$control, syn_A, splicing_control_burden[i,]$ASD),2,2))$conf.int[2]
+  splicing_control_burden[i,]$lowerbound = fisher.test(matrix(c(syn_C, splicing_control_burden[i,]$control, syn_A, splicing_control_burden[i,]$ASD),2,2))$conf.int[1]
+  splicing_control_burden[i,]$fisher.1.tail.p = fisher.test(matrix(c(syn_C, splicing_control_burden[i,]$control, syn_A, splicing_control_burden[i,]$ASD),2,2),alternative = "greater")$p.value
+}
+
+splicing_control_burden = rbind(splicing_control_burden[c(3:4,17),],NA,splicing_control_burden[c(5,16),],NA,splicing_control_burden[c(7,6),])
+splicing_control_burden$group = rep("Control mutations",length(splicing_control_burden[,1]))
+splicing_control_burden$category = c(rownames(splicing_control_burden[1:3,]),"  ",rownames(splicing_control_burden[5:6,])," ",rownames(splicing_control_burden[8:9,]))
+
+```
+
+```{r,fig.width=5,fig.height=5,echo=FALSE}
+temp = rbind(splicing_burden, splicing_control_burden)
+
+temp$category = factor(temp$category, levels = temp$category)
+temp$group = factor(temp$group, levels = temp$group)
+
+
+p = ggplot(aes(x = category, y = burden_compared_syn, width = 0.7,fill = group), data = temp)+geom_bar(position = "dodge",stat = "identity",color = "black")
+p = p+theme_classic()+theme(axis.text.x = element_text(size =8, color = "black", angle = 45,hjust = 1, vjust = 1), axis.text.y = element_text(size =8, color = "black"),legend.position = "top", axis.ticks.x=element_blank(),axis.line.x = element_blank())+xlab("")+ylab("Burden")+scale_y_continuous(expand = c(0, 0),limits = c(0,2.5))
+p = p+geom_hline(yintercept = 1, linetype = "dashed", color = "red")
+#add confidence intervals
+#limits <- aes(ymax = temp$upperbound, ymin=temp$lowerbound)
+#dodge <- position_dodge(width = 0.7)
+#p <- p + geom_errorbar(limits,position = dodge,width=0.25)
+#add other features of the plot including pvalue#p = p + annotate("text", x = 1.83, y = 0.2+temp[2,]$burden_compared_syn, label = "p==1.1~X~10^{-2}", size = 2.5, parse = TRUE)
+#p = p + annotate("text", x = 4.83, y = 0.2+temp[5,]$burden_compared_syn, label = "p==1.8~X~10^-{2}", size = 2.5, parse = TRUE )
+
+p
+
+
+ggsave("./tmp/170322_splicing_burden.pdf",width = 4, height = 4)
+ggsave("./tmp/170322_splicing_burden.eps",width = 4, height = 4)
+```
+
+# Now need to put splicing mutations at the lowest priority to get the estimate of RR from TADA qvalue < 0.5 genes.
+This is What I did in the earlier version of the manuscript, I used this estimate to estimate the contribution of splicing mutations to ASD.
+The coding mutations were annotated in `mutation$coding_anno`
+Also will remove mutations that has been counted as *regulatory mutations*
+```{r}
+functional_coding_mut <- mutation$coding_anno[mutation$coding_anno$V2 != "synonymous SNV" & mutation$coding_anno$V2 != "unknown",10]
+SPIDEX_no_coding_function <- SPIDEX[!is.element(SPIDEX$index, functional_coding_mut),]
+SPIDEX_temp <- SPIDEX
+SPIDEX <- SPIDEX_no_coding_function # make this switch because the [show_burden_for_SPIDEX] function needs to have a fixed [SPIDEX] object to perform analysis
+
+knitr::kable(show_burden_for_SPIDEX(-100, -1.416, syn_ASD = 64, syn_control = 126))
+
+
+# # find mutations that are in brain k27ac regions (including promoters, and 10kb within TSSs)
+# command <- paste("bedtools intersect -a ", paste(prefix, "_temp_effective_mutation.bed", sep = ""), " -b ../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.promoter_1kb_genename.bed -wa > ", paste(prefix, "_temp_effective_mutation_in_regulatory_promoter.bed", sep = ""), sep = "")
+# system(command)
+# 
+# command <- paste("bedtools intersect -a ", paste(prefix, "_temp_effective_mutation.bed", sep = ""), " -b ../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed -wa > ", paste(prefix, "_temp_effective_mutation_in_regulatory_within_10kb.bed", sep = ""), sep = "")
+# system(command)
+# 
+# regulatory_mut_1 <- read.delim(paste(prefix, "_temp_effective_mutation_in_regulatory_promoter.bed", sep = ""), header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+# regulatory_mut_2 <- read.delim(paste(prefix, "_temp_effective_mutation_in_regulatory_within_10kb.bed", sep = ""), header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+# 
+# # The current SPIDEX is actually [SPIDEX_no_coding_function], the true SPIDEX is in [SPIDEX_temp]
+# SPIDEX <- SPIDEX[!is.element(SPIDEX$index, regulatory_mut_1[,4]) & !is.element(SPIDEX$index, regulatory_mut_2[,4]), ]
+# 
+# # Now the SPIDEX has regulatory mutations and functional coding mutations removed
+# show_burden_for_SPIDEX(-100, -1.416, syn_ASD = 64, syn_control = 126)
+
+```
+
+### lower than 10%, from all possible spidex mutations, < -1.416, from [../files_from_previous_analysis/spidex_public_noncommercial_v1_0.tab.dpsi_zscore.sorted]
+```{r,echo=FALSE}
+knitr::kable(show_burden_for_SPIDEX(-100,-1.416,syn_ASD = 64, syn_control = 126))
+
+
+splicing_burden = show_burden_for_SPIDEX(-100,-1.416,syn_ASD = 64, syn_control = 126)
+
+splicing_burden$lowerbound = NA
+splicing_burden$upperbound = NA
+splicing_burden$fisher.1.tail.p = NA
+syn_C = 126 
+syn_A = 64
+for(i in 1:length(splicing_burden[,1])){
+  splicing_burden[i,]$upperbound = fisher.test(matrix(c(syn_C, splicing_burden[i,]$control, syn_A, splicing_burden[i,]$ASD),2,2))$conf.int[2]
+  splicing_burden[i,]$lowerbound = fisher.test(matrix(c(syn_C, splicing_burden[i,]$control, syn_A, splicing_burden[i,]$ASD),2,2))$conf.int[1]
+  splicing_burden[i,]$fisher.1.tail.p = fisher.test(matrix(c(syn_C, splicing_burden[i,]$control, syn_A, splicing_burden[i,]$ASD),2,2),alternative = "greater")$p.value
+}
+
+splicing_burden = rbind(splicing_burden[c(3:4,17),],NA,splicing_burden[c(5,16),],NA,splicing_burden[c(7,6),])
+splicing_burden$group = rep("Splicing mutations",length(splicing_burden[,1]))
+splicing_burden$category = c(rownames(splicing_burden[1:3,])," ",rownames(splicing_burden[5:6,]),"  ",rownames(splicing_burden[8:9,]))
+
+
+```
+
+### middle 10% control, -0.172 ~ 0.082, from [../files_from_previous_analysis/spidex_public_noncommercial_v1_0.tab.dpsi_zscore.sorted]
+```{r,echo=FALSE}
+### mutations with splicing score in the middle as negative control sets
+knitr::kable(show_burden_for_SPIDEX(-0.172, 0.082, syn_ASD = 64, syn_control = 126))
+
+splicing_control_burden = show_burden_for_SPIDEX(-0.172, 0.082, syn_ASD = 64, syn_control = 126)
+
+splicing_control_burden$lowerbound = NA
+splicing_control_burden$upperbound = NA
+splicing_control_burden$fisher.1.tail.p = NA
+syn_C = 64
+syn_A = 126
+for(i in 1:length(splicing_control_burden[,1])){
+  splicing_control_burden[i,]$upperbound = fisher.test(matrix(c(syn_C, splicing_control_burden[i,]$control, syn_A, splicing_control_burden[i,]$ASD),2,2))$conf.int[2]
+  splicing_control_burden[i,]$lowerbound = fisher.test(matrix(c(syn_C, splicing_control_burden[i,]$control, syn_A, splicing_control_burden[i,]$ASD),2,2))$conf.int[1]
+  splicing_control_burden[i,]$fisher.1.tail.p = fisher.test(matrix(c(syn_C, splicing_control_burden[i,]$control, syn_A, splicing_control_burden[i,]$ASD),2,2),alternative = "greater")$p.value
+}
+
+splicing_control_burden = rbind(splicing_control_burden[c(3:4,17),],NA,splicing_control_burden[c(5,16),],NA,splicing_control_burden[c(7,6),])
+splicing_control_burden$group = rep("Control mutations",length(splicing_control_burden[,1]))
+splicing_control_burden$category = c(rownames(splicing_control_burden[1:3,]),"  ",rownames(splicing_control_burden[5:6,])," ",rownames(splicing_control_burden[8:9,]))
+
+```
+
+### Change to plot using burden compared to all SNVs with a spidex score instead of using synonymouse mutations to calculate burdens
+Burden calcuated in this way would be more consistent with the way I used to calculte the burden of regulatory mutaitons
+```{r,fig.width=5,fig.height=5,echo=FALSE}
+temp = rbind(splicing_burden, splicing_control_burden)
+
+temp$category = factor(temp$category, levels = temp$category)
+temp$group = factor(temp$group, levels = temp$group)
+
+
+p = ggplot(aes(x = category, y = burden, width = 0.7,fill = group), data = temp)+geom_bar(position = "dodge",stat = "identity",color = "black")
+p = p+theme_classic()+theme(axis.text.x = element_text(size =8, color = "black", angle = 45,hjust = 1, vjust = 1), axis.text.y = element_text(size =8, color = "black"),legend.position = "top", axis.ticks.x=element_blank(),axis.line.x = element_blank())+xlab("")+ylab("Burden")+scale_y_continuous(expand = c(0, 0),limits = c(0,2.5))
+p = p+geom_hline(yintercept = 1, linetype = "dashed", color = "red")
+#add confidence intervals
+#limits <- aes(ymax = temp$upperbound, ymin=temp$lowerbound)
+#dodge <- position_dodge(width = 0.7)
+#p <- p + geom_errorbar(limits,position = dodge,width=0.25)
+#add other features of the plot including pvalue#p = p + annotate("text", x = 1.83, y = 0.2+temp[2,]$burden_compared_syn, label = "p==1.1~X~10^{-2}", size = 2.5, parse = TRUE)
+#p = p + annotate("text", x = 4.83, y = 0.2+temp[5,]$burden_compared_syn, label = "p==1.8~X~10^-{2}", size = 2.5, parse = TRUE )
+
+p
+
+
+ggsave("./tmp/170322_splicing_burden_lowest_priority.pdf",width = 4, height = 4)
+ggsave("./tmp/170322_splicing_burden_lowest_priority.eps",width = 4, height = 4)
+```
+
+Relative risk based on TADA FDR < 0.5 genes is 2.4
