@@ -368,6 +368,8 @@ RR esitated from [here](170408_estimate_relative_risk_top1000_genes_from_categor
 
 ```{r}
 source("../lib/TADA_denovo.R")
+```
+```{r,cache=TRUE}
 source("../lib/170117_gene_validation_functions.R")
 ```
 
