@@ -1,4 +1,4 @@
----
+*---
 output:
   html_document:
     toc: true
@@ -19,10 +19,14 @@ output:
 
 * 10-fold loglikelihood-ratio comparing trinucleotide model and our adjusted model (features include promoter, coding, cg content and Noonan+Brain H3K27ac, using synonymous mutations for training cases)  [[More...]](./analysis/161205_mutation_rate_10fold_likelihood_with_Noonan_brain_roadmap_union_1bp_overlap_using_synony_only_for_ASD_coding.html).
 
+* Adjust mutation rates for each of the five ASD studies separately. Spidex intron regions were included [[More...]](./analysis/170406_adjust_mutation_rate_for_each_ASD_study_separatedly.html).
+
 ### 2. Compare number of observed  mutations of different types with expected based on adjusted mutation rate
 * Compare all types of mutations. Use only 1 epi data for mutation rate adjustment, use all coding mutations for training in cases  [[More...]](./analysis/161121_compare_observed_mutation_number_with_calibrated_mutation_rate_for_all_genes_all_categories.html).
 
 * Compare only coding mutations. Use only 1 epi data for mutation rate adjustment, only use synonymous mutations for coding mutations in cases for training  [[More...]](./analysis/161201_compare_observed_coding_mutation_number_with_calibrated_mutation_rate_for_Noonan_Roadmap_brain_syn_trained_for_cases.html).
+
+* Compare all types of mutations and coding mutations. Use all coding mutations to train the mutation adjustion model [[More...]](./analysis/170320_compare_observed_mutation_number_with_calibrated_mutation_rate_for_all_genes_all_categories.html). 
 
 ### 3. Effect size estimation from simulation data: 50bp-window
 * Use all TADA genes, didn't work out, as the computation demand is so intensive.
@@ -62,7 +66,20 @@ output:
 
 * Show the performance of [adjust_mutation_rate_window_to_base]+[estimate_effect_size_for_simulation_data_mixture_with_categorization_v2] is consistent with [adjust_mutation_rate_window_to_base_RCC]+[estimate_effect_size_for_simulation_data_mixture_with_categorization_for_big_data]. Demonstrate the optimization function for big data works well  [[More...]](./analysis/170131_base_level_RR_estimate_toy_model_using_optimization_with_categorization_for_big_data.html).
 
-* Use multiple features to train model and finally use only brain H3K27ac feature (rr estimate from top 6% genes)(see ./170207_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_top6pct_TADA_genes.html), and splicing mutations (rr estimated from our previous manuscript). Then calculated logBF for each gene and called risk genes at different FDR cutoffs  [[More...]](./analysis/170207_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_all_genes.html).
+* Use multiple features to train model and finally use only brain H3K27ac feature (rr estimate from top 6% genes)[see](./analysis/170207_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_top6pct_TADA_genes.html), and splicing mutations (rr estimated from our previous manuscript). Then calculated logBF for each gene and called risk genes at different FDR cutoffs  [[More...]](./analysis/170207_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_all_genes.html). Mutation rates adjustment doesn't include spidex regions.
+
+* Fix the gene assignment issue (See Note **170307**).Use multiple features to train model and finally use only brain H3K27ac feature (rr estimate from top 6% genes)[see](./analysis/170307_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_top6pct_TADA_genes_genename_assignment_corrected.html), and splicing mutations (rr estimated from our previous manuscript). Then calculated logBF for each gene and called risk genes at different FDR cutoffs  [[More...]](./analysis/170307_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_all_genes_corrected_gene_assignment.Rmd). Mutation rates adjustment doesn't include spidex regions.
+
+* Fix the gene assignment issue (See Note **170307**). When adjust mutation rates, include spidex regions. The RR of splicing mutations was estimated in a model-based way (without using control). Use multiple features to train model and finally use only brain H3K27ac feature (rr estimate from top 1000 genes) and splicing mutations[see](./analysis/170329_base_level_mutation_info_with_3_epi_and_2_conservation_splicing_top1000genes_test_genename_assignment_corrected.html). Then calculated logBF for each gene and called risk genes at different FDR cutoffs  [[More...]](./analysis/170307_base_level_mutation_info_with_3_epi_and_2_conservation_in_compact_format_all_genes_corrected_gene_assignment.Rmd).**The function to estimate splicing RR has a bug, so the RR is overestimated**(See Note **170417**) 
+
+* Fix the gene assignment issue (See Note **170307**). When adjust mutation rates, include spidex regions. The RR of splicing mutations was estimated in a model-based way (without using control). Mutation rates adjustment was done for each ASD study separately. **Use [adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch] to correct for the splicing info incorrectly returned from [adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid]** Use multiple features to train model and finally use only brain H3K27ac feature (rr estimate from top 1000 genes) and splicing mutations[see](./analysis/170408_estimate_relative_risk_top1000_genes_from_categorization_from_each_separate_study.html). Then calculated logBF for each gene and called risk genes at different FDR cutoffs  [[More...]](./analysis/170410_read_in_data_for_all_genes_from_categorization_from_each_separate_study_and_call_risk_genes.Rmd).
+
+### 8. Burden analysis using ASD and control DNM data
+* Burden analysis using ASD and control, results will be used in the manuscript [[More...]](170330_for_figures_regnerate_burden_results_bug_more_relevant_motif_score_change_top50_pct_brain_relavent_TF_focused_absolute_change_10pct_selected_features.html).
+
+### 9. Risk partition
+* Risk partition using RR estimated from `./analysis/170408_estimate_relative_risk_top1000_genes_from_categorization_from_each_separate_study.html` [[More...]](./analysis/170418_risk_partition_with_splicing_combining_enhancer_and_promoters_splicing_corrected.html).
 
 ***
+
 **Last updated:** `r Sys.time()`
