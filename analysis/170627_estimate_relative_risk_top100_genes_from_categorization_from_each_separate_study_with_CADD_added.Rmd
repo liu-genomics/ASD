@@ -18,8 +18,9 @@ source("../lib/170122_base_level_simulation_functions.R")
 **NOTE**
 To address the concern that each study would have different effects from a same genomic feature (e.g., sequencing depth/GC content would have a stronger effect for a study that has shallower sequencing depth.), I will adjust mutation rate in different studies. 
 
-Use relative risks estimated from top1000 genes to calculate BF for each gene from each study.RR esitated from [here](170408_estimate_relative_risk_top1000_genes_from_categorization_from_each_separate_study.html)
+I will then estimate relative risk of each feature using categorized data from each study.
 
+What is different from `170402_estimate_relative_risk_top1000_genes_from_categorization_from_each_separate_study.Rmd` is that I added a track of genomic regions with CADD score greater than 10. The regions were the collection of bases that at least have a variant with CADD score greater than 10. The caveat here is that CADD score is allele-specific as is SPIDEX score. The idea scenario would have a allele-specific model. 
 
 ***
 
@@ -73,7 +74,7 @@ window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_y
 cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
 mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
 sample_size = 162,
-epigenomic_marks = c("../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed","../other_annotation/epigenomic_annotation/Epigenome_E081_E082_intersection.bed","../other_annotation/epigenomic_annotation/encode_DHS_union.bed"),
+epigenomic_marks = c("../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed","../other_annotation/epigenomic_annotation/Epigenome_E081_E082_intersection.bed","../other_annotation/epigenomic_annotation/encode_DHS_union.bed","../other_annotation/CADD_filtering/whole_genome_SNVs.gt10.merged.bed"),
 sequence_annotation = c("phylop_100way", "gerp"), 
 sequence_annotation_cutoff = list(phylop_100way=2, gerp =2 ), 
 sequence_annotation_ref = list(phylop_100way = "../other_annotation/conservation_annotation/hg19.100way.phyloP100way.bw", gerp = "../other_annotation/conservation_annotation/hg19_gerp_score.bw"),
@@ -83,13 +84,13 @@ annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
 annovar_input = "no.txt",
 gene_assign_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename_corrected.bed",
 gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
-report_proportion = 1,
+report_proportion = 100/18665,
 mutrate_ref_file = "/media/yuwen/Elements/mutation_rate_raw/MarkDaly/Daly_mutrate.bw",
 node_n = 6,
 feature_start = 5,
-feature_end = 9,
-feature_number = 5, 
-chunk_partition_num =20,
+feature_end = 10,
+feature_number = 6, 
+chunk_partition_num =1,
 spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
 splicing_cutoff = -1.416,
 proband_SNV_mut_spidex = proband_SNV_mut_spidex)
@@ -123,7 +124,7 @@ window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_y
 cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
 mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
 sample_size = 78,
-epigenomic_marks = c("../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed","../other_annotation/epigenomic_annotation/Epigenome_E081_E082_intersection.bed","../other_annotation/epigenomic_annotation/encode_DHS_union.bed"),
+epigenomic_marks = c("../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed","../other_annotation/epigenomic_annotation/Epigenome_E081_E082_intersection.bed","../other_annotation/epigenomic_annotation/encode_DHS_union.bed","../other_annotation/CADD_filtering/whole_genome_SNVs.gt10.merged.bed"),
 sequence_annotation = c("phylop_100way", "gerp"), 
 sequence_annotation_cutoff = list(phylop_100way=2, gerp =2 ), 
 sequence_annotation_ref = list(phylop_100way = "../other_annotation/conservation_annotation/hg19.100way.phyloP100way.bw", gerp = "../other_annotation/conservation_annotation/hg19_gerp_score.bw"),
@@ -133,13 +134,13 @@ annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
 annovar_input = "no.txt",
 gene_assign_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename_corrected.bed",
 gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
-report_proportion = 1,
+report_proportion = 100/18665,
 mutrate_ref_file = "/media/yuwen/Elements/mutation_rate_raw/MarkDaly/Daly_mutrate.bw",
 node_n = 6,
 feature_start = 5,
-feature_end = 9,
-feature_number = 5, 
-chunk_partition_num =20,
+feature_end = 10,
+feature_number = 6, 
+chunk_partition_num =1,
 spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
 splicing_cutoff = -1.416,
 proband_SNV_mut_spidex = proband_SNV_mut_spidex)
@@ -175,7 +176,7 @@ window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_y
 cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
 mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
 sample_size = 32,
-epigenomic_marks = c("../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed","../other_annotation/epigenomic_annotation/Epigenome_E081_E082_intersection.bed","../other_annotation/epigenomic_annotation/encode_DHS_union.bed"),
+epigenomic_marks = c("../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed","../other_annotation/epigenomic_annotation/Epigenome_E081_E082_intersection.bed","../other_annotation/epigenomic_annotation/encode_DHS_union.bed","../other_annotation/CADD_filtering/whole_genome_SNVs.gt10.merged.bed"),
 sequence_annotation = c("phylop_100way", "gerp"), 
 sequence_annotation_cutoff = list(phylop_100way=2, gerp =2 ), 
 sequence_annotation_ref = list(phylop_100way = "../other_annotation/conservation_annotation/hg19.100way.phyloP100way.bw", gerp = "../other_annotation/conservation_annotation/hg19_gerp_score.bw"),
@@ -185,13 +186,13 @@ annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
 annovar_input = "no.txt",
 gene_assign_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename_corrected.bed",
 gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
-report_proportion = 1,
+report_proportion = 100/18665,
 mutrate_ref_file = "/media/yuwen/Elements/mutation_rate_raw/MarkDaly/Daly_mutrate.bw",
 node_n = 6,
 feature_start = 5,
-feature_end = 9,
-feature_number = 5, 
-chunk_partition_num =20,
+feature_end = 10,
+feature_number = 6, 
+chunk_partition_num =1,
 spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
 splicing_cutoff = -1.416,
 proband_SNV_mut_spidex = proband_SNV_mut_spidex)
@@ -227,7 +228,7 @@ window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_y
 cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
 mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
 sample_size = 32,
-epigenomic_marks = c("../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed","../other_annotation/epigenomic_annotation/Epigenome_E081_E082_intersection.bed","../other_annotation/epigenomic_annotation/encode_DHS_union.bed"),
+epigenomic_marks = c("../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed","../other_annotation/epigenomic_annotation/Epigenome_E081_E082_intersection.bed","../other_annotation/epigenomic_annotation/encode_DHS_union.bed","../other_annotation/CADD_filtering/whole_genome_SNVs.gt10.merged.bed"),
 sequence_annotation = c("phylop_100way", "gerp"), 
 sequence_annotation_cutoff = list(phylop_100way=2, gerp =2 ), 
 sequence_annotation_ref = list(phylop_100way = "../other_annotation/conservation_annotation/hg19.100way.phyloP100way.bw", gerp = "../other_annotation/conservation_annotation/hg19_gerp_score.bw"),
@@ -237,13 +238,13 @@ annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
 annovar_input = "no.txt",
 gene_assign_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename_corrected.bed",
 gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
-report_proportion = 1,
+report_proportion = 100/18665,
 mutrate_ref_file = "/media/yuwen/Elements/mutation_rate_raw/MarkDaly/Daly_mutrate.bw",
 node_n = 6,
 feature_start = 5,
-feature_end = 9,
-feature_number = 5, 
-chunk_partition_num =20,
+feature_end = 10,
+feature_number = 6, 
+chunk_partition_num =1,
 spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
 splicing_cutoff = -1.416,
 proband_SNV_mut_spidex = proband_SNV_mut_spidex)
@@ -279,7 +280,7 @@ window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_y
 cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
 mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
 sample_size = 10,
-epigenomic_marks = c("../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed","../other_annotation/epigenomic_annotation/Epigenome_E081_E082_intersection.bed","../other_annotation/epigenomic_annotation/encode_DHS_union.bed"),
+epigenomic_marks = c("../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed","../other_annotation/epigenomic_annotation/Epigenome_E081_E082_intersection.bed","../other_annotation/epigenomic_annotation/encode_DHS_union.bed","../other_annotation/CADD_filtering/whole_genome_SNVs.gt10.merged.bed"),
 sequence_annotation = c("phylop_100way", "gerp"), 
 sequence_annotation_cutoff = list(phylop_100way=2, gerp =2 ), 
 sequence_annotation_ref = list(phylop_100way = "../other_annotation/conservation_annotation/hg19.100way.phyloP100way.bw", gerp = "../other_annotation/conservation_annotation/hg19_gerp_score.bw"),
@@ -289,13 +290,13 @@ annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
 annovar_input = "no.txt",
 gene_assign_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename_corrected.bed",
 gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
-report_proportion = 1,
+report_proportion = 100/18665,
 mutrate_ref_file = "/media/yuwen/Elements/mutation_rate_raw/MarkDaly/Daly_mutrate.bw",
 node_n = 6,
 feature_start = 5,
-feature_end = 9,
-feature_number = 5, 
-chunk_partition_num =20,
+feature_end = 10,
+feature_number = 6, 
+chunk_partition_num =1,
 spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
 splicing_cutoff = -1.416,
 proband_SNV_mut_spidex = proband_SNV_mut_spidex)
@@ -308,86 +309,59 @@ system(paste("rm ",prefix, "temp.bed",sep = ""))
 ```
 
 
-## Augustine Kong et al. Nature 2012
-**rerun this as the first cached run shows information that the run has not been completed**
-i.e., the tracking record show that `processing chromosomes` appear less than 60 times, which sould do for exactly 60 times. So the mutation information might not have been read in completedly.
-
-```{r,cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window}
-
-prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
-
-study_ID <- mut_with_study_label[mut_with_study_label$study == "Augustine Kong et al. Nature 2012",]$index
-
-# add study_ID , phenotyp_ID and mut_type ID as constraint
-
-write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)], paste(prefix,"temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
-write.table(new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & is.element(new_control$data_matrix$ID, study_ID),c(1:5,8,7)], paste(prefix,"annovar_input_temp.bed",sep = ""), col.names = FALSE, row.names = FALSE, sep = "\t", quote = FALSE)
-
-# SNV_ID for cases or controls. 
-SNV_ID = new_control$data_matrix[new_control$data_matrix$Prediction == "dnv_proband" & new_control$data_matrix$Type == "SNV" & is.element(new_control$data_matrix$ID, study_ID),c(1,2,3,7)]$ID
-proband_SNV_mut_spidex <- new_control$mut_spedix[is.element(new_control$mut_spedix$index, SNV_ID) & is.element(new_control$mut_spedix$index, study_ID),] # this will be paseed as an argument to the function below
-
-# first adjuste for mutation rates at 50-bp window level and then apply the scaling factor to each base of noncoding regions of selected top percentage of TADA genes.
-
-adjusted_base_level_rr_2 <- adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid(mut_file = paste(prefix,"temp.bed",sep = ""),
-window_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed",
-cg_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.fasta.cg",
-mutrate_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_introns_with_spidex_no_na_genes.50bp_window.bed.mutrate",
-sample_size = 78,
-epigenomic_marks = c("../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed","../other_annotation/epigenomic_annotation/Epigenome_E081_E082_intersection.bed","../other_annotation/epigenomic_annotation/encode_DHS_union.bed"),
-sequence_annotation = c("phylop_100way", "gerp"), 
-sequence_annotation_cutoff = list(phylop_100way=2, gerp =2 ), 
-sequence_annotation_ref = list(phylop_100way = "../other_annotation/conservation_annotation/hg19.100way.phyloP100way.bw", gerp = "../other_annotation/conservation_annotation/hg19_gerp_score.bw"),
-overlap = 0.5,
-rm_nonsyn = FALSE,
-annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
-annovar_input = "no.txt",
-gene_assign_file = "../other_annotation/epigenomic_annotation/Whole_genome.promoter_yanyu_10kb_exons_no_utr_no_na_genes.50bp_window.bed_genename_corrected.bed",
-gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
-report_proportion = 1,
-mutrate_ref_file = "/media/yuwen/Elements/mutation_rate_raw/MarkDaly/Daly_mutrate.bw",
-node_n = 6,
-feature_start = 5,
-feature_end = 9,
-feature_number = 5, 
-chunk_partition_num =20,
-spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
-splicing_cutoff = -1.416,
-proband_SNV_mut_spidex = proband_SNV_mut_spidex)
-
-
-system(paste("rm ",prefix,"annovar_input_temp.bed",sep = ""))
-system(paste("rm ",prefix, "temp.bed",sep = ""))
-
-```
-
-
-# Calculate Bayes Factors from non-coding features
-(not including allele-specific mutations, i.e., splicing mutations here)
-RR esitated from [here](170408_estimate_relative_risk_top1000_genes_from_categorization_from_each_separate_study.html)
+# Estimate relative risk
 
 ```{r}
-source("../lib/TADA_denovo.R")
-```
-```{r,cache=TRUE}
-source("../lib/170117_gene_validation_functions.R")
-```
-
-```{r}
-mut_collapsed_data_list <- list(adjusted_base_level_rr_1$base_info,
-                                adjusted_base_level_rr_2$base_info,
-                                adjusted_base_level_rr_3$base_info,
-                                adjusted_base_level_rr_4$base_info,
-                                adjusted_base_level_rr_5$base_info)
-
-
-TADA_table<-bayes_factor_for_each_gene_base_level_from_collapsed_data_multiple_studies(mut_collapsed_data_list = mut_collapsed_data_list, 
-                                                                      features = c(1), 
-                                                                      rr = 0.6258986,
-                                                                      coding_bayes_table_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_BF_for_de_novo_mutations.txt",
-                                                                      TADA_p0 = 0.94)
+data_list = list(adjusted_base_level_rr_1$base_info, adjusted_base_level_rr_2$base_info, adjusted_base_level_rr_3$base_info, adjusted_base_level_rr_4$base_info, adjusted_base_level_rr_5$base_info)
+splicing_data_list = list(adjusted_base_level_rr_1$splicing_info, adjusted_base_level_rr_2$splicing_info, adjusted_base_level_rr_3$splicing_info, adjusted_base_level_rr_4$splicing_info, adjusted_base_level_rr_5$splicing_info)
 
 ```
+
+## 5 non-coding features and 1 splicing feature
+```{r, cache=TRUE, dependson=data_list, dependson=splicing_data_list, cache.extra=estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_multiple_studies}
+simulation_estimate <- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_multiple_studies(data_list = data_list,
+                                                                                                                      splicing_data_list = splicing_data_list,
+                                                                                                                      non_splicing_features = c(1,2,3,4,5,6),
+                                                                                                                      gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt")
+
+fisher_info_1<-solve(-simulation_estimate$mle_1$hessian)
+fisher_info_2<-solve(-simulation_estimate$mle_2$hessian)
+
+prop_sigma<-sqrt(c(diag(fisher_info_1),diag(fisher_info_2)))
+rr_estimate <- c(simulation_estimate$mle_1$par, simulation_estimate$mle_2$par)
+
+upper<-rr_estimate+1.96*prop_sigma
+lower<-rr_estimate-1.96*prop_sigma
+
+
+a = data.frame(relative_risk = rr_estimate, lower_bound = lower, upper_bournd = upper)
+rownames(a) = c("Noonan+Roadmap Brain H3K27ac enhancer + promoter","Epigenome_DHS", "ENCODE_DHS", "CADD>10", "Phylop>2", "Gerp>2","Splicing")
+knitr::kable(a)
+
+```
+
+## Brain H3K27ac feature and splicing feature
+```{r, cache=TRUE, dependson=data_list, dependson=splicing_data_list, cache.extra=estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_multiple_studies}
+simulation_estimate_2 <- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_multiple_studies(data_list = data_list,
+                                                                                                                      splicing_data_list = splicing_data_list,
+                                                                                                                      non_splicing_features = c(1),
+                                                                                                                      gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt")
+
+fisher_info_1<-solve(-simulation_estimate_2$mle_1$hessian)
+fisher_info_2<-solve(-simulation_estimate_2$mle_2$hessian)
+
+prop_sigma<-sqrt(c(diag(fisher_info_1),diag(fisher_info_2)))
+rr_estimate <- c(simulation_estimate_2$mle_1$par, simulation_estimate_2$mle_2$par)
+
+upper<-rr_estimate+1.96*prop_sigma
+lower<-rr_estimate-1.96*prop_sigma
+
+
+a = data.frame(relative_risk = rr_estimate, lower_bound = lower, upper_bournd = upper)
+rownames(a) = c("Noonan+Roadmap Brain H3K27ac enhancer + promoter","Splicing")
+knitr::kable(a)
+```
+
 
 ### test
 ```{r}
@@ -407,6 +381,7 @@ length(adjusted_base_level_rr_5$base_info)
 
 
 ** Use [adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch] to correct for the splicing info incorrectly returned from [adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid]**  
+
 
 
 # Read in data from 5 studies
@@ -436,7 +411,7 @@ ASD_study_name <- as.vector(unique(mut_with_study_label$study)[1:5])
 
 ## Ryan K C Yuen et al. Nature Medicine 2015
 
-```{r,cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch}
+```{r,cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch}
 
 prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
 
@@ -463,7 +438,7 @@ rm_nonsyn = FALSE,
 annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
 annovar_input = "no.txt",
 gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
-report_proportion = 1,
+report_proportion = 100/18665,
 spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
 splicing_cutoff = -1.416,
 proband_SNV_mut_spidex = proband_SNV_mut_spidex)
@@ -475,7 +450,7 @@ system(paste("rm ",prefix, "temp.bed",sep = ""))
 
 ## Augustine Kong et al. Nature 2012
 
-```{r,cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch}
+```{r,cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch}
 
 prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
 
@@ -502,7 +477,7 @@ rm_nonsyn = FALSE,
 annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
 annovar_input = "no.txt",
 gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
-report_proportion = 1,
+report_proportion = 100/18665,
 spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
 splicing_cutoff = -1.416,
 proband_SNV_mut_spidex = proband_SNV_mut_spidex)
@@ -516,7 +491,7 @@ system(paste("rm ",prefix, "temp.bed",sep = ""))
 
 ## Jinyu Wu et al.
 
-```{r,cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch}
+```{r,cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch}
 
 prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
 
@@ -543,7 +518,7 @@ rm_nonsyn = FALSE,
 annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
 annovar_input = "no.txt",
 gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
-report_proportion = 1,
+report_proportion = 100/18665,
 spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
 splicing_cutoff = -1.416,
 proband_SNV_mut_spidex = proband_SNV_mut_spidex)
@@ -557,7 +532,7 @@ system(paste("rm ",prefix, "temp.bed",sep = ""))
 
 ## Jiang YH et al. Am J Hum Genet. 2013
 
-```{r,cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch}
+```{r,cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch}
 
 prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
 
@@ -584,7 +559,7 @@ rm_nonsyn = FALSE,
 annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
 annovar_input = "no.txt",
 gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
-report_proportion = 1,
+report_proportion = 100/18665,
 spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
 splicing_cutoff = -1.416,
 proband_SNV_mut_spidex = proband_SNV_mut_spidex)
@@ -598,7 +573,7 @@ system(paste("rm ",prefix, "temp.bed",sep = ""))
 
 ## Michaelson JJ et al. Cell 2012
 
-```{r,cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch}
+```{r,cache=TRUE, cache.extra = r, cache=TRUE, cache.extra = adjust_mutation_rate_window_to_base_compact_more_feature_splicing_hybrid_patch}
 
 prefix <-system("date +%s", intern = TRUE) # prefix for temporary files that will be deleted at the end of the pipeline
 
@@ -625,7 +600,7 @@ rm_nonsyn = FALSE,
 annovar_folder = "/media/yuwen/Elements/ANNOVAR/annovar/",
 annovar_input = "no.txt",
 gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt",
-report_proportion = 1,
+report_proportion = 100/18665,
 spidex_mutrate_prefix = "../other_annotation/spidex_database/mutrate_spedix_score_by_chr/lower_10pct_-1.416/spidex_public_noncommercial_v1_0_collapse_unique_base.extended_3bp.bed.fasta.trinuc.mutrate_with_spedix_gene.lower_10pct",
 splicing_cutoff = -1.416,
 proband_SNV_mut_spidex = proband_SNV_mut_spidex)
@@ -637,171 +612,67 @@ system(paste("rm ",prefix, "temp.bed",sep = ""))
 
 ```
 
-## corrected splicing info for genes
+
+# Estimate relative risk
 
 ```{r}
 splicing_data_list = list(adjusted_base_level_rr_1$splicing_info, adjusted_base_level_rr_2$splicing_info, adjusted_base_level_rr_3$splicing_info, adjusted_base_level_rr_4$splicing_info, adjusted_base_level_rr_5$splicing_info)
 
 ```
 
+## 5 non-coding features and 1 splicing feature
+```{r, cache=TRUE, dependson=data_list, dependson=splicing_data_list, cache.extra=estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_multiple_studies}
+simulation_estimate <- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_multiple_studies(data_list = data_list,
+                                                                                                                      splicing_data_list = splicing_data_list,
+                                                                                                                      non_splicing_features = c(1,2,3,4,5,6),
+                                                                                                                      gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt")
+
+fisher_info_1<-solve(-simulation_estimate$mle_1$hessian)
+fisher_info_2<-solve(-simulation_estimate$mle_2$hessian)
+
+prop_sigma<-sqrt(c(diag(fisher_info_1),diag(fisher_info_2)))
+rr_estimate <- c(simulation_estimate$mle_1$par, simulation_estimate$mle_2$par)
+
+upper<-rr_estimate+1.96*prop_sigma
+lower<-rr_estimate-1.96*prop_sigma
+
+
+a = data.frame(relative_risk = rr_estimate, lower_bound = lower, upper_bournd = upper)
+rownames(a) = c("Noonan+Roadmap Brain H3K27ac enhancer + promoter","Epigenome_DHS", "ENCODE_DHS", "CADD>10", "Phylop>2", "Gerp>2","Splicing")
+knitr::kable(a)
+
+```
+
+## Brain H3K27ac feature and splicing feature
+```{r, cache=TRUE, dependson=data_list, dependson=splicing_data_list, cache.extra=estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_multiple_studies}
+simulation_estimate_2 <- estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_multiple_studies(data_list = data_list,
+                                                                                                                      splicing_data_list = splicing_data_list,
+                                                                                                                      non_splicing_features = c(1),
+                                                                                                                      gene_prior_file = "../other_annotation/gene_list/TADA_SNV_CNV_combined_Feb7_tadaname_null_PPA_p0_0.94.txt")
+
+fisher_info_1<-solve(-simulation_estimate_2$mle_1$hessian)
+fisher_info_2<-solve(-simulation_estimate_2$mle_2$hessian)
+
+prop_sigma<-sqrt(c(diag(fisher_info_1),diag(fisher_info_2)))
+rr_estimate <- c(simulation_estimate_2$mle_1$par, simulation_estimate_2$mle_2$par)
+
+upper<-rr_estimate+1.96*prop_sigma
+lower<-rr_estimate-1.96*prop_sigma
+
+
+a = data.frame(relative_risk = rr_estimate, lower_bound = lower, upper_bournd = upper)
+rownames(a) = c("Noonan+Roadmap Brain H3K27ac enhancer + promoter","Splicing")
+knitr::kable(a)
+```
+
+### test
 ```{r}
 length(adjusted_base_level_rr_1$splicing_info)
 length(adjusted_base_level_rr_2$splicing_info)
 length(adjusted_base_level_rr_3$splicing_info)
 length(adjusted_base_level_rr_4$splicing_info)
 length(adjusted_base_level_rr_5$splicing_info)
-```
-
-## generate corrected splicing BF for genes
-```{r}
-splicing_BF_table <- generate_BF_for_splicing_mutations_multiple_studies(splicing_data_list, 1.1692002)
-```
-
-## *cacluate the bayes factor table for splicing mutations, summing mutation rate from ChrX and ChrY for a gene if it is on both ChrX and ChrY* 
 
 
-```{r}
-### currently the table below has duplicated entries, because there are a few genes that have appeared both on X chromosome and Y chromosome. 
-### Now I sum up the matation rates from both chrx and chrY for such genes. 
-
-head(splicing_BF_table$splicing_BF_table)
-splicing_BF_table_collapsed <- by(splicing_BF_table$splicing_BF_table, splicing_BF_table$splicing_BF_table$genename, function(x) sum(x$logBF_splicing)) 
-#splicing_BF_table_collapsed 
-splicing_BF_table_collapsed <- data.table(genename = names(splicing_BF_table_collapsed), logBF_splicing = as.vector(splicing_BF_table_collapsed), BF_splicing = exp(as.vector(splicing_BF_table_collapsed)))
-
-```
-
-
-## *now combine information from splicing (collapsed version) to other non_coding mutations*
-```{r}
-combined_BF_table <- splicing_BF_table_collapsed[TADA_table$gene_BF_table, on = "genename"]
-combined_BF_table
-
-# get a list of genes that don't have splicing info.
-genes_with_no_info_from_splicing_BF_table <- combined_BF_table[is.na(combined_BF_table$logBF_splicing),]$genename
-
-# change the logBF_splicing of these genes to 0 and BF of these genes to 1
-combined_BF_table[is.na(combined_BF_table$logBF_splicing),][,c("logBF_splicing")] = 0
-combined_BF_table[is.na(combined_BF_table$BF_splicing),][,c("BF_splicing")] = 1
-
-combined_BF_table[is.element(combined_BF_table$genename, genes_with_no_info_from_splicing_BF_table),]
-# add splicing info to BF_all
-combined_BF_table$logBF_all <- combined_BF_table$logBF_splicing + combined_BF_table$logBF_noncoding + combined_BF_table$logBF_coding
-combined_BF_table$BF_all <- exp(combined_BF_table$logBF_all)
-combined_BF_table <- combined_BF_table[order(combined_BF_table$BF_all, decreasing = TRUE),]
-combined_BF_table$FDR_all = Bayesian.FDR(combined_BF_table$BF_all, 0.94)$FDR # here 0.94 was chosen to be consisten with the prior used for getting BF and FDR using other types of mutations. 
-
-head(combined_BF_table)
-```
-
-### Number of gained and lost genes after having non-coding mutations and splicing mutations
-```{r}
-TADA_table_filtered =combined_BF_table[!is.element(combined_BF_table$genename, TADA_table$genes_with_no_epi),]
-knitr::kable(performance_table(TADA_table_filtered))
-```
-
-### FDR 0.1 new genes
-```{r}
-knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding >= 0.1 & TADA_table_filtered$FDR_all < 0.1,])
-```
-
-### FDR 0.2 new genes
-```{r}
-knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding >= 0.2 & TADA_table_filtered$FDR_all < 0.2,])
-```
-
-### FDR 0.3 new genes
-```{r}
-knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding >= 0.3 & TADA_table_filtered$FDR_all < 0.3,])
-```
-
-### Gene set enrichment analysis FDR 0.1
-```{r}
-knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.1 & TADA_table_filtered$FDR_all < 0.1, ]$genename, TADA_table_filtered$genename))
-```
-
-### Gene set enrichment analysis FDR 0.2
-```{r}
-knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.2 & TADA_table_filtered$FDR_all < 0.2, ]$genename, TADA_table_filtered$genename))
-```
-
-### Gene set enrichment analysis FDR 0.3
-```{r}
-knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.3 & TADA_table_filtered$FDR_all < 0.3, ]$genename, TADA_table_filtered$genename))
-```
-
-### Gene set enrichment analysis FDR 0.1, all genes background
-```{r}
-knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.1 & TADA_table_filtered$FDR_all < 0.1, ]$genename, combined_BF_table$genename))
-```
-
-### Gene set enrichment analysis FDR 0.2, all genes background
-```{r}
-knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.2 & TADA_table_filtered$FDR_all < 0.2, ]$genename, combined_BF_table$genename))
-```
-
-### Gene set enrichment analysis FDR 0.3, all genes background
-```{r}
-knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.3 & TADA_table_filtered$FDR_all < 0.3, ]$genename, combined_BF_table$genename))
-```
-
-### Gene set enrichment analysis FDR 0.3, all genes background, remove SIRPB1 which doesn't have splicing mutations or H3k27ac mutations
-```{r}
-knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.3 & TADA_table_filtered$FDR_all < 0.3 & TADA_table_filtered$genename != "SIRPB2", ]$genename, combined_BF_table$genename))
-```
-
-
-## Number of gained and lost genes, remove genes that don't have have splicing mutations or noncoding mutations, and don't have K27ac, splicing RR 2.4
-The qvalue of these genes just change from very little greater than 0.3 to very little bigger than 0.3
-##
-```{r}
-TADA_table_filtered =combined_BF_table[!is.element(combined_BF_table$genename, TADA_table$genes_with_no_epi),]
-TADA_table_filtered = TADA_table_filtered[genename != "SIRPB2" & genename != "NUDT17"]
-knitr::kable(performance_table(TADA_table_filtered))
-```
-
-### FDR 0.1 new genes
-```{r}
-knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding >= 0.1 & TADA_table_filtered$FDR_all < 0.1,])
-```
-
-### FDR 0.2 new genes
-```{r}
-knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding >= 0.2 & TADA_table_filtered$FDR_all < 0.2,])
-```
-
-### FDR 0.3 new genes
-```{r}
-knitr::kable(TADA_table_filtered[TADA_table_filtered$FDR_coding >= 0.3 & TADA_table_filtered$FDR_all < 0.3,])
-```
-
-### Gene set enrichment analysis FDR 0.1
-```{r}
-knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.1 & TADA_table_filtered$FDR_all < 0.1, ]$genename, TADA_table_filtered$genename))
-```
-
-### Gene set enrichment analysis FDR 0.2
-```{r}
-knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.2 & TADA_table_filtered$FDR_all < 0.2, ]$genename, TADA_table_filtered$genename))
-```
-
-### Gene set enrichment analysis FDR 0.3
-```{r}
-knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.3 & TADA_table_filtered$FDR_all < 0.3, ]$genename, TADA_table_filtered$genename))
-```
-
-### Gene set enrichment analysis FDR 0.1, all genes background
-```{r}
-knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.1 & TADA_table_filtered$FDR_all < 0.1, ]$genename, combined_BF_table$genename))
-```
-
-### Gene set enrichment analysis FDR 0.2, all genes background
-```{r}
-knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.2 & TADA_table_filtered$FDR_all < 0.2, ]$genename, combined_BF_table$genename))
-```
-
-### Gene set enrichment analysis FDR 0.3, all genes background
-```{r}
-knitr::kable(foe_table(TADA_table_filtered[TADA_table_filtered$FDR_coding >=0.3 & TADA_table_filtered$FDR_all < 0.3, ]$genename, combined_BF_table$genename))
 ```
 

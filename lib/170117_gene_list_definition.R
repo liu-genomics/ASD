@@ -120,8 +120,8 @@ nonconstraint_union = setdiff(c(Petrovski_RVIS_bottom_10pct_gene[,1],Huang_Hpi_s
 #### gene pct for genes that are in the TADA table
 gene_with_exp_mean = read.delim("../other_annotation/brainspan/expression_pct_for_TADA_genes.txt", header = TRUE, sep = "\t",stringsAsFactors = FALSE)
 
-Petrovski_haploinsufficiency_genelist = read.delim("../other_annotation/Petrovski_plosgen_haploinsufficiency_including_all_without_ncscore_genelist.txt",
-                                                   header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+#Petrovski_haploinsufficiency_genelist = read.delim("../other_annotation/Petrovski_plosgen_haploinsufficiency_including_all_without_ncscore_genelist.txt",
+#                                                   header = FALSE, sep = "\t", stringsAsFactors = FALSE)
 
 synaptomeDB_presynaptics = read.delim("../other_annotation/gene_list/synaptomeDB_presynaptics.genelist", header = FALSE, sep = "\t", stringsAsFactors = FALSE )
 synaptomeDB_postsynaptics = read.delim("../other_annotation/gene_list/synaptomeDB_postsynaptics.genelist", header = FALSE, sep = "\t", stringsAsFactors = FALSE )

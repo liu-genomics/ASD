@@ -1,0 +1,180 @@
+
+
+processing file: 170627_estimate_relative_risk_top1000_genes_from_categorization_from_each_separate_study_with_CADD_added.Rmd
+  |                                                                         |                                                                 |   0%  |                                                                         |..                                                               |   2%
+  ordinary text without R code
+
+  |                                                                         |...                                                              |   5%
+label: unnamed-chunk-1
+  |                                                                         |.....                                                            |   7%
+  ordinary text without R code
+
+  |                                                                         |......                                                           |   9%
+label: unnamed-chunk-2
+  |                                                                         |........                                                         |  12%
+  ordinary text without R code
+
+  |                                                                         |.........                                                        |  14%
+label: unnamed-chunk-3 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |...........                                                      |  16%
+  ordinary text without R code
+
+  |                                                                         |............                                                     |  19%
+label: unnamed-chunk-4 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |..............                                                   |  21%
+  ordinary text without R code
+
+  |                                                                         |...............                                                  |  23%
+label: unnamed-chunk-5 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |.................                                                |  26%
+  ordinary text without R code
+
+  |                                                                         |..................                                               |  28%
+label: unnamed-chunk-6 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |....................                                             |  30%
+  ordinary text without R code
+
+  |                                                                         |.....................                                            |  33%
+label: unnamed-chunk-7 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+processing chromosomes
+processing chromosomes
+processing chromosomes
+  |                                                                         |.......................                                          |  35%
+  ordinary text without R code
+
+  |                                                                         |........................                                         |  37%
+label: unnamed-chunk-8
+  |                                                                         |..........................                                       |  40%
+  ordinary text without R code
+
+  |                                                                         |...........................                                      |  42%
+label: unnamed-chunk-9 (with options) 
+List of 3
+ $ cache      : logi TRUE
+ $ dependson  : symbol data_list
+ $ cache.extra: symbol estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_multiple_studies
+
+  |                                                                         |.............................                                    |  44%
+  ordinary text without R code
+
+  |                                                                         |..............................                                   |  47%
+label: unnamed-chunk-10 (with options) 
+List of 3
+ $ cache      : logi TRUE
+ $ dependson  : symbol data_list
+ $ cache.extra: symbol estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_multiple_studies
+
+  |                                                                         |................................                                 |  49%
+  ordinary text without R code
+
+  |                                                                         |.................................                                |  51%
+label: unnamed-chunk-11
+  |                                                                         |...................................                              |  53%
+  ordinary text without R code
+
+  |                                                                         |....................................                             |  56%
+label: unnamed-chunk-12
+  |                                                                         |......................................                           |  58%
+  ordinary text without R code
+
+  |                                                                         |.......................................                          |  60%
+label: unnamed-chunk-13 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |.........................................                        |  63%
+  ordinary text without R code
+
+  |                                                                         |..........................................                       |  65%
+label: unnamed-chunk-14 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |............................................                     |  67%
+  ordinary text without R code
+
+  |                                                                         |.............................................                    |  70%
+label: unnamed-chunk-15 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |...............................................                  |  72%
+  ordinary text without R code
+
+  |                                                                         |................................................                 |  74%
+label: unnamed-chunk-16 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |..................................................               |  77%
+  ordinary text without R code
+
+  |                                                                         |...................................................              |  79%
+label: unnamed-chunk-17 (with options) 
+List of 2
+ $ cache      : logi TRUE
+ $ cache.extra: symbol r
+
+  |                                                                         |.....................................................            |  81%
+  ordinary text without R code
+
+  |                                                                         |......................................................           |  84%
+label: unnamed-chunk-18
+  |                                                                         |........................................................         |  86%
+  ordinary text without R code
+
+  |                                                                         |.........................................................        |  88%
+label: unnamed-chunk-19 (with options) 
+List of 3
+ $ cache      : logi TRUE
+ $ dependson  : symbol data_list
+ $ cache.extra: symbol estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_multiple_studies
+
+  |                                                                         |...........................................................      |  91%
+  ordinary text without R code
+
+  |                                                                         |............................................................     |  93%
+label: unnamed-chunk-20 (with options) 
+List of 3
+ $ cache      : logi TRUE
+ $ dependson  : symbol data_list
+ $ cache.extra: symbol estimate_effect_size_for_simulation_data_mixture_with_categorization_for_compact_data_splicing_hybrid_multiple_studies
+
+  |                                                                         |..............................................................   |  95%
+  ordinary text without R code
+
+  |                                                                         |...............................................................  |  98%
+label: unnamed-chunk-21
+  |                                                                         |.................................................................| 100%
+  ordinary text without R code
+
+
+output file: 170627_estimate_relative_risk_top1000_genes_from_categorization_from_each_separate_study_with_CADD_added.knit.md
+
+/usr/bin/pandoc +RTS -K512m -RTS 170627_estimate_relative_risk_top1000_genes_from_categorization_from_each_separate_study_with_CADD_added.utf8.md --to html --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash --output 170627_estimate_relative_risk_top1000_genes_from_categorization_from_each_separate_study_with_CADD_added.html --smart --email-obfuscation none --self-contained --standalone --section-divs --table-of-contents --toc-depth 3 --variable toc_float=1 --variable toc_selectors=h1,h2,h3 --variable toc_collapsed=1 --variable toc_smooth_scroll=1 --variable toc_print=1 --template /home/yuwen/R/x86_64-unknown-linux-gnu-library/3.2/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --number-sections --include-before-body /tmp/RtmpgJTCB8/rmarkdown-strcdc30402242.html --variable navbar=1 --variable body_padding=51 --variable header_padding=56 --variable 'theme:united' --include-in-header /tmp/RtmpgJTCB8/rmarkdown-strcdc3aad4b3e.html --mathjax --variable 'mathjax-url:https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' 
+
+Output created: 170627_estimate_relative_risk_top1000_genes_from_categorization_from_each_separate_study_with_CADD_added.html

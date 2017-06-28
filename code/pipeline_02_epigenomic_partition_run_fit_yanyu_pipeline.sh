@@ -25,10 +25,24 @@ sh ../lib/160920_partition_enhancers_for_yanyu_pipeline.sh \
 ../other_annotation/epigenomic_annotation/human_permissive_enhancers_phase_1_and_2_expression_tpm_matrix.txt_fetal_brain_160721.list_0.01_mode2.bed.extend.500.bed  \
 10000 ../other_annotation/refseq/ ../other_annotation/epigenomic_annotation/ Fantom_fetal_brain_500bp_union 20000
 
+
+# Noonan_brain_roadmap_union 10,000bp for enhancers, 20,000-50,000bp
+sh ../lib/160920_partition_enhancers_for_yanyu_pipeline.sh \
+../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed  \
+20000 ../other_annotation/refseq/ ../other_annotation/epigenomic_annotation/ Noonan_brain_roadmap_union 50000
+
+# Noonan_brain_roadmap_union 10,000bp for enhancers, 10,000-50,000bp
+sh ../lib/160920_partition_enhancers_for_yanyu_pipeline.sh \
+../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed  \
+10000 ../other_annotation/refseq/ ../other_annotation/epigenomic_annotation/ Noonan_brain_roadmap_union 50000
+
 # Noonan_brain_roadmap_union 10,000bp for enhancers, 10,000-20,000bp
+# notice, the gene assignment of regions wihtin the first distance cutoff may change a little bit depending on what is the second distance cutoff. 
+# The current final [Noonan_brain_roadmap_union.yanyu_pipeline_enhancers.10000.bp_within_TSS.bed] is stored after running the following code 
 sh ../lib/160920_partition_enhancers_for_yanyu_pipeline.sh \
 ../other_annotation/epigenomic_annotation/Noonan_brain_roadmap_union.bed  \
 10000 ../other_annotation/refseq/ ../other_annotation/epigenomic_annotation/ Noonan_brain_roadmap_union 20000
+
 
 # Noonan_brain_roadmap_intersect 10,000bp for enhancers, 10,000-20,000bp
 sh ../lib/160920_partition_enhancers_for_yanyu_pipeline.sh \
